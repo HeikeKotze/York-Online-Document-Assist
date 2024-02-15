@@ -1,0 +1,705 @@
+﻿@page "/"
+@layout LoginLayout
+
+@inject NavigationManager NavigationManager
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@using System.Text.RegularExpressions
+@inject ILoginService loginService
+@inject ICapexUserService cuService
+@inject IWorkRecordService wrService
+@inject IAccessLinkingService alService
+@inject IEmployeeService empService
+@inject SharedDataService shareddataService
+@inject IEmailService emailService
+@using Microsoft.EntityFrameworkCore
+@using System.Linq;
+@using System
+@using System.Text
+
+
+<PageTitle>York Online Login</PageTitle>
+
+<link href="_content/Blazorise.Snackbar/blazorise.snackbar.css" rel="stylesheet" />
+ <style>
+    body {
+        background-image: url(../Images/SabieWoods4.JPG);
+        background-size: cover;
+    }
+    
+</style> 
+
+<div class="container h-100" style="max-width:500px">
+    <div class="row h-100 justify-content-center align-items-center; ">
+        <WhiteContainer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <a class="float-end" @onclick="ShowForgotPasswordModal">Forgot Password</a>
+                    </div>
+                </div>
+             </div>
+            
+            <div class="text-center" >
+                <img style="width:120px; height:120px; opacity:0.8" src="/Images/SVGYork.png" alt="" />
+            </div>
+                
+            <br />
+
+            <div class="h-100 d-flex align-items-center justify-content-center">
+                <h2 style="color:black">YORK ONLINE LOGIN</h2>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                <div class="form-group">
+                    <label style="color:black" for="capexTitle">User Name:</label>
+                    <input type="text" class="form-control" @bind-value="UserName" id="usr" placeholder="Enter Username ...">
+                </div>
+                </Div>
+            </Div>
+                    <br />
+            <div class="container">
+                <div class="row">
+                    <div class="form-group">
+                    <label style="color:black" for="capexTitle">Password:</label>
+                    <input type="password" class="form-control" @bind-value="Password" id="usr" placeholder="Enter Password ...">
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <center>
+                        <button class="login_button" @onclick="LoginAttempt"><span>Login</span></button>
+                        @if(loading){
+                                <div class="loader"></div>
+                            }
+                        
+                    </center>
+                </div>
+            </div>
+            
+
+        </WhiteContainer>
+    </div>
+</div>
+
+<Blazorise.Modal @ref="modalUpdatePassword" >
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Add New Password</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <Blazorise.Field>
+                <h6><strong>Passwords should contain at least one of each of the following character types:</strong></h6>
+                <br />
+                <p>
+                    Uppercase letters: A-Z               
+                </p>
+                <p>Lowercase letters: a-z</p>
+                <p>Numbers: 0-9</p>
+                <p>Symbols: ~`!#$%^&*()_-+={[}]|\:;"'.?/</p>
+                <br />
+                <h6><strong>Your password should be at least be 8 digits.</strong></h6>
+                <br />
+            </Blazorise.Field>
+            <Blazorise.Field>
+                
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                        <FieldLabel>Enter New Password</FieldLabel>
+                        <input type="password" class="form-control" placeholder="Enter password..." @bind-value="password1"/>
+                        </div>
+                    </div>
+                </div>               
+            </Blazorise.Field>
+            <br />
+            <Blazorise.Field>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                        <FieldLabel>Confirm Password</FieldLabel>
+                        <input type="password" class="form-control" placeholder="Enter password..." @bind-value="password2"/>
+                        </div>
+                    </div>
+                </div>                
+            </Blazorise.Field>
+            <br />
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark" @onclick="UpdatePasswordFromRequest"  style="height:30px; width:fit-content; font-size:12px; padding:5px">Submit</button>
+            <button class="btn btn-dark"  @onclick="CloseUpdateModal" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalAddNew" >
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Add New Password</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <Blazorise.Field>
+                <h6><strong>Passwords should contain at least one of each of the following character types:</strong></h6>
+                <br />
+                <p>
+                    Uppercase letters: A-Z               
+                </p>
+                <p>Lowercase letters: a-z</p>
+                <p>Numbers: 0-9</p>
+                <p>Symbols: ~`!#$%^&*()_-+={[}]|\:;"'.?/</p>
+                <br />
+                <h6><strong>Your password should be at least be 8 digits.</strong></h6>
+                <br />
+            </Blazorise.Field>
+            <Blazorise.Field>
+                
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                        <FieldLabel>Enter New Password</FieldLabel>
+                        <input type="password" class="form-control" placeholder="Enter password..." @bind-value="password1"/>
+                        </div>
+                    </div>
+                </div>               
+            </Blazorise.Field>
+            <br />
+            <Blazorise.Field>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                        <FieldLabel>Confirm Password</FieldLabel>
+                        <input type="password" class="form-control" placeholder="Enter password..." @bind-value="password2"/>
+                        </div>
+                    </div>
+                </div>                
+            </Blazorise.Field>
+            <br />
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark" @onclick="UpdatePassword"  style="height:30px; width:fit-content; font-size:12px; padding:5px">Submit</button>
+            <button class="btn btn-dark"  @onclick="HideAddModal" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalForgotPassword" >
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Forgot Password</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <Blazorise.Field>
+                <Div Class="container">
+                    <Div Class="row">
+                        <Div Class="col-6">
+                            <button class="btn btn-dark" @onclick="setRequestResetCode" style="width:100%">Request Reset Code</button>                           
+                        </Div>
+                        <Div Class="col-6">
+                            <button class="btn btn-dark" @onclick="setEnterResetCode" style="width:100%">Enter Reset Code</button>
+                        </Div>
+                    </Div>
+                </Div>
+            </Blazorise.Field>
+            @if (requestcode)
+            {
+                <hr />
+                <br />
+                <Blazorise.Field>
+                    <Div Class="container">
+                        <Div Class="row">
+                            <Div Class="col-12">
+                                <h6><Strong>Request Reset Code</Strong></h6>
+                                <br/>
+                                <Label>Employee Number</Label>
+                                <input class="form-control" type="text" @bind-value="empnumber"/>
+                                <br/>
+                                <Label>Email</Label>
+                                <input class="form-control" type="text" @bind-value="emailaddress"/>
+                                <br/>
+                                <center>
+                                    <button @onclick="checkEmpNumberAndEmailInSystem" class="btn btn-dark">Send Email</button>
+                                </center>
+                                <center>
+                                    <em>This action will send an email with a verification code.</em>
+                                </center>
+                            </Div>
+                        </Div>
+                    </Div>
+                </Blazorise.Field>
+            }
+            @if (entercode)
+            {
+                <hr />
+                <br />
+                <Blazorise.Field>
+                    <Div Class="container">
+                        <Div Class="row">
+                            <Div Class="col-12">
+                                <h6><Strong>Enter Reset Information</Strong></h6>
+                                <br/>
+                                <Label>Employee Number</Label>
+                                <input class="form-control" type="text" @bind-value="empnumber"/>
+                                <br/>
+                                <Label>Reset Code</Label>
+                                <input class="form-control" type="text" @bind-value="newcode"/>
+                                <br/>
+                                <center>
+                                    <button @onclick="checkEmpNumberAndCodeInput" class="btn btn-dark">Submit Code</button>                                    
+                                </center>
+                                <center>
+                                    <em>This action will prompt you to enter a new password.</em>
+                                </center>
+                            </Div>
+                        </Div>
+                    </Div>
+                </Blazorise.Field>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark"  @onclick="CloseForgotPasswordModal" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+
+@code {
+    //Variables-------------------------------------------------------------------
+    [Inject] INotificationService NotificationService { get; set; }
+
+
+    public string? UserName { get; set; } = string.Empty;
+    public string? Password { get; set; } = string.Empty;
+    public int UserID { get; set; }
+    public int systemuser = 0;
+    public bool loading = false;
+
+    public CapexUser user = new();
+    public Employee emp = new();
+    public AccessLinking accessLink = new();
+    public int CredentialsWrongInt = 0;
+    public bool PasswordExists = false;
+
+    public bool success = false;
+
+    private string password1 = string.Empty, password2 = string.Empty;
+
+    //Initialize
+    protected override void OnInitialized()
+    {
+        shareddataService.UserID = 0;
+        shareddataService.BusinessUnitID = 0;
+        shareddataService.AccessTypeID = 0;
+        shareddataService.capexid = string.Empty;
+        shareddataService.UserName = string.Empty;
+        shareddataService.Password = string.Empty;
+        shareddataService.EmployeeID = 0;
+        shareddataService.UserEmployeeID = 0;
+        shareddataService.EmployeeWorkRecords = new();
+        shareddataService.accessLinkings = new();
+        //shareddataService.newUser = 0;
+    }
+
+    //Attempt login-------------------------------------------------------------
+    private async void LoginAttempt()
+    {
+        loading = true;
+        await Task.Delay(3000);
+        //Look for current userID
+        systemuser = cuService.getUserIDByName(UserName);
+
+
+        //Login confirmation for capex user
+        user = loginService.LoginConfirmation(UserName, Password, success);
+
+        //Shared data
+        shareddataService.UserID = user.UserId;
+        shareddataService.UserName = user.UserName;
+        shareddataService.Password = user.UserPassword;
+        shareddataService.newUser = user.NewUser;
+
+        emp = empService.GetSingleEmployee(user.UserName);
+
+
+        if (!user.Success)
+        {
+            loading = false;
+            await ShowWarning();
+
+        }
+        else
+        {
+            shareddataService.UserEmployeeID = emp.EmployeeID;
+            shareddataService.EmployeeWorkRecords = wrService.GetEmployeeWorkRecords(user.UserName);
+
+            for (int i = shareddataService.EmployeeWorkRecords.Count - 1; i >= 0; i--)
+            {
+                var item = shareddataService.EmployeeWorkRecords[i];
+
+                if (item.FromDate > DateTime.Now || item.ToDate < DateTime.Now)
+                {
+                    // Remove the item if the condition is met
+                    shareddataService.EmployeeWorkRecords.RemoveAt(i);
+                }
+                else
+                {
+                    accessLink = alService.GetAccessLinkingForID(item.BUDeptRoleID);
+                    shareddataService.accessLinkings.Add(accessLink);
+                }
+            }
+
+
+            bool hasDuplicateModuleID = shareddataService.accessLinkings
+            .GroupBy(obj => obj.ModuleID)
+            .Any(group => group.Count() > 1);
+
+            if (hasDuplicateModuleID)
+            {
+                foreach (var group in shareddataService.accessLinkings.GroupBy(obj => obj.ModuleID))
+                {
+                    if (group.Count() > 1)
+                    {
+                        // Get all the objects with the duplicate ModuleID
+                        var duplicateObjects = group.ToList();
+                        int maxAttributeValue = duplicateObjects.Max(obj => obj.AccessTypeID);
+
+                        var objectToRemove = duplicateObjects.First(obj => obj.AccessTypeID == maxAttributeValue);
+
+                        // Remove the object from the global list
+                        shareddataService.accessLinkings.Remove(objectToRemove);
+                    }
+                }
+            }
+
+
+            newuser = checkNewUser();
+            if (newuser)
+            {
+                await ShowAddModal();
+            }
+            else
+            {              
+                NavigationManager.NavigateTo("/MainOnlinePage");
+            }
+
+        }
+
+
+    }
+
+    //Lock user if attempted 3 times--------------------------------------------
+    public Task ShowWarning()
+    {
+
+        CredentialsWrongInt++;
+        if(CredentialsWrongInt >= 3)
+        {
+            loading = false;
+            cuService.lockUser(systemuser);
+            return NotificationService.Success("You have entered the wrong credentials 3 times.", "Locked");
+            
+        }
+        else
+        {
+            loading = false;
+            return NotificationService.Success("You have entered the wrong credentials.", "Warning");
+
+        }
+
+
+    }
+
+    //Modals---------------------------------------------------------------------
+    private bool cancelClose;
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    private Blazorise.Modal modalAddNew = new();
+    private Blazorise.Modal modalUpdatePassword = new();
+    private Blazorise.Modal modalForgotPassword = new();
+
+    private Task ShowForgotPasswordModal()
+    {
+        return modalForgotPassword.Show();
+    }
+    private Task CloseForgotPasswordModal()
+    {
+        return modalForgotPassword.Hide();
+    }
+    private Task ShowUpdateModal()
+    {
+        return modalUpdatePassword.Show();
+    }
+    private Task CloseUpdateModal()
+    {
+        return modalUpdatePassword.Hide();
+    }
+
+    private Task ShowAddModal()
+    {
+        return modalAddNew.Show();
+    }
+
+    private Task HideAddModal()
+    {
+        return modalAddNew.Hide();
+    }
+
+    //Check if current user is a newuser----------------------------------------
+    private bool newuser = false;
+
+    public bool checkNewUser()
+    {
+        if(user.NewUser == 0)
+        {
+            newuser = true;
+        }
+        return newuser;
+    }
+
+    //Update password------------------------------------------------------------
+    private void UpdatePassword()
+    {
+        PasswordExists = loginService.checkIfPasswordExists(password1);
+        if(password1 != password2)
+        {
+            NotificationService.Success("Two passwords do not match.", "Warning");
+            loading = false;
+            return;
+        }
+        if (PasswordExists)
+        {
+            NotificationService.Success("Your password already exists in the system.", "Warning");
+            password1 = string.Empty;
+            password2 = string.Empty;
+            loading = false;
+        }
+        else
+        {
+            if (IsPasswordValid(password1))
+            {
+                loginService.ChangePassword(shareddataService.UserID, password1);
+                HideAddModal();
+                //Get employee ID
+                if(user.NewUser == 0)
+                {
+                    shareddataService.EmployeeID = emp.EmployeeID;
+                    NavigationManager.NavigateTo("/VIP/Edit");
+                }
+                //NavigationManager.NavigateTo($"/MainOnlinePage");
+            }
+            else
+            {
+                NotificationService.Success("Your password is not a valid.", "Warning");
+                password1 = string.Empty;
+                password2 = string.Empty;
+                loading = false;
+            }
+
+        }
+    }
+    private void UpdatePasswordFromRequest()
+    {
+        PasswordExists = loginService.checkIfPasswordExists(password1);
+        if(password1 != password2)
+        {
+            NotificationService.Success("Two passwords do not match.", "Warning");
+            password1 = string.Empty;
+            password2 = string.Empty;
+            loading = false;
+            return;
+        }
+        if (PasswordExists)
+        {
+            NotificationService.Success("Your password already exists in the system.", "Warning");
+            password1 = string.Empty;
+            password2 = string.Empty;
+            loading = false;
+            return;
+        }
+        else
+        {
+            if (IsPasswordValid(password1))
+            {
+                loginService.ChangePasswordFromRequest(empnumber, password1);
+                CloseUpdateModal();
+                Password = string.Empty;
+                UserName = string.Empty;
+                emp = new();
+                empnumber = string.Empty;
+                emailaddress = string.Empty;
+                newcode = string.Empty;
+                password1 = string.Empty;
+                password2 = string.Empty;
+            }
+            else
+            {
+                NotificationService.Success("Your password is not a valid.", "Warning");
+                password1 = string.Empty;
+                password2 = string.Empty;
+                loading = false;
+            }
+
+        }
+    }
+
+    //Regular expressions to check if the password matches the format--------
+    static bool IsPasswordValid(string password)
+    {
+        // Check if the password is at least 8 characters long
+        if (password.Length < 8)
+        {
+            return false;
+        }
+        if (!Regex.IsMatch(password, "[A-Z]"))
+        {
+            return false;
+        }
+        if (!Regex.IsMatch(password, "[a-z]"))
+        {
+            return false;
+        }
+
+        if (!Regex.IsMatch(password, "[0-9]"))
+        {
+            return false;
+        }
+        if (!Regex.IsMatch(password, @"[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]"))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool requestcode = false;
+    private bool entercode = false;
+    private void setRequestResetCode()
+    {
+        entercode = false;
+        requestcode = true;
+
+    }
+    private void setEnterResetCode()
+    {
+        entercode = true;
+        requestcode = false;
+    }
+
+    private string empnumber = string.Empty;
+    private string emailaddress = string.Empty;
+    private string newcode = string.Empty;
+
+    private void checkEmpNumberAndCodeInput()
+    {
+        Employee emp = new();
+        if(empnumber != string.Empty && newcode != string.Empty)
+        {
+            emp = empService.GetSingleEmployee(empnumber);
+            if (loginService.CheckRequestCodeAndEmpNumber(newcode, emp.EmployeeID))
+            {
+                RequestPassword req = new();
+                req = loginService.GetRequestPassword(newcode, emp.EmployeeID);
+                if (loginService.checkedRequestForExpiryDate(req))
+                {
+                    ShowUpdateModal();
+                    CloseForgotPasswordModal();
+                }
+                else
+                {
+                    NotificationService.Success("Your code has expired. Please request another code.", "Warning");
+                    CloseForgotPasswordModal();
+                    newcode = string.Empty;
+                    emailaddress = string.Empty;
+                    empnumber = string.Empty;
+                }
+                //update the Request
+                // loginService.UpdateRequestPassword(newcode, emp.EmployeeID);
+                               
+            }
+            else
+            {
+                NotificationService.Success("No such employee exists.", "Warning");
+            }
+        }
+        else
+        {
+            NotificationService.Success("Information Required", "Warning");
+        }
+
+    }
+    private void checkEmpNumberAndEmailInSystem()
+    {
+        Employee emp = new();
+        RequestPassword rp = new();
+        if (empnumber != string.Empty && emailaddress != string.Empty)
+        {           
+            if (loginService.checkEmailAddressAndEmployeeNumberMatch(empnumber, emailaddress))
+            {
+                emp = empService.GetSingleEmployee(empnumber);
+
+                if(emp.EmailAddress != null)
+                {
+                    //delete all instances
+                    loginService.DeleteRequestPassword(emp.EmployeeID);
+
+                    rp.DateRequested = DateTime.Now;
+                    rp.Code = GeneratePassword();
+                    rp.EmpID = emp.EmployeeID;
+                    loginService.AddRequestPassword(rp);
+
+                    string message = $"Hi,\r\n\r\nPassword change requested for York Online Document Assist.\r\n\r\nEmployee Number : {empnumber}\r\nDate Requested : {rp.DateRequested}\r\nGenerated Code: {rp.Code}\r\n\r\nIf this wasn't you, you can ignore this email.\r\n\r\nRegards\r\nYork Online Document Assist";
+                    emailService.SendEmailForPasswordRequest(emp.EmailAddress,message);
+                    NotificationService.Success("Request Sent", "Warning");
+                }
+                else
+                {
+                    NotificationService.Success("No email on the system. Contact Admin.", "Warning");
+                }
+
+                emp = new();
+                empnumber = string.Empty;
+                emailaddress = string.Empty;
+            }
+            else
+            {
+                NotificationService.Success("No such employee exists.", "Warning");
+            }
+        }
+        else
+        {
+            NotificationService.Success("Information Required", "Warning");
+        }
+        
+    }
+
+    private static Random random = new Random();
+    public static string GeneratePassword()
+    {
+        const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < 8; i++)
+        {
+            int index = random.Next(characters.Length);
+            password.Append(characters[index]);
+        }
+
+        return password.ToString();
+    }
+
+}

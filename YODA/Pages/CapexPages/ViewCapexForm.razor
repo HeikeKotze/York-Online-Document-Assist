@@ -1,0 +1,1784 @@
+﻿@page "/ViewCapexForm"
+
+@inject NavigationManager navManager
+@using DocumentFormat.OpenXml;
+@using System.Text;
+@using YODA.Repos.Models
+@using YODA.Services
+@using YODA.Pages.CapexComponents
+
+@inject SharedDataService shareddataService
+@inject FileService fileService
+@inject IJSRuntime jsRuntime
+@inject ICapexFormService service
+@inject IKPIService kpiService
+@inject IRiskService riskService
+@inject IAttachmentService attachmentService
+@inject ISignatoryService signatoryService
+@inject IAttachmentService attachmentService
+@inject ISignatoryService signatoryService
+@inject IServerPathConfigService serverservice
+@inject IEmployeeService empService
+@inject IEmailService emailService
+@using Microsoft.JSInterop
+
+
+@inject IJSRuntime JSRuntime
+
+<button id="btnBack" class="avatar-btn" @onclick="ToggleScroll" style="position: fixed; z-index:2; background-color:#222222; color: white"><span class="oi oi-elevator small"></span></button>
+<WhiteContainer >
+        <div class="container">
+            <div class="row" >
+                <div class="col-12">
+                    <button id="btnBack" class="btn btn-dark" @onclick="navToUserPage" style="width:90px; float: right; padding:5px; height:40px">Back</button>
+                </div>
+            </div>
+        </div>
+
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>View Capex Form</h1>
+        <br />
+    </center>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Main Information</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong><label for="capexTitle">Capex Title</label></Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.CapexTitle
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                <label for="projectNumber">Project Number</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.ProjectNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                <label for="capexTitle">Initiator</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.Initiator
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                <label for="projectNumber">Project Manager</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.ProjectManager
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Form Allocation</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                <label for="capexTitle">Company</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @company
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                <label for="capexTitle">Site</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @site
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                <label for="capexTitle">Location Cost Code</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @llc
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <Strong>
+                <label for="capexTitle">Balance Sheet Code</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @bsc
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <Strong>
+                    <label for="capexTitle">Department</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @dept
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Identification</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                <label for="capexTitle">Asset Category</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @ac
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <Strong>
+                <label for="capexTitle">Project Category</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @pc
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                <label for="startup">Project Startup Date</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if(capex.ProjectStartupDate != null)
+                    {
+                        @capex.ProjectStartupDate.Value.ToString("yyyy-MM-dd");
+                    }
+                    else
+                    {
+                        <p>No date..</p>
+                    }
+
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                <label for="projectNumber">Total Cost</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.TotalCost
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Financials</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                <label for="startup">Amount This Request</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.AmountThisRequest
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                <label for="projectNumber">Previously Authorized</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.PreviouslyAuthorized
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                <label for="startup">Amount In Budget</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.AmountInBudget
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                <label for="projectNumber">Write Off Amount</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.WriteOffAmount
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Short Desciption</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg">
+                <Strong>
+                <label for="startup">Short Description</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.ShortDescription))
+                    {
+                        <div>@(new MarkupString(capex.ShortDescription))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+             </div>
+         </div>
+    </div>
+
+
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Amount Including and Motivation</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg">
+                <Strong>
+                <label for="startup">Amount Includes</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.AmountIncludes))
+                    {
+                        <div>@(new MarkupString(capex.AmountIncludes))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+             </div>
+         </div>
+
+         <br />
+
+         <div class="row">
+             <div class="col-lg">
+                 <Strong>
+                 <label for="projectNumber">Motivation</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.Motivation))
+                    {
+                        <div>@(new MarkupString(capex.Motivation))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+             </div>
+         </div>
+     </div>
+
+     <br />
+     <hr />
+     <br />
+
+     <div class="container" style="">
+         <div class="row">
+             <div class="col-sm">
+                <h4><strong>Scope</strong></h4>
+             </div>
+         </div>
+     </div>
+
+     <br />
+
+     <div class="container">
+         <div class="row">
+             <div class="col-lg">
+                 <Strong>
+                 <label for="startup">Project Scope</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.ProjectScope))
+                    {
+                        <div>@(new MarkupString(capex.ProjectScope))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+             </div>
+         </div>
+
+         <br />
+
+         <div class="row">
+             <div class="col-lg">
+                 <Strong>
+                 <label for="projectNumber">Out of Scope</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.OutOfScope))
+                    {
+                        <div>@(new MarkupString(capex.OutOfScope))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+             </div>
+         </div>
+     </div>
+
+     <br />
+     <hr />
+     <br />
+
+     <!--..................KPI..........................-->
+
+     <div class="container" style="">
+         <div class="row">
+             <div class="col-sm">
+                <h4><strong>Key Measurements of Success</strong></h4>
+             </div>
+         </div>
+     </div>
+
+     <br />
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (kpilist != null && kpilist.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>KPI Type</th>
+                                <th>KPI Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in kpilist)
+                            {
+                                <tr>
+                                    <td>@list.Kpiname</td>
+                                    <td>@list.KpiDescription</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no KPI's for this Capex Form...</em></p>
+                }
+            </WhiteContainer>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <!--..................Risks..........................-->
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Risks</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (risksList != null && risksList.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Risk Description</th>
+                                <th>Impact On</th>
+                                <th>Consequence Class</th>
+                                <th>Likelihood Class</th>
+                                <th>Mitigating Strategy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in risksList)
+                            {
+                                <tr>
+                                    <td>@list.RiskDescription</td>
+                                    <td>@list.ImpactOn</td>
+                                    <td>@list.ConsequenceClassification</td>
+                                    <td>@list.LikelihoodClassification</td>
+                                    <td>@list.MitigatingStrategy</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no Risks for this Capex Form...</em></p>
+                }
+            </WhiteContainer>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <!--..................Attachments..........................-->
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Attachments</strong></h4>
+            </div>
+        </div>
+        <div class="row">
+        </div>
+    </div>
+
+    <br />
+
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (attachmentList != null && attachmentList.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Attachment Type</th>
+                                <th>File</th>
+                                <th>View</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in attachmentList)
+                            {
+                                <tr>
+                                    <td>@list.AttachmentName</td>
+                                    <td>@list.File</td>
+                                    <td>
+                                        <button @onclick="()=>DownloadFile(list.Path,list.File)" class="btn btn-dark" style="height:30px; font-size:12px; padding:5px">Download</button>
+                                        @* <a href="@TransformFilePathToHttpUrl(list.Path+"/"+list.File)" download="@list.File" class="btn btn-dark" style="height:30px; font-size:12px; padding:5px">Download</a> *@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no Attachments for this Capex Form...</em></p>
+                }
+            </WhiteContainer>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <!--..................Signatories..........................-->
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-8">
+                <h4><strong>Signatories</strong></h4>
+            </div>
+            <div class="col-4">
+                <div class="alert alert-success">
+                    @if(capex.PaymentDate != null)
+                    {
+                        <strong>Current Release Date: @capex.PaymentDate.Value.ToString("yyyy-MM-dd")</strong>
+                    }
+                    else
+                    {
+                        <Strong>No Release Date</Strong>
+                    }
+                </div>               
+            </div>
+        </div>
+        <div class="row">
+        </div>
+    </div>
+
+    <br />
+
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (sigList != null && sigList.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Signatory</th>
+                                <th>Role</th>
+                                <th>Date Signed</th>
+                                <th>Resend email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in sigList)
+                            {
+                                <tr>
+                                    <td>@list.FullName</td>
+                                    <td>@list.RoleName</td>
+                                    @if (list.SignDate.HasValue)
+                                    {
+                                        <td>@list.SignDate.Value.ToString("yyyy-MM-dd")</td>
+                                    }
+                                    else
+                                    {
+                                        <td>Not signed yet</td>
+                                    }
+                                    @if (!list.SignDate.HasValue)
+                                    {
+                                        <td><button class="btn btn-dark" @onclick="()=>Resend(list.EmployeeID)" style="height:30px; font-size:12px; padding:5px">Resend</button></td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no Signatories for this Capex Form...</em></p>
+                }
+            </WhiteContainer>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <button class="btn btn-dark" @onclick="RunTemplate" style="margin-right:20px" id="btnExport">Export</button>
+                <a id="downloadLink" style="display: none;"></a>
+            </div>
+        </div>
+    </div>
+
+</WhiteContainer>
+
+<Blazorise.Modal @ref="errorModal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    The next signatory does not have an email address on the system. Please contact IT admin or send a personal reminder to the next signatory.
+                </div>
+            </div>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                <div class="container" style="max-width:40%">
+                    <div class="row">
+                        <button @onclick="navToUserPage" class="btn btn-dark">Back to User Page</button>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="sentEmailModal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div class="alert alert-success">
+                    Email sent to next signatory.
+                </div>
+            </div>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                <div class="container" style="max-width:40%">
+                    <div class="row">
+                        <button @onclick="navToUserPage" class="btn btn-dark">Back to User Page</button>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="closeEmailModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+
+    #region variables
+    public int id = 0;
+    public string? company = string.Empty;
+    public string? site = string.Empty;
+    public string? llc = string.Empty;
+    public string? bsc = string.Empty;
+    public string? ac = string.Empty;
+    public string? pc = string.Empty;
+    public string? date = string.Empty;
+    public string? dept = string.Empty;
+    #endregion
+
+    //varaibles for lists----------------------------------------------------------
+    public DateTime? setdate;
+    public List<Kpi> kpilist = new List<Kpi>();
+    public List<Risk> risksList = new List<Risk>();
+    public List<AttachmentType> attachmentList = new List<AttachmentType>();
+    public List<CapexUser> signatoriesList = new List<CapexUser>();
+    public List<FkKpicapex> finalKPIlist = new ();
+    public List<FkAttachmentsCapex> finalAttachmentsList = new();
+    public List<FkSignatoriesCapex> finalSignatoriesList = new();
+
+    //capexform to get
+    private static CapexForm capex = new();
+
+    //serverpaths
+    ServerPathConfig templatepath = new();
+    ServerPathConfig localpath = new();
+    ServerPathConfig ftpcapexlocation = new();
+
+    //modals
+    private Blazorise.Modal errorModal = new();
+    private Blazorise.Modal sentEmailModal = new();
+
+    private bool cancelClose;
+
+    //initialization------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        GetRecord();
+        GetKPIs();
+        GetRisks();
+        GetAttachments();
+        GetSignatories();
+        setLists();
+    }
+
+    //function to get capex via capexid and populate corresponding vvalues------
+    private void GetRecord()
+    {
+
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            capex = service.FindCapexById(outint);
+        }
+
+        company = service.GetCorrespondingComanyName(capex.CompanyId);
+        site = service.GetCorrespondingSitename(capex.SiteId);
+        llc = service.GetCorrespondingLLCName(capex.LocationCostCodeId);
+        bsc = service.GetCorrespondingBSCName(capex.BalanceSheetCodeId);
+        ac = service.GetCorrespondingACName(capex.AssetCategoryId);
+        pc = service.GetCorrespondingPCName(capex.ProjectCategoryId);
+        dept = service.GetCorrespondingDeptName(capex.DepartmentID);
+    }
+
+    //Button to scroll down and up--------------------------------------------
+    private bool scrollToTop = true;
+
+    private void ToggleScroll()
+    {
+        scrollToTop = !scrollToTop;
+        JSRuntime.InvokeVoidAsync("scrollToTopOrBottom", scrollToTop);
+    }
+
+    //Modal
+    private Task ShowErrorModal()
+    {
+        return errorModal.Show();
+    }
+    private Task CloseErrorModal()
+    {
+        cancelClose = false;
+
+        return errorModal.Hide();
+    }
+    private Task ShowEmailModal()
+    {
+        return sentEmailModal.Show();
+    }
+    private Task closeEmailModal()
+    {
+        cancelClose = false;
+        return sentEmailModal.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //get kpis for capex------------------------------------------------------
+    private void GetKPIs()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            finalKPIlist = kpiService.findKPIsByCapex(outint);
+        }
+
+    }
+
+    //get risks for capex-----------------------------------------------------
+    private void GetRisks()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            risksList = riskService.findRisksByCapex(outint);
+        }
+    }
+
+    //get attachments for capex----------------------------------------------
+    private void GetAttachments()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            finalAttachmentsList = attachmentService.findAttachmentsByCapex(outint);
+        }
+    }
+
+    //get signatories for capex---------------------------------------------
+    private List<Employee> sigList = new();
+    private void GetSignatories()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            finalSignatoriesList = signatoryService.findSignatoriesByCapex(outint);
+        }
+        foreach (var item in finalSignatoriesList)
+        {
+            Employee emp = new Employee
+                {
+                    EmployeeID = item.FkScSignatoryId,
+                    FullName = signatoryService.RetrieveEmpName(item.FkScSignatoryId),
+                    RoleName = signatoryService.GetRoleName(item.FkScSignatoryRoleId),
+                    SignDate = item.FkScSignatoryDate
+                };
+            sigList.Add(emp);
+        }
+    }
+
+    //Navigation-------------------------------------------------------------
+    private void navToUserPage()
+    {
+        navManager.NavigateTo($"/CapexUserPage");
+    }
+
+    Employee selectedEmp = new();
+    private int c = 0;
+    //Resend Email
+    void Resend(int signatoryID)
+    {
+        selectedEmp = empService.GetById(signatoryID);
+        if(selectedEmp != null)
+        {
+            string message = $"Hi,\r\n\r\nYou are on next in line of the signatory list for the following Capex Form:\r\n\r\nCapex ID : {capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nUse the following link to sign: http://www.yoda.york.co.za.\r\n\r\nRegards\r\nYork Online Document Assist";
+            if (int.TryParse(shareddataService.capexid, out int outint))
+            {
+                c = outint;
+            }
+            if (selectedEmp.EmailAddress != null)
+            {
+                emailService.SendMail(selectedEmp.EmailAddress, message, c);
+                ShowEmailModal();
+            }
+            else
+            {
+                ShowErrorModal();
+            }
+        }
+    }
+
+    //set lists with corresponding name values------------------------------
+    private void setLists()
+    {
+        foreach(var item in finalKPIlist)
+        {
+            Kpi kpi = new Kpi
+                {
+                    Kpiname = kpiService.getKPItype(item.FkKcKpi),
+                    KpiDescription = item.FkKcDescription,
+                };
+            kpilist.Add(kpi);
+        }
+
+        foreach(var item in finalAttachmentsList)
+        {
+            AttachmentType attach = new AttachmentType
+            {
+                    AttachmentName = attachmentService.GetAttachmentName(item.FkAcAttachmentTypes),
+                    File = item.FkAcFile,
+                    Path = item.FkAcPath
+            };
+            attachmentList.Add(attach);
+        }
+
+        foreach(var item in finalSignatoriesList)
+        {
+            CapexUser sig = new CapexUser
+                {
+                    UserName = signatoryService.GetUserName(item.FkScSignatoryId),
+                    RoleName = signatoryService.GetRoleName(item.FkScSignatoryRoleId),
+                    SignDate = item.FkScSignatoryDate
+                };
+            signatoriesList.Add(sig);
+        }
+    }
+
+    //variables to save document on server and download it-----------------------------
+    string localPath = "C:\\\\YODA";
+    string newPath = "C:\\\\YODA\\capexdoc.docx";
+    string template = "\\\\172.16.28.51\\YorkInfo\\Fin\\Capex\\Template.docx";
+
+    public void PopulateWordTemplate(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            // Create the directory if it doesn't exist
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(template, newPath);
+        }
+
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPath, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            // Replace placeholders in the document with actual data
+            ReplaceTextWithActualData(body);
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+            //Short Desciption replacement
+            var placeholderShortDesciption = "shortdescription";
+            var placeholderRunShortDescription = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderShortDesciption);
+                return placeholder != null;
+            });
+
+            if(placeholderRunShortDescription != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + capex.ShortDescription + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunShortDescription.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunShortDescription.Parent);
+
+                // Remove the placeholder text
+                placeholderRunShortDescription.Remove();
+            }
+
+            doc.Save();
+
+            //Amount Including replacement
+            var placeholderAmountIncluding = "amountincluding";
+            var placeholderRunAmountIncluding = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderAmountIncluding);
+                return placeholder != null;
+            });
+
+            if (placeholderRunAmountIncluding != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + capex.AmountIncludes + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunAmountIncluding.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunAmountIncluding.Parent);
+
+                // Remove the placeholder text
+                placeholderRunAmountIncluding.Remove();
+            }
+
+            doc.Save();
+            //Motivation replacement
+            var placeholderMotivation = "mot";
+            var placeholderRunMotivation = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderMotivation);
+                return placeholder != null;
+            });
+
+            if (placeholderRunMotivation != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + capex.Motivation + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunMotivation.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunMotivation.Parent);
+
+                // Remove the placeholder text
+                placeholderRunMotivation.Remove();
+            }
+
+            doc.Save();
+            //Project Scope replacement
+            var placeholderProjectScope = "projectscope";
+            var placeholderRunProjectScope = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderProjectScope);
+                return placeholder != null;
+            });
+
+            if (placeholderRunProjectScope != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + capex.ProjectScope + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunProjectScope.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunProjectScope.Parent);
+
+                // Remove the placeholder text
+                placeholderRunProjectScope.Remove();
+            }
+
+            doc.Save();
+
+            //OutofScope replacement
+            var placeholderOutOfScope = "outofscope";
+            var placeholderRunOutOfScope = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderOutOfScope);
+                return placeholder != null;
+            });
+
+            if (placeholderRunOutOfScope != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + capex.OutOfScope + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunOutOfScope.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunOutOfScope.Parent);
+
+                // Remove the placeholder text
+                placeholderRunOutOfScope.Remove();
+            }
+
+            doc.Save();
+
+            int tableWidth = (int)(3.5 * 1440);
+
+            //KPI HEADING
+            DocumentFormat.OpenXml.Wordprocessing.Paragraph headingKPIParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            Run headingKPIRun = headingKPIParagraph.AppendChild(new Run());
+
+            RunProperties runSectionHeader7Properties = new RunProperties();
+            Bold boldSectionHeader7 = new Bold();
+            FontSize fontSizeSectionHeader7 = new FontSize() { Val = "24" };
+            RunFonts fontTypeSectionHeader7 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            runSectionHeader7Properties.Append(boldSectionHeader7, fontSizeSectionHeader7, fontTypeSectionHeader7);
+
+            DocumentFormat.OpenXml.Wordprocessing.Text Section7Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Key Measurements of Success");
+            headingKPIRun.Append(runSectionHeader7Properties, Section7Text);
+
+            DocumentFormat.OpenXml.Wordprocessing.Table kpitable = new DocumentFormat.OpenXml.Wordprocessing.Table();
+
+            // Define the table properties for the border
+            TableProperties tableProperties = new TableProperties(
+                new TableBorders(
+                    new TopBorder { Val = BorderValues.Single, Size = 6 },
+                    new BottomBorder { Val = BorderValues.Single, Size = 6 },
+                    new LeftBorder { Val = BorderValues.Single, Size = 6 },
+                    new RightBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideHorizontalBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }
+                ),
+                new TableWidth { Width = tableWidth.ToString(), Type = TableWidthUnitValues.Pct },
+                new RunFonts() { Ascii = "Times New Roman" }
+                );
+
+            kpitable.AppendChild(tableProperties);
+
+            AddDataToKPITable(kpitable, kpilist);
+
+            body.Append(kpitable);
+
+            AddParagraphWithData(body, "");
+
+
+
+            //RISKS HEADING
+            DocumentFormat.OpenXml.Wordprocessing.Paragraph headingRisksParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            Run headingRisksRun = headingRisksParagraph.AppendChild(new Run());
+
+            RunProperties runSectionHeader8Properties = new RunProperties();
+            Bold boldSectionHeader8 = new Bold();
+            FontSize fontSizeSectionHeader8 = new FontSize() { Val = "24" };
+            RunFonts fontTypeSectionHeader8 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            runSectionHeader8Properties.Append(boldSectionHeader8, fontSizeSectionHeader8, fontTypeSectionHeader8);
+
+            DocumentFormat.OpenXml.Wordprocessing.Text Section8Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Risks");
+            headingRisksRun.Append(runSectionHeader8Properties, Section8Text);
+
+
+            DocumentFormat.OpenXml.Wordprocessing.Table riskstable = new DocumentFormat.OpenXml.Wordprocessing.Table();
+
+            // Define the table properties for the border
+            TableProperties tablePropertiesRisks = new TableProperties(
+                new TableBorders(
+                    new TopBorder { Val = BorderValues.Single, Size = 6 },
+                    new BottomBorder { Val = BorderValues.Single, Size = 6 },
+                    new LeftBorder { Val = BorderValues.Single, Size = 6 },
+                    new RightBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideHorizontalBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }
+                ),
+                new TableWidth { Width = tableWidth.ToString(), Type = TableWidthUnitValues.Pct },
+                    new RunFonts() { Ascii = "Times New Roman" }
+            );
+
+            riskstable.AppendChild(tablePropertiesRisks);
+
+            AddDataToRisksTable(riskstable, risksList);
+
+            body.Append(riskstable);
+
+            AddParagraphWithData(body, "");
+
+
+
+            //Attachments HEADING
+            DocumentFormat.OpenXml.Wordprocessing.Paragraph headingAttachmentsParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            Run headingAttachmentsRun = headingAttachmentsParagraph.AppendChild(new Run());
+
+            RunProperties runSectionHeader9Properties = new RunProperties();
+            Bold boldSectionHeader9 = new Bold();
+            FontSize fontSizeSectionHeader9 = new FontSize() { Val = "24" };
+            RunFonts fontTypeSectionHeader9 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            runSectionHeader9Properties.Append(boldSectionHeader9, fontSizeSectionHeader9, fontTypeSectionHeader9);
+
+            DocumentFormat.OpenXml.Wordprocessing.Text Section9Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Attachments");
+            headingAttachmentsRun.Append(runSectionHeader9Properties, Section9Text);
+
+            
+            DocumentFormat.OpenXml.Wordprocessing.Table attachmentstable = new DocumentFormat.OpenXml.Wordprocessing.Table();
+
+            // Define the table properties for the border
+            TableProperties tablePropertiesAttachments = new TableProperties(
+                new TableBorders(
+                    new TopBorder { Val = BorderValues.Single, Size = 6 },
+                    new BottomBorder { Val = BorderValues.Single, Size = 6 },
+                    new LeftBorder { Val = BorderValues.Single, Size = 6 },
+                    new RightBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideHorizontalBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }
+                ),
+                new TableWidth { Width = tableWidth.ToString(), Type = TableWidthUnitValues.Pct },
+                new RunFonts() { Ascii = "Times New Roman" }
+            );
+
+            attachmentstable.AppendChild(tablePropertiesAttachments);
+
+            AddDataToAttachmentsTable(attachmentstable, attachmentList);
+
+            body.Append(attachmentstable);
+
+            AddParagraphWithData(body, "");
+            
+
+
+            //Signatories HEADING
+            DocumentFormat.OpenXml.Wordprocessing.Paragraph headingSignatoriesParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            Run headingSignatoriesRun = headingSignatoriesParagraph.AppendChild(new Run());
+
+            RunProperties runSectionHeader10Properties = new RunProperties();
+            Bold boldSectionHeader10 = new Bold();
+            FontSize fontSizeSectionHeader10 = new FontSize() { Val = "24" };
+            RunFonts fontTypeSectionHeader10 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            runSectionHeader10Properties.Append(boldSectionHeader10, fontSizeSectionHeader10, fontTypeSectionHeader10);
+
+            DocumentFormat.OpenXml.Wordprocessing.Text Section10Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Signatories");
+            headingSignatoriesRun.Append(runSectionHeader10Properties, Section10Text);
+
+            
+            DocumentFormat.OpenXml.Wordprocessing.Table signatoriestable = new DocumentFormat.OpenXml.Wordprocessing.Table();
+
+            // Define the table properties for the border
+            TableProperties tablePropertiesSignatories = new TableProperties(
+                new TableBorders(
+                    new TopBorder { Val = BorderValues.Single, Size = 6 },
+                    new BottomBorder { Val = BorderValues.Single, Size = 6 },
+                    new LeftBorder { Val = BorderValues.Single, Size = 6 },
+                    new RightBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideHorizontalBorder { Val = BorderValues.Single, Size = 6 },
+                    new InsideVerticalBorder { Val = BorderValues.Single, Size = 6 }
+                ),
+                new TableWidth { Width = tableWidth.ToString(), Type = TableWidthUnitValues.Pct },
+                new RunFonts() { Ascii = "Times New Roman" }
+            );
+
+            signatoriestable.AppendChild(tablePropertiesSignatories);
+
+            AddDataToSignatoriesTable(signatoriestable, signatoriesList);
+
+            body.Append(signatoriestable);
+
+            AddParagraphWithData(body, "");
+
+        }
+
+
+
+    }
+
+    //Add elements to the document. Paragraphs and tables----------------------
+    private void AddParagraphWithData(Body body, string text)
+    {
+        DocumentFormat.OpenXml.Wordprocessing.Paragraph paragraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+        Run run = paragraph.AppendChild(new Run());
+        DocumentFormat.OpenXml.Wordprocessing.Text paragraphText = run.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Text(text));
+    }
+
+    //Add KPI table to document------------------------------------------------------------
+    public void AddDataToKPITable(DocumentFormat.OpenXml.Wordprocessing.Table table, List<Kpi> data)
+    {
+        DocumentFormat.OpenXml.Wordprocessing.TableRow headerRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+        headerRow.Append(
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("KPI Type")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("KPI Description"))))
+        );
+
+        // Make the text in header cells bold
+        foreach (var cell in headerRow.Elements<TableCell>())
+        {
+            var run = cell.Descendants<Run>().First();
+            var runProperties = run.RunProperties ?? new RunProperties();
+            runProperties.Bold = new Bold();
+            runProperties.RunFonts = new RunFonts() { Ascii = "Times New Roman" };
+            run.RunProperties = runProperties;
+        }
+
+        table.Append(headerRow);
+
+        if(data != null && data.Count > 0)
+        {
+            foreach (var item in data)
+            {
+                DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+                dataRow.Append(
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.Kpiname)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.KpiDescription))))
+                );
+                table.Append(dataRow);
+            }
+        }
+        else
+        {
+            DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+            dataRow.Append(
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("No KPI's for this Capex Form")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(""))))
+            );
+            table.Append(dataRow);
+        }
+
+
+    }
+
+    //Add Risks table to document----------------------------------------------------------
+    public void AddDataToRisksTable(DocumentFormat.OpenXml.Wordprocessing.Table table, List<Risk> data)
+    {
+        DocumentFormat.OpenXml.Wordprocessing.TableRow headerRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+        headerRow.Append(
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Risk Description")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Consequence")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Likelihood")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Impacts")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Mitigating Strategy"))))
+        );
+
+        // Make the text in header cells bold
+        foreach (var cell in headerRow.Elements<TableCell>())
+        {
+            var run = cell.Descendants<Run>().First();
+            var runProperties = run.RunProperties ?? new RunProperties();
+            runProperties.Bold = new Bold();
+            runProperties.RunFonts = new RunFonts() { Ascii = "Times New Roman" };
+            run.RunProperties = runProperties;
+        }
+
+        table.Append(headerRow);
+
+        if(data != null && data.Count > 0)
+        {
+            foreach (var item in data)
+            {
+                DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+                dataRow.Append(
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.RiskDescription)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.ConsequenceClassification)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.LikelihoodClassification)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.ImpactOn)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.MitigatingStrategy))))
+                );
+                table.Append(dataRow);
+            }
+        }
+        else
+        {
+            DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+            dataRow.Append(
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("No Risks for this Capex Form")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(""))))
+            );
+            table.Append(dataRow);
+        }
+
+
+    }
+
+    //Add attachments table to document----------------------------------------------------
+    public void AddDataToAttachmentsTable(DocumentFormat.OpenXml.Wordprocessing.Table table, List<AttachmentType> data)
+    {
+        DocumentFormat.OpenXml.Wordprocessing.TableRow headerRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+        headerRow.Append(
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Attachment Type")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("File Name")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Path"))))
+        );
+
+        // Make the text in header cells bold
+        foreach (var cell in headerRow.Elements<TableCell>())
+        {
+            var run = cell.Descendants<Run>().First();
+            var runProperties = run.RunProperties ?? new RunProperties();
+            runProperties.Bold = new Bold();
+            runProperties.RunFonts = new RunFonts() { Ascii = "Times New Roman" };
+            run.RunProperties = runProperties;
+        }
+
+        table.Append(headerRow);
+
+        if(data != null && data.Count > 0)
+        {
+            foreach (var item in data)
+            {
+                DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+                dataRow.Append(
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.AttachmentName)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.File)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.Path))))
+                );
+                table.Append(dataRow);
+            }
+        }
+        else
+        {
+            DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+            dataRow.Append(
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("No Attachments for this Capex Form")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(""))))
+            );
+            table.Append(dataRow);
+        }
+
+
+    }
+
+    //Add Signatories table to document-----------------------------------------------
+    public void AddDataToSignatoriesTable(DocumentFormat.OpenXml.Wordprocessing.Table table, List<CapexUser> data)
+    {
+        DocumentFormat.OpenXml.Wordprocessing.TableRow headerRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+        headerRow.Append(
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Signatory")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Role")))),
+                    new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Date Signed"))))
+        );
+
+        // Make the text in header cells bold
+        foreach (var cell in headerRow.Elements<TableCell>())
+        {
+            var run = cell.Descendants<Run>().First();
+            var runProperties = run.RunProperties ?? new RunProperties();
+            runProperties.Bold = new Bold();
+            runProperties.RunFonts = new RunFonts() { Ascii = "Times New Roman" };
+            run.RunProperties = runProperties;
+        }
+
+        table.Append(headerRow);
+
+        if(data != null && data.Count > 0)
+        {
+            foreach (var item in data)
+            {
+                DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+                dataRow.Append(
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.UserName)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.RoleName)))),
+                            new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(item.SignDate.ToString()))))
+                );
+                table.Append(dataRow);
+            }
+        }
+        else
+        {
+            DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+            dataRow.Append(
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("No Signatories for this Capex Form")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text("")))),
+                        new TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new Run(new DocumentFormat.OpenXml.Wordprocessing.Text(""))))
+            );
+            table.Append(dataRow);
+        }
+
+        
+
+
+    }
+
+    //Download file function-------------------------------------------------------
+    private async Task DownloadFile(string path, string filename)
+    {
+        string fullpath = path + "\\" + filename;
+        if (File.Exists(fullpath))
+        {
+            byte[] fileBytes = File.ReadAllBytes(fullpath);
+            await JSRuntime.InvokeAsync<object>("saveAsFile", filename, fileBytes);
+        }
+    }
+
+    //Populate template, download and save in ftp----------------------------------
+    private async Task RunTemplate()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Fin\\Capex\\{shareddataService.capexid}\\CapexView.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Fin\\Capex\\{shareddataService.capexid}";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            // Create the directory if it doesn't exist
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+        }
+
+        if (fileInFTP)
+        {
+            byte[] fileBites = File.ReadAllBytes(ftpLocation);
+            await JSRuntime.InvokeAsync<object>("saveAsFile", "CapexView.docx", fileBites);
+        }
+        else
+        {
+            PopulateWordTemplate(template);
+
+            if (File.Exists(newPath))
+            {
+                byte[] fileBites = File.ReadAllBytes(newPath);
+                await JSRuntime.InvokeAsync<object>("saveAsFile", "CapexView.docx", fileBites);
+            }
+
+            File.Copy(newPath, ftpLocation);
+        }
+
+        if (File.Exists(newPath))
+        {
+            File.Delete(newPath);
+        }      
+
+    }
+
+    //replace template values with actual data---------------------------------
+    private void ReplaceTextWithActualData(Body body)
+    {
+        foreach(var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+        {
+            if (text.Text.Contains("capextitle"))
+            {
+                text.Text = text.Text.Replace("capextitle", capex.CapexTitle);
+            }
+            if (text.Text.Contains("projectnumber"))
+            {
+                text.Text = text.Text.Replace("projectnumber", capex.ProjectNumber);
+            }
+            if (text.Text.Contains("initiator"))
+            {
+                text.Text = text.Text.Replace("initiator", capex.Initiator);
+            }
+            if (text.Text.Contains("projectmanager"))
+            {
+                text.Text = text.Text.Replace("projectmanager", capex.ProjectManager);
+            }
+            if (text.Text.Contains("company"))
+            {
+                text.Text = text.Text.Replace("company", company);
+            }
+            if (text.Text.Contains("site"))
+            {
+                text.Text = text.Text.Replace("site", site);
+            }
+            if (text.Text.Contains("locationcostcode"))
+            {
+                text.Text = text.Text.Replace("locationcostcode", llc);
+            }
+            if (text.Text.Contains("balancesheetcode"))
+            {
+                text.Text = text.Text.Replace("balancesheetcode", bsc);
+            }
+            if (text.Text.Contains("assetcategory"))
+            {
+                text.Text = text.Text.Replace("assetcategory", ac);
+            }
+            if (text.Text.Contains("projectcategory"))
+            {
+                text.Text = text.Text.Replace("projectcategory", pc);
+            }
+            if (text.Text.Contains("startupdate"))
+            {
+                text.Text = text.Text.Replace("startupdate", capex.ProjectStartupDate.ToString());
+            }
+            if (text.Text.Contains("totalcost"))
+            {
+                text.Text = text.Text.Replace("totalcost", capex.TotalCost.ToString());
+            }
+            if (text.Text.Contains("amountthisrequest"))
+            {
+                text.Text = text.Text.Replace("amountthisrequest", capex.AmountThisRequest.ToString());
+            }
+            if (text.Text.Contains("previouslyauthorized"))
+            {
+                text.Text = text.Text.Replace("previouslyauthorized", capex.PreviouslyAuthorized.ToString());
+            }
+            if (text.Text.Contains("amountinbudget"))
+            {
+                text.Text = text.Text.Replace("amountinbudget", capex.AmountInBudget.ToString());
+            }
+            if (text.Text.Contains("writeoffamount"))
+            {
+                text.Text = text.Text.Replace("writeoffamount", capex.WriteOffAmount.ToString());
+            }
+
+            #region not used for html rendering
+            // //Short description
+
+
+            // if(capex.ShortDescription != null)
+            // {
+            //     HtmlDocument htmldocsd = new HtmlDocument();
+            //     htmldocsd.LoadHtml(capex.ShortDescription);
+
+            //     string sd = string.Empty;
+
+            //     HtmlNodeCollection ShortDescriptionParagraph = htmldocsd.DocumentNode.SelectNodes("//p");
+            //     foreach (HtmlNode node in ShortDescriptionParagraph)
+            //     {
+            //         sd = node.InnerText;
+            //     }
+            //     if (text.Text.Contains("shortdescription"))
+            //     {
+            //         text.Text = text.Text.Replace("shortdescription", sd);
+            //     }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("shortdescription"))
+            //     {
+            //         text.Text = text.Text.Replace("shortdescription", "");
+            //     }
+            // }
+
+
+            // //Amount including
+
+            // if(capex.AmountIncludes != null)
+            // {
+            //     HtmlDocument htmldocai = new HtmlDocument();
+            //     htmldocai.LoadHtml(capex.AmountIncludes);
+
+            //     string ai = string.Empty;
+
+            //     HtmlNodeCollection AmountIncludesParagraph = htmldocai.DocumentNode.SelectNodes("//p");
+            //     foreach (HtmlNode node in AmountIncludesParagraph)
+            //     {
+            //         ai = node.InnerText;
+            //     }
+            //     if (text.Text.Contains("amountincluding"))
+            //     {
+            //         text.Text = text.Text.Replace("amountincluding", ai);
+
+            //     }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("amountincluding"))
+            //     {
+            //         text.Text = text.Text.Replace("amountincluding", "");
+
+            //     }
+            // }
+
+
+            // //Motivation
+            // if(capex.Motivation != null)
+            // {
+            //     HtmlDocument htmldocm = new HtmlDocument();
+            //     htmldocm.LoadHtml(capex.Motivation);
+
+            //     string m = string.Empty;
+
+            //     HtmlNodeCollection MotivationParagraph = htmldocm.DocumentNode.SelectNodes("//p");
+            //     foreach (HtmlNode node in MotivationParagraph)
+            //     {
+            //         m = node.InnerText;
+            //     }
+            //     if (text.Text.Contains("mot"))
+            //     {
+            //         text.Text = text.Text.Replace("mot", m);
+            //     }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("mot"))
+            //     {
+            //         text.Text = text.Text.Replace("mot", "");
+            //     }
+            // }
+
+
+            // //Project scope
+            // if (capex.ProjectScope != null)
+            // {
+            //     HtmlDocument htmldocps = new HtmlDocument();
+            //     htmldocps.LoadHtml(capex.ProjectScope);
+
+            //     string ps = string.Empty;
+
+            //     HtmlNodeCollection ProjectScopeParagraph = htmldocps.DocumentNode.SelectNodes("//p");
+            //     foreach (HtmlNode node in ProjectScopeParagraph)
+            //     {
+            //         ps = node.InnerText;
+            //     }
+            //     if (text.Text.Contains("projectscope"))
+            //     {
+            //         text.Text = text.Text.Replace("projectscope", ps);
+            //     }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("projectscope"))
+            //     {
+            //         text.Text = text.Text.Replace("projectscope", "");
+            //     }
+            // }
+
+
+            // //Out of scope
+            // if(capex.OutOfScope != null)
+            // {
+            //     HtmlDocument htmldocoos = new HtmlDocument();
+            //     htmldocoos.LoadHtml(capex.OutOfScope);
+
+            //     string oos = string.Empty;
+
+            //     HtmlNodeCollection OutOfScopeParagraph = htmldocoos.DocumentNode.SelectNodes("//p");
+            //     foreach (HtmlNode node in OutOfScopeParagraph)
+            //     {
+            //         oos = node.InnerText;
+            //     }
+            //     if (text.Text.Contains("outofscope"))
+            //     {
+            //         text.Text = text.Text.Replace("outofscope", oos);
+            //     }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("outofscope"))
+            //     {
+            //         text.Text = text.Text.Replace("outofscope", "");
+            //     }
+            // }
+            #endregion
+
+             
+        }
+    }
+
+    
+
+
+}

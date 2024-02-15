@@ -1,0 +1,446 @@
+﻿@page "/VIPUserPage"
+
+<PageTitle>@Title</PageTitle>
+@inject NavigationManager navManager
+
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@inject IEmployeeService service
+@inject IBusinessUnitService buservice
+@inject IAccessService accessService
+@inject IEmployeeService empService
+@inject IWorkRecordService workrecService
+@inject IServerPathConfigService spservice
+@inject SharedDataService shareddataService
+
+@inject IJSRuntime JSRuntime
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <ListGroup @bind-SelectedItem="selectedItem" Mode="ListGroupMode.Selectable" Style="cursor:pointer;float:right;width:90px">
+                    <ListGroupItem Clicked="navToHRPage"><center>Back</center></ListGroupItem>
+                </ListGroup>
+                @* <button id="btnBack" class="btn btn-dark" @onclick="navToHRPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button> *@
+            </div>
+        </div>
+    </div>
+
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>HR Employee User Page</h1>
+        <p>Add / Edit Employee User Information</p>
+    </center>
+</WhiteContainer>
+<WhiteContainer>
+    <br />
+
+    <center>
+        <div class="container d-flex justify-content-center align-items-center">
+            <div class="row">
+                <div class="col-12" style="width:700px">
+                    Choose an employee in the list provided. Add, Edit or View chosen employee.
+                </div>
+            </div>
+        </div>
+    </center>
+
+    <br />
+
+    <div class="alert alert-success">
+    <WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-9 border-end">
+                <DataGrid TItem="Employee" Data="@employees" Responsive Filterable ShowPager Bordered Style="cursor:pointer"
+                           PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                 @bind-SelectedRow="@selectedUser" SelectedRowStyling="@OnRowStyling">
+                     <DataGridColumns>
+                         <DataGridCommandColumn />
+                         <DataGridColumn Field="@nameof(Employee.EmployeeNumber)" Caption="Employee Number" Editable="false"></DataGridColumn>
+                         <DataGridColumn Field="@nameof(Employee.FirstName)" Caption="First Name" Editable="false"></DataGridColumn>
+                         <DataGridColumn Field="@nameof(Employee.Surname)" Caption="Surname" Editable="false"></DataGridColumn>
+                         <DataGridColumn Field="@nameof(Employee.DepartmentName)" Caption="Department" Editable="false"></DataGridColumn>
+                     </DataGridColumns>
+                     <PageButtonTemplate>
+                         <Span TextColor="TextColor.Success">
+                             @context.PageNumber
+                         </Span>
+                     </PageButtonTemplate>
+                     <NextPageButtonTemplate>
+                         <Span TextColor="TextColor.Success">
+                             Next
+                         </Span>
+                     </NextPageButtonTemplate>
+                     <PreviousPageButtonTemplate>
+                         <Span TextColor="TextColor.Success">
+                             Previous
+                         </Span>
+                     </PreviousPageButtonTemplate>
+                     <LastPageButtonTemplate>
+                         <Span TextColor="TextColor.Success">
+                             Last
+                         </Span>
+                     </LastPageButtonTemplate>
+                     <FirstPageButtonTemplate>
+                         <Span TextColor="TextColor.Success">
+                             First
+                         </Span>
+                     </FirstPageButtonTemplate>
+                     <TotalItemsTemplate>
+                         <Span TextColor="TextColor.Success">
+                             @context.TotalItems
+                         </Span>
+                     </TotalItemsTemplate>
+
+                 </DataGrid>
+            </div>
+                <div class="col-sm-3">                        
+                <center><h5>Actions</h5></center>
+                <hr />
+                
+                <ListGroup Mode="ListGroupMode.Selectable" @bind-SelectedItem="selectedItem" Style="cursor:pointer">
+                             <ListGroupItem Name="First" @onclick="checkEmployeeIDView"><center>View Employee</center></ListGroupItem>
+                             @if (!isDisabled)
+                            {
+                                <ListGroupItem Name="First" @onclick="navToNewEmployeePage"><center>Add Employee</center></ListGroupItem>
+                            }
+                            @if (isUser)
+                            {
+                                <ListGroupItem Name="First" @onclick="checkEmployeeID"><center>Edit Employee</center></ListGroupItem>
+                            }
+                            @if (!isDisabled)
+                            {
+                                <ListGroupItem Name="Second" @onclick="checkEmployeeIDManage"><center>Manage Employee</center></ListGroupItem>
+                            }
+                            @if (isUser)
+                            {
+                                <ListGroupItem Name="Third"><center>Employee Documents</center></ListGroupItem>
+                            }                  
+                </ListGroup>
+            </div>
+        </div>
+    </div>
+     </WhiteContainer>
+     </div>
+
+    
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalEdit" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Edit Employee</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Are you sure you want to edit this employee details?
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="navToEditVIPEmployee" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseEditModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalError" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Edit / Manage Employee</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Error
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalErrorView" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>View Employee</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Error
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorViewModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+
+@code {
+    //Variables--------------------------------------------------------------------------
+    //Parameters for login
+    [Parameter]
+    public int EmployeeID { get; set; }
+
+    //modal strings
+    public string message = string.Empty;
+    private string Title = "VIP User Page";
+    private string selectedItem = string.Empty;
+
+    //variable to disable add button
+    private bool isDisabled = false;
+    private bool isUser = false;
+
+    //lists
+    List<Employee> employees = new();
+    List<EmployeeDepartment> departments = new();
+
+    //variables for selected user
+    Employee newUser = new();
+    Employee selectedUser = new();
+
+
+    //initialization-------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        //Get possible Departments
+        departments = service.GetEmployeeDepartments();
+
+        //Get current user access
+        newUser = empService.GetSingleEmployee(shareddataService.UserName);
+
+        //Get all users
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).BusinessUnitID == 2 
+        && shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).DepartmentID == 2 || 
+        shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).DepartmentID == 1||
+        shareddataService.UserID == 1)
+        {
+            isUser = true;
+            employees = service.GetAll();
+            if(shareddataService.UserID != 1)
+            {
+                employees.RemoveAt(0);
+            }
+        }
+        //Get users per department and business unit name
+        else if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).RoleID == 3)
+        {
+
+            employees = service.GetEmployeesforBusinessUnitDepartment(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).BusinessUnitID, shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).DepartmentID);
+            if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).DepartmentID == 3)
+            {
+                employees.RemoveAt(0);
+            }
+            isDisabled = true;
+        }
+        else
+        {
+            isUser = true;
+            isDisabled = true;
+            employees = service.GetEmployee(shareddataService.UserName);
+        }
+        
+
+
+
+
+        #region access not used
+        // newAccess = accessService.GetUserAccess(shareddataService.UserID, 2);
+        // newWorkRecord = workrecService.GetEmployeeWorkRecord(newUser.EmployeeID);
+        // newLinking = workrecService.GetLinking(newWorkRecord.BUDeptRoleID);
+
+        // //Get all employees
+        // if (newAccess.AccessTypeID == 1 || newAccess.AccessTypeID == 2)
+        // {
+        //     employees = service.GetAll();
+        // }
+
+        // //Get individual employee
+        // if(newAccess.AccessTypeID == 3)
+        // {
+        //     isDisabled = true;
+        //     if(newLinking.RoleID == 3)
+        //     {
+        //         employees = service.GetEmployeesforBusinessUnitDepartment(newLinking.BusinessUnitID, newLinking.DepartmentID);
+        //     }
+        //     else
+        //     {
+        //         employees = service.GetEmployee(shareddataService.UserName);
+        //     }           
+        // }
+        #endregion
+
+        //Get department names
+        if(employees.Count > 0)
+        {
+            foreach (var item in employees)
+            {
+                item.DepartmentName = service.GetCorrespondingDepartment(item.DepartmentID);
+            }
+        }
+
+
+    }
+
+    //Modals instantiate----------------------------------------------------------
+    private Blazorise.Modal modalEdit = new();
+    private Blazorise.Modal modalError = new();
+    private Blazorise.Modal modalErrorView = new();
+    private bool cancelClose;
+
+    private Task ShowEditModal()
+    {
+        return modalEdit.Show();
+
+    }
+
+    private Task CloseEditModal()
+    {
+        return modalEdit.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return modalError.Show();
+
+    }
+
+    private Task CloseErrorModal()
+    {
+        return modalError.Hide();
+    }
+
+    private Task ShowErrorViewModal()
+    {
+        return modalErrorView.Show();
+
+    }
+
+    private Task CloseErrorViewModal()
+    {
+        return modalErrorView.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //Check chosen employee id for edit---------------------------------------------
+    private void checkEmployeeID()
+    {
+        EmployeeID = service.GetEmpID(selectedUser);
+        shareddataService.EmployeeID = EmployeeID;
+        if(EmployeeID > 0)
+        {
+            message = "Employee ID: " + EmployeeID;
+            ShowEditModal();
+        }
+        else
+        {
+            message = "You have not selected an employee to edit.";
+            ShowErrorModal();
+        }
+    }
+
+    //check chosed employee id for view---------------------------------------------
+    private void checkEmployeeIDView()
+    {
+        EmployeeID = service.GetEmpID(selectedUser);
+        shareddataService.EmployeeID = EmployeeID;
+        if(EmployeeID == 0)
+        {
+            message = "You have not selected an employee to view.";
+            ShowErrorViewModal();
+        }
+        else
+        {
+            navManager.NavigateTo("/VIP/View");
+        }
+    }
+
+    //check chosen employee to manage-----------------------------------------------
+    private void checkEmployeeIDManage()
+    {
+        EmployeeID = service.GetEmpID(selectedUser);
+        shareddataService.EmployeeID = EmployeeID;
+        if(EmployeeID == 0)
+        {
+            message = "You have not selected an employee to manage.";
+            ShowErrorModal();
+        }
+        else
+        {
+            navManager.NavigateTo("PromoteDelegatePage");
+        }
+    }
+
+    //Navigation--------------------------------------------------------------------
+    private void navToHRPage()
+    {
+        navManager.NavigateTo("/Hr");
+    }
+
+    private void navToNewEmployeePage()
+    {
+        navManager.NavigateTo($"/VIP/New");
+    }
+    private void navToEditVIPEmployee()
+    {
+
+        navManager.NavigateTo($"/VIP/Edit");
+    }
+
+    private void navToAddVIPEmployee()
+    {
+        navManager.NavigateTo($"/VIP/Add");
+    }
+
+    private void navToPromoteDelegatePage()
+    {
+        EmployeeID = service.GetEmpID(selectedUser);
+        shareddataService.EmployeeID = EmployeeID;
+        navManager.NavigateTo("/PromoteDelegatePage");
+    }
+
+    //selected row styling--------------------------------------------------------
+    private void OnRowStyling(Employee employee, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+}

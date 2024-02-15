@@ -1,0 +1,1634 @@
+﻿@page "/Discipline/Add"
+
+<PageTitle>@Title</PageTitle>
+@inject NavigationManager navManager
+@using Blazorise.Extensions;
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@inject IDisciplineService dservice
+@inject IEmployeeService eservice
+@inject IRoleService rservice
+@inject IFileUpload fileUpload
+@inject IServerPathConfigService serverservice
+@inject IFileHandlingService fhservice
+@inject IConfiguration config
+@inject SharedDataService shareddataService
+@inject ISiteService siteService
+@inject IJSRuntime jsRuntime
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" @onclick="navToDisciplineUserPage" class="btn btn-dark" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <center>
+                <img style="width:100px; height:100px" src="Images/SVGYork.png" alt="" />
+                <h1>@Title</h1>
+            </center>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Add Employee Discipline for <em>@employee.FullName</em></strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Offence</label>
+                <select class="form-select" @bind="newdiscipline.OffenceID">
+                    <option value="">Select Offence</option>
+                    @foreach(var item in offenceslist)
+                    {
+                        <option value="@item.Id">@item.OffenceName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm">
+                <label>Site</label>
+                <select class="form-select" @bind="newdiscipline.SiteID">
+                    <option value="">Select Site</option>
+                    @foreach(var item in sites)
+                    {
+                        <option value="@item.SiteId">@item.SiteName</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Date of Offence</label>
+                <input type="date" class="form-control" @bind-value="newdiscipline.Date"/>
+            </div>
+            <div class="col-sm">
+                <label>Employee Suspension Date (If Any)</label>
+                <input type="date" class="form-control" @bind-value="newdiscipline.DateSuspended" />
+                @* <label>Evidence / Additional Documents</label>
+                <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileSelected" multiple></Microsoft.AspNetCore.Components.Forms.InputFile> *@
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Hearing Address</label>
+                <input type="text" class="form-control" @bind-value="newdiscipline.HearingAddress" />
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Decription / Nature of Offence</label>
+                <RichTextEdit @ref="rteDetails"
+                              Theme="RichTextEditTheme.Snow"
+                              ContentChanged="OnDetailsChanged"
+                              PlaceHolder="Violation Description..."
+                              ReadOnly="false"
+                              SubmitOnEnter="false"
+                              ToolbarPosition="Placement.Top"
+                              Editor="GetDescription()">
+                    <Toolbar>
+                        <RichTextEditToolbarGroup>
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                        </RichTextEditToolbarGroup>
+                    </Toolbar>
+                </RichTextEdit>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label>Document Attachment Type</label>
+                <select class="form-select" @bind="newLinkedDocument.FileTypeID">
+                    <option value="">Select Document Type...</option>
+                    @foreach(var item in fileTypesList)
+                    {
+                        <option value="@item.Id">@item.FileTypeName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6">
+                <Label>Add Document</Label>
+                <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileSelected"></Microsoft.AspNetCore.Components.Forms.InputFile>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <button class="btn btn-dark" @onclick="AddDocumentToList" style="margin-top:20px; width:30%">Add Document</button>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-success">
+                    <WhiteContainer>
+                        @if(linkedDocuments != null && linkedDocuments.Count > 0)
+                        {
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>File Type</th>
+                                        <th>File Name</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(var item in linkedDocuments)
+                                    {
+                                        <tr>
+                                            <td>@item.FileTypeName</td>
+                                            <td>@item.FileName</td>
+                                            <td><button type="button" @onclick="()=>DeleteRowAttachment(item)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                        </tr>
+                                    }                                   
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <em>There are no linked documents for this disciplinary...</em>
+                        }
+                    </WhiteContainer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <button type="button" @onclick="ShowSaveAndExitModal" class="btn btn-dark">Save & Exit</button>
+                <button type="button" @onclick="ShowSaveModal" class="btn btn-dark">Add Employee Discipline</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Employee Recorded Discipline</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <div class="alert alert-success">
+                    <WhiteContainer>
+                @if(employeebreaches != null && employeebreaches.Count > 0)
+                {
+                    
+                        <DataGrid Filterable Bordered TItem="OffenceBreach" Data="employeebreaches" @bind-SelectedRow="ViewDisciplineSelected"  Responsive Sortable SortMode="DataGridSortMode.Single" SelectedRowStyling="@OnRowStylingBreaches">
+                             <DataGridCommandColumn />
+                             <DataGridColumn Field="@nameof(OffenceBreach.Id)" Caption="#" Sortable="false" />
+                             <DataGridColumn Field="@nameof(OffenceBreach.OffenceName)" Caption="Offence Name" Sortable="false"/>
+                             <DataGridColumn Field="@nameof(OffenceBreach.DateString)" Caption="Offence" Editable/>
+                             <DataGridColumn Field="@nameof(OffenceBreach.SubmissionStatusString)" Caption="Status" Editable/>
+                         </DataGrid>
+                        <div class="col-6">
+                                <button class="btn btn-dark" @onclick="ShowmodalDisciplineView">View Discipline</button>
+                        </div>  
+                    
+                }
+                else
+                {
+                    <em>No recorded disciplines for this employee...</em>
+                }
+
+            </WhiteContainer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Employee Recorded Counselling Notes</strong></h4>
+            </div>
+        </div>
+    </div>
+
+
+    <br />
+    @if (CheckForSameCounsellingNotes() != null && CheckForSameCounsellingNotes().Count > 0)
+                {
+        <div class="container" style="">
+            <p><strong>Employee Recorded Counselling Notes (2 or more of the same)</strong></p>
+            <div class="alert alert-danger">                
+                <WhiteContainer>
+                    
+                    <DataGrid Filterable Bordered TItem="CounsellingNotes" @bind-SelectedRow="MoreThan2ViewNote" Data="CheckForSameCounsellingNotes()" Responsive Sortable SortMode="DataGridSortMode.Single" SelectedRowStyling="@OnRowStyling">
+                             <DataGridCommandColumn />
+                             <DataGridColumn Field="@nameof(CounsellingNotes.OffenceName)" Caption="Offence" Editable />
+                         </DataGrid>
+                     <div class="col-3">
+                         <button class="btn btn-dark" @onclick="ShowModalViewCounsellingNotes">View Consultation Note</button>
+                     </div>
+                </WhiteContainer>
+            </div>
+        </div>
+    }
+
+    <br />
+
+    <div class="container">
+        <p><strong>Full List</strong></p>
+        <div class="row">
+            <div class="col-sm">
+                <div class="alert alert-success">
+                    <WhiteContainer>
+                @if (counsellingNotes != null && counsellingNotes.Count > 0)
+                {
+                    
+                        <DataGrid Filterable Bordered TItem="CounsellingNotes" @bind-SelectedRow="FullListViewNote" Data="counsellingNotes" PageSize="999" Responsive Sortable SortMode="DataGridSortMode.Single" SelectedRowStyling="@OnRowStyling">
+                        <DataGridCommandColumn/>
+                        <DataGridColumn Field = "@nameof(CounsellingNotes.Id)" Caption="#" Sortable="false"/>
+                        <DataGridColumn Field="@nameof(CounsellingNotes.ConsultantName)" Caption="Consultant Name" Editable />
+                        <DataGridColumn Field="@nameof(CounsellingNotes.OffenceName)" Caption="Offence" Editable />
+                        <DataGridColumn Field="@nameof(CounsellingNotes.DateString)" Caption="Date" Editable />   
+                        <DataGridColumn Field="@nameof(CounsellingNotes.SubmissionStatusString)" Caption="Status" Editable/>
+                    </DataGrid>
+
+                            <div class="col-6">
+                                <button class="btn btn-dark" @onclick="ShowViewModal">View Consultation Note</button>
+                            </div>
+                }
+                else
+                {
+                    <em>No recorded counselling notes for this employee...</em>
+                }
+
+            </WhiteContainer>
+            </div>
+        </div>
+        </div>
+    </div>
+    <br />
+
+    
+   
+</WhiteContainer>
+
+
+
+<Blazorise.Modal @ref="modalSave" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Employee Discipline</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div class="alert alert-success">
+                    Are you sure you want to submit the discipline for this employee?
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="checkInputForNewDiscipline" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Save</button>
+            <button @onclick="CloseSaveModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalSaveAndExit" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Employee Discipline</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div class="alert alert-success">
+                    Are you sure you want to save and exit the discipline for this employee?
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="checkInputForExistingDiscipline" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Save</button>
+            <button @onclick="CloseSaveAndExitModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalError" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div class="alert alert-success">
+                    @message
+                </div>
+            </div>            
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalViewCounsellingNotes" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+        <ModalHeader>
+            <ModalTitle>View Counselling Notes</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            
+             @if (viewSameNotes.Count() >= 3)
+            {
+                <br />
+                <div class="alert alert-success">
+                    <Span Class="oi oi-warning"></Span>
+                    @employee.FullName has 3 or more of the same offences. Take disciplinary action.
+                </div>
+            }
+                @if(viewSameNotes.Count != 0)
+                {
+                    <DataGrid TItem="CounsellingNotes" @bind-SelectedRow="SelectedMoreThan2Note" Data="viewSameNotes" Responsive Sortable SortMode="DataGridSortMode.Single" SelectedRowStyling="@OnRowStyling">
+                         <DataGridCommandColumn />
+                         <DataGridColumn Field="@nameof(CounsellingNotes.Id)" Caption="#" Sortable="false" />
+                         <DataGridColumn Field="@nameof(CounsellingNotes.ConsultantName)" Caption="Consultant Name" Editable />
+                         <DataGridColumn Field="@nameof(CounsellingNotes.OffenceName)" Caption="Offence" Editable />
+                         <DataGridColumn Field="@nameof(CounsellingNotes.DateString)" Caption="Date" Editable />
+                     </DataGrid>
+                    <div class="col-6">
+                        <button class="btn btn-dark" @onclick="ShowSimilarNotesModal">View Consultation Note</button>
+                    </div>
+                }
+                else
+                {
+                    <center>
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                No Consultation Note Selected
+                            </div>                           
+                        </div>
+                    </div>
+                    </center>
+                }
+
+                        
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseModalViewCounsellingNotes" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalView" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+         <ModalHeader>
+             <ModalTitle>View Counselling Note</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             @if(FullListViewNote.Id != 0)
+            {
+                <div style="max-width:100%; margin: 15px auto;">
+
+                    <div class="container">
+                        <div>
+                            <strong>Employee</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @employee.FullName
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Consultant</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @FullListViewNote.ConsultantName
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Offence</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @FullListViewNote.OffenceName
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Violation Detials</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @if(FullListViewNote.ViolationDetails != null)
+                                {
+                                    @(new MarkupString(FullListViewNote.ViolationDetails))
+                                }
+                                else
+                                {
+                                    <p><em>No Violation Details For This Counselling Note</em></p>
+                                }
+
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Response</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @if(FullListViewNote.EmployeeResponse != null)
+                                {
+                                    @(new MarkupString(FullListViewNote.EmployeeResponse))
+                                }
+                                else
+                                {
+                                    <p><em>No Employee Response For This Counselling Note</em></p>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Action Plan</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @if(FullListViewNote.ActionPlan != null)
+                                {
+                                    @(new MarkupString(FullListViewNote.ActionPlan))
+                                }
+                                else
+                                {
+                                    <p><em>No Action Plan For This Counselling Note</em></p>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Consultation Date</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @FullListViewNote.DateOfConsultation.Value.ToString("yyyy-MM-dd")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                
+                <center>
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                No Consultation Note selected.
+                            </div>
+                        </div>
+                    </div>
+                </center>
+                
+            }
+
+        </ModalBody>
+        <ModalFooter>
+            @if (FullListViewNote.Id != 0)
+            {
+                <button @onclick="()=>CheckServerForNotes(FullListViewNote)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Download</button>
+            }
+            <button @onclick="CloseViewModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalViewSimilarNotes" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+         <ModalHeader>
+             <ModalTitle>View Counselling Note</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             @if (SelectedMoreThan2Note.Id != 0)
+            {
+                <div style="max-width:100%; margin: 15px auto;">
+
+                    <div class="container">
+                        
+                        <div>
+                            <strong>Employee</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @employee.FullName
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Consultant</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @SelectedMoreThan2Note.ConsultantName
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Offence</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @MoreThan2ViewNote.OffenceName
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Violation Detials</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @if (SelectedMoreThan2Note.ViolationDetails != null)
+                                {
+                                    @(new MarkupString(SelectedMoreThan2Note.ViolationDetails))
+                                }
+                                else
+                                {
+                                    <em>No Violation Details For This Counselling Note</em>
+                                }
+
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Response</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @if (SelectedMoreThan2Note.EmployeeResponse != null)
+                                {
+                                    @(new MarkupString(SelectedMoreThan2Note.EmployeeResponse))
+                                }
+                                else
+                                {
+                                    <em>No Employee Response For This Counselling Note</em>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Action Plan</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @if (SelectedMoreThan2Note.ActionPlan != null)
+                                {
+                                    @(new MarkupString(SelectedMoreThan2Note.ActionPlan))
+                                }
+                                else
+                                {
+                                    <em>No Action Plan For This Counselling Note</em>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Consultation Date</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @SelectedMoreThan2Note.DateOfConsultation.Value.ToString("yyyy-MM-dd")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                
+                <div style="max-width:100%; margin: 15px auto;">
+                    <div class="container">
+                        <div class="row">
+                            No Consultation Note Selected
+                        </div>
+                    </div>
+                </div>
+                
+            }
+
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="()=>CheckServerForNotes(SelectedMoreThan2Note)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Download</button>
+            <button @onclick="CloseSimilarNotesModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalDisciplineView" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+         <ModalHeader>
+             <ModalTitle>View Discipline</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             @if (ViewDisciplineSelected.Id != 0)
+            {
+                
+                <div style="max-width: 100%;">
+                    <div class="container" style="margin-left:30px" >
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Employee Full Name</strong>
+                                </div>
+                                <div class="row">
+                                    <div class="alert alert-success">
+                                        @employee.FullName
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-1">
+                            </div>
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Employee Number</strong>
+                                </div>
+                                <div class="row">
+                                    <div class="alert alert-success">
+                                        @employee.EmployeeNumber
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Position / Role</strong>
+                                </div>
+                                <div class="row">
+                                    <div class="alert alert-success">
+                                        @ViewDisciplineSelected.RoleName
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-1">
+                            </div>
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Union</strong>
+                                </div>
+                                <div class="row">
+                                    @if (employee.UnionID != null)
+                                    {
+                                        <div class="alert alert-success">
+                                            @employee.UnionName
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-success">
+                                            No Union
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Site</strong>
+                                </div>
+                                <div class="row">
+                                    <div class="alert alert-success">
+                                        @ViewDisciplineSelected.SiteName
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-1">
+                            </div>
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Date of Alledged Offence</strong>
+                                </div>
+                                <div class="row">
+                                    <div class="alert alert-success">
+                                        @ViewDisciplineSelected.Date
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Employee Suspension Date</strong>
+                                </div>
+                                <div class="row">
+                                    @if (ViewDisciplineSelected.DateSuspended != null)
+                                    {
+                                        <div class="alert alert-success">
+                                            @ViewDisciplineSelected.DateSuspended
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-success">
+                                            No Suspension
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                            <div class="col-1">
+                            </div>
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Contact Details</strong>
+                                </div>
+                                <div class="row">
+                                    <div class="alert alert-success">
+                                        @employee.EmailAddress
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <strong>Hearing Address</strong>
+                                </div>
+                                <div class="row">
+                                    <div class="alert alert-success">
+                                        @ViewDisciplineSelected.HearingAddress
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Outcome</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @ViewDisciplineSelected.BreachName
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <strong>Description</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @if(ViewDisciplineSelected.Description != null)
+                                            {
+                                                @(new MarkupString(ViewDisciplineSelected.Description))
+                                            }
+                                            else
+                                            {
+                                                <em>No description logged...</em>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <strong>Outcome Description</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @if (ViewDisciplineSelected.OutcomeDescription != null)
+                                            {
+                                                @(new MarkupString(ViewDisciplineSelected.OutcomeDescription))
+                                            }
+                                            else
+                                            {
+                                                <em>No outcome description logged...</em>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <strong>Files To Download</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            <WhiteContainer>
+                                                @if (fileNamesDiscipline != null && fileNamesDiscipline.Count > 0)
+                                                {
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:80%">File Name</th>
+                                                                <th style="width:20%">Download</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var item in fileNamesDiscipline)
+                                                            {
+                                                                <tr>
+                                                                    <td>@item</td>
+                                                                    <td><button @onclick="()=>DownloadFile(item, filepath)" class="btn btn-dark" style="width:90px; float:right; margin-left:10px; font-size:12px;  padding:5px; height:30px">Download</button></td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                                else
+                                                {
+                                                   <em>No files uploaded for this discipline yet...</em>
+                                                }
+
+                                            </WhiteContainer>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                
+            }
+            else
+            {
+                
+                    <center>
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                No Discipline Selected
+                            </div>                            
+                        </div>
+                    </div>
+                    </center>
+                
+            }
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="ClosemodalDisciplineView" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    //Modal script
+    private string Title = " Add Discipline";
+    private string validationMessage = string.Empty;
+
+    //Lists for dropdowns
+    private List<Offence> offenceslist = new();
+    private List<BreachType> breachtypeslist = new();
+    private List<OffenceBreach> employeebreaches = new();
+    private List<Site> sites = new();
+    private List<Role> roles = new();
+    private List<Employee> employees = new();
+    private List<CounsellingNotes> counsellingNotes = new();
+    private List<FileTypes> fileTypesList = new();
+    private List<LinkedDocuments> linkedDocuments = new();
+
+    //selected notes / disciplines
+    CounsellingNotes FullListViewNote = new();
+    CounsellingNotes MoreThan2ViewNote = new();
+    OffenceBreach EmpDisciplineView = new();
+    CounsellingNotes SelectedMoreThan2Note =  new();
+    OffenceBreach ViewDisciplineSelected = new();
+    LinkedDocuments newLinkedDocument = new();
+
+    //current employee
+    Employee currentEmp = new();
+
+    protected RichTextEdit rteDetails = new();
+    protected string? DetailsAsHTML = string.Empty;
+    private bool isRichTextEditDetailsModified = false;
+
+    //boolean for offence first
+    private bool offencefirst = true;
+
+    //New Discipline
+    private OffenceBreach newdiscipline = new();
+
+    //Employee
+    Employee employee = new();
+
+    ServerPathConfig serverpath = new();
+
+
+
+    //Modal instantiate
+    private Blazorise.Modal modalSave = new();
+    private Blazorise.Modal modalError = new();
+    private Blazorise.Modal modalView = new();
+    private Blazorise.Modal modalDisciplineView = new();
+    private Blazorise.Modal modalViewSimilarNotes = new();
+    private Blazorise.Modal modalViewCounsellingNotes = new();
+    private Blazorise.Modal modalSaveAndExit = new();
+    private bool cancelClose;
+
+    //Initialize--------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        if(shareddataService.disciplineNoteNum > 0)
+        {
+            newdiscipline.OffenceID = dservice.GetDisciplineByID(shareddataService.disciplineNoteNum).OffenceID;
+            newdiscipline.SiteID = dservice.GetDisciplineByID(shareddataService.disciplineNoteNum).SiteID;
+            newdiscipline.Date = dservice.GetDisciplineByID(shareddataService.disciplineNoteNum).Date;
+            newdiscipline.DateSuspended = dservice.GetDisciplineByID(shareddataService.disciplineNoteNum).DateSuspended;
+            newdiscipline.HearingAddress = dservice.GetDisciplineByID(shareddataService.disciplineNoteNum).HearingAddress;
+            newdiscipline.Description = dservice.GetDisciplineByID(shareddataService.disciplineNoteNum).Description;
+        }
+
+        offenceslist = dservice.GetOffenceList();
+        breachtypeslist = dservice.GetBreachTypeList();
+        sites = siteService.GetSites();
+        employees = eservice.GetAll();
+        roles = rservice.GetRoles();
+        fileTypesList = fhservice.GetFileTypesPreDiscipline();
+        counsellingNotes = dservice.GetCounsellingNotesForEmp(shareddataService.EmployeeID);
+
+        employeebreaches = dservice.EmployeeBreaches(shareddataService.EmployeeID);
+        foreach(var item in employeebreaches)
+        {
+            item.OffenceName = dservice.GetOffenceName(item.OffenceID);
+            item.BreachName = dservice.GetBreachname(item.BreachTypeID);
+            if (item.SubmissionStatus == 1)
+            {
+                item.SubmissionStatusString = "Submitted";
+            }
+            else
+            {
+                item.SubmissionStatusString = "Not Submitted";
+            }
+        }
+        employee = eservice.GetById(shareddataService.EmployeeID);
+
+        foreach(var item in counsellingNotes)
+        {
+            item.OffenceName = offenceslist.FirstOrDefault(x => x.Id == item.OffenceID).OffenceName;
+            if(item.ConsultantID == null)
+            {
+                item.ConsultantName = "No Consultant";
+            }
+            else
+            {
+                item.ConsultantName = employees.FirstOrDefault(x => x.EmployeeID == item.ConsultantID).FullName;
+            }
+            if (item.SubmissionStatus == 1)
+            {
+                item.SubmissionStatusString = "Submitted";
+            }
+            else
+            {
+                item.SubmissionStatusString = "Not Submitted";
+            }
+
+        }
+
+        foreach(var item in employeebreaches)
+        {
+            if(item.Date != null)
+            {
+                item.DateString = item.Date.Value.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                item.DateString = "No Date";
+            }
+
+        }
+
+        foreach(var item in counsellingNotes)
+        {
+            item.DateString = item.DateOfConsultation.Value.ToString("yyyy-MM-dd");
+        }
+
+        serverpath = serverservice.GetServerPathConfig(3);
+
+    }
+
+    private void checkInputForNewDiscipline()
+    {
+        if (newdiscipline.OffenceID != 0 && newdiscipline.SiteID != null && newdiscipline.Date != null)
+        {
+            saveDisciplines();
+        }
+        else
+        {
+            CloseSaveModal();
+            message = "More information needed to save Employee Discipline.";
+            ShowErrorModal();
+        }
+    }
+
+    private void checkInputForExistingDiscipline()
+    {
+        if (newdiscipline.OffenceID != 0 && newdiscipline.SiteID != null)
+        {
+            SaveAndExit();
+        }
+        else
+        {
+            CloseSaveAndExitModal();
+            message = "More information needed to save Employee Discipline.";
+            ShowErrorModal();
+        }
+    }
+
+    //Save--------------------------------------------------------------------------
+    private void saveDisciplines()
+    {
+
+        newdiscipline.recStatus = 1;
+        newdiscipline.EmployeeID = shareddataService.EmployeeID;
+        newdiscipline.BreachTypeID = 5; // No Outcome
+        newdiscipline.ApprovedForSend = 0;
+        newdiscipline.SubmissionStatus = 1;
+        newdiscipline.SuperiorID = shareddataService.UserEmployeeID;
+        newdiscipline.SentToInvictus = 0;
+        //set process as submitted
+        newdiscipline.DisciplineProcessID = 2;
+
+        if (isRichTextEditDetailsModified)
+        {
+            newdiscipline.Description = DetailsAsHTML;
+        }
+
+        dservice.AddOffenceBreach(newdiscipline);
+
+        employeebreaches = dservice.EmployeeBreaches(shareddataService.EmployeeID);
+        foreach (var item in employeebreaches)
+        {
+            item.OffenceName = offenceslist.FirstOrDefault(x => x.Id == item.OffenceID).OffenceName;
+            item.BreachName = breachtypeslist.FirstOrDefault(x => x.Id == item.BreachTypeID).BreachName;
+            if(item.Date != null)
+            {
+                item.DateString = item.Date.Value.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                item.DateString = "No Date";
+            }
+
+            if (item.SubmissionStatus == 1)
+            {
+                item.SubmissionStatusString = "Submitted";
+            }
+            else
+            {
+                item.SubmissionStatusString = "Not Submitted";
+            }
+        }
+        foreach(var item in linkedDocuments)
+        {
+            item.OffenceBreachID = employeebreaches[0].Id;
+        }
+        fhservice.AddLinkedDocuments(linkedDocuments);
+        UpdateFileDirectoryPaths(employeebreaches.Last().Id);
+        newdiscipline = new();
+        StateHasChanged();
+        CloseSaveModal();
+
+    }
+
+    //AddToList for discipline
+    public void AddDisciplineToList()
+    {
+
+        if(newdiscipline.OffenceID != null && newdiscipline.BreachTypeID != null && newdiscipline.Description != null && newdiscipline.Description != null)
+        {
+            employeebreaches.Add(new OffenceBreach
+                {
+                    EmployeeID = shareddataService.EmployeeID,
+                    OffenceID = newdiscipline.OffenceID,
+                    BreachTypeID = newdiscipline.BreachTypeID,
+                    Description = newdiscipline.Description,
+                    Date = newdiscipline.Date,
+                    recStatus = 1,
+            });
+            newdiscipline = new();
+            rteDetails.ClearAsync();
+            foreach(var item in employeebreaches)
+            {
+                item.OffenceName = dservice.GetOffenceName(item.OffenceID);
+                item.BreachName = dservice.GetBreachname(item.BreachTypeID);
+            }           
+        }
+        else
+        {
+            validationMessage = "Information needed for employee discipline.";
+            ShowErrorModal();
+
+        }
+    }
+
+    public async Task OnDetailsChanged()
+    {
+        DetailsAsHTML = await rteDetails.GetHtmlAsync();
+        isRichTextEditDetailsModified = true;
+    }
+
+    //Check more than 2 of same offence
+    List<CounsellingNotes> CheckForSameCounsellingNotes()
+    {
+        var groupnewList = counsellingNotes.GroupBy(c => c.OffenceID).Where(group => group.Count() >= 2);
+
+        var newList = groupnewList.SelectMany(group => group.DistinctBy(c => c.OffenceID));
+
+        return newList.ToList();
+    }
+
+    //Get cell value for view counselling notes
+    //Get specific capexid for instructions button-------------------------------------
+    private int selectedRowIndex = -1;
+    private int selectedColumnIndex = 2;
+    private List<CounsellingNotes> viewSameNotes = new();
+    private void GetCellValueForView(int rowIndex)
+    {
+        if (rowIndex >= 0 && rowIndex < CheckForSameCounsellingNotes().Count)
+        {
+            selectedRowIndex = rowIndex;
+            var selectedItem = CheckForSameCounsellingNotes()[selectedRowIndex];
+            SetListForViewSameNotes(selectedItem.OffenceID);
+
+            ShowModalViewCounsellingNotes();
+        }
+
+    }
+
+    //Add same offences to list
+    private void SetListForViewSameNotes(int? num)
+    {
+        //Check in the last 3 months
+        DateTime startDate = DateTime.Now.AddMonths(-3);
+        DateTime endDate = DateTime.Now;
+
+        viewSameNotes = counsellingNotes.Where(x => x.OffenceID == num && x.DateOfConsultation >= startDate && x.DateOfConsultation <= endDate).ToList();
+        foreach(var item in viewSameNotes)
+        {
+            item.DateString = item.DateOfConsultation.Value.ToString("yyyy-MM-dd");
+        }
+    }
+
+
+    //Open and close modal-----------------------------------------------------------
+    private Task CloseSaveModal()
+    {
+        StateHasChanged();
+        return modalSave.Hide();
+    }
+
+    private Task ShowSaveModal()
+    {
+        return modalSave.Show();
+
+    }
+
+    private Task CloseViewModal()
+    {
+        return modalView.Hide();
+    }
+
+    private Task ShowViewModal()
+    {
+        //FullListViewNote.OffenceName = offenceslist.FirstOrDefault(x => x.Id == FullListViewNote.OffenceID).OffenceName;
+        return modalView.Show();
+    }
+
+    private Task ShowSaveAndExitModal()
+    {
+        return modalSaveAndExit.Show();
+    }
+    private Task CloseSaveAndExitModal()
+    {
+        return modalSaveAndExit.Hide();
+    }
+
+    private Task ShowmodalDisciplineView()
+    {
+        foreach (var item in employeebreaches)
+        {
+            item.RoleName = roles.FirstOrDefault(x => x.RoleId == employee.RoleID).RoleName;
+            item.SiteName = sites.FirstOrDefault(x => x.SiteId == item.SiteID).SiteName;
+        }
+        GetDisciplineFiles();
+        return modalDisciplineView.Show();
+    }
+
+    private Task ClosemodalDisciplineView()
+    {
+        return modalDisciplineView.Hide();
+    }
+
+    private Task CloseSimilarNotesModal()
+    {
+        return modalViewSimilarNotes.Hide();
+    }
+
+    private Task ShowSimilarNotesModal()
+    {
+        //MoreThan2ViewNote.OffenceName = offenceslist.FirstOrDefault(x => x.Id == FullListViewNote.OffenceID).OffenceName;
+        return modalViewSimilarNotes.Show();
+    }
+
+    private Task ShowModalViewCounsellingNotes()
+    {
+        SetListForViewSameNotes(MoreThan2ViewNote.OffenceID);
+
+        return modalViewCounsellingNotes.Show();
+    }
+
+    private Task CloseModalViewCounsellingNotes()
+    {
+        return modalViewCounsellingNotes.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return modalError.Show();
+    }
+
+    private Task CloseErrorModal()
+    {
+        return modalError.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+
+
+
+
+    //File handling------------------------------------------------------------------
+    private long maxFileSize = 1024 * 1024 * 5; //represents 5MB
+    private int maxAllowedFiles = 1;
+    private IBrowserFile? file;
+    private string? relativePath;
+    private string filename = string.Empty;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        file = e.File;
+        relativePath = await captureFile(employee.EmployeeID);
+
+    }
+
+    private async Task<string> captureFile(int id)
+    {
+        if (file is null || file.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            string? relativePath;
+            string originalFileName = Path.GetFileName(file.Name);
+
+            string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\EmployeeDiscipline\\Discipline{newdiscipline.Id}\\{originalFileName}";
+            string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\EmployeeDiscipline\\Discipline{newdiscipline.Id}";
+
+            relativePath = Path.Combine($"{id}", originalFileName);
+
+            if (Directory.Exists(ftpdirectory))
+            {
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(ftpdirectory);
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+
+            // string originalFileName = Path.GetFileName(file.Name);
+
+            // string path = Path.Combine(
+            //     config.GetValue<string>("EmployeeDiscipline")!, $"{id}", originalFileName);
+
+            // relativePath = Path.Combine($"{serverpath.PathValue}", originalFileName);
+
+            // Directory.CreateDirectory(Path.Combine(config.GetValue<string>("EmployeeDiscipline")!, $"{id}"));
+
+            // using (FileStream fs = new(path, FileMode.Create))
+            // {
+            //     await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+            // }
+
+            filename = originalFileName;
+            return relativePath;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    private void AddDocumentToList()
+    {
+
+        if (newLinkedDocument.FileTypeID != null && relativePath != null && newLinkedDocument.Id != null)
+        {
+            linkedDocuments.Add(new LinkedDocuments
+                {
+                    FileTypeID = newLinkedDocument.FileTypeID,
+                    DescriptionOther = newLinkedDocument.DescriptionOther,
+                    FullFileName = relativePath,
+                    OffenceBreachID = newLinkedDocument.Id,
+                    RecStatus = 1,
+                    FileName = filename,
+                    FileTypeName = fileTypesList.FirstOrDefault(x => x.Id == newLinkedDocument.FileTypeID).FileTypeName
+                });
+            newLinkedDocument = new();
+            StateHasChanged();
+        }
+        else
+        {
+            message = "No information to add to the list.";
+            ShowErrorModal();
+        }
+    }
+
+    private void DeleteRowAttachment(LinkedDocuments doc)
+    {
+        linkedDocuments.Remove(doc);
+        if (doc.FullFileName != null)
+        {
+            DeleteFileFromServer(doc.FullFileName);
+        }
+        StateHasChanged();
+    }
+
+    private void DeleteFileFromServer(string filepath)
+    {
+        if (File.Exists(filepath))
+        {
+            File.Delete(filepath);
+        }
+    }
+
+    //UpdateFileDirectoryPaths
+    private void UpdateFileDirectoryPaths(int disciplineid)
+    {
+        string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\Discipline0";
+        string desiredpath = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\Discipline{disciplineid}";
+
+        if (!Directory.Exists(desiredpath))
+        {
+            Directory.CreateDirectory(desiredpath);
+        }
+
+        if (Directory.Exists(path))
+        {
+            foreach(string file in Directory.GetFiles(path))
+            {
+                string fileName = Path.GetFileName(file);
+                desiredpath = Path.Combine(desiredpath, fileName);
+                File.Move(file, desiredpath);
+            }
+
+            Directory.Delete(path);
+        }
+    }
+
+    //Navigation---------------------------------------------------------------------
+    private void navToDisciplineUserPage()
+    {
+        navManager.NavigateTo($"/Discipline");
+    }
+
+    //selected row styling---------------------------------------------------------
+    private void OnRowStyling(CounsellingNotes notes, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void OnRowStylingBreaches(OffenceBreach notes, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    //Download file from server
+    private async Task DownloadFile(string path)
+    {
+        if (File.Exists(path))
+        {
+            byte[] fileBytes = File.ReadAllBytes(path);
+            await jsRuntime.InvokeAsync<object>("saveAsFile", $"CounsellingNote{noteid}.docx", fileBytes);
+        }
+    }
+
+    private async Task DownloadInvictusFile(string path)
+    {
+        if (File.Exists(path))
+        {
+            byte[] fileBytes = File.ReadAllBytes(path);
+            await jsRuntime.InvokeAsync<object>("saveAsFile", $"DisciplineInvictusForm{disid}.docx", fileBytes);
+        }
+    }
+
+    private string message = string.Empty;
+    private int noteid = 0;
+    //Check for note saved on server
+    private async Task CheckServerForNotes(CounsellingNotes note)
+    {
+        string ftplocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\CounsellingNote{note.Id}\\";
+        if (Directory.Exists(ftplocation))
+        {
+            noteid = note.Id;
+            string?[] existingFiles = Directory.GetFiles(ftplocation).Select(Path.GetFileName).ToArray();
+
+            if (existingFiles.Length > 0)
+            {
+                await DownloadFile(existingFiles[0], ftplocation);
+            }
+            else
+            {
+                message = "There exists no file in the specified location.";
+                await ShowErrorModal();
+            }
+        }
+        else
+        {
+            message = "There exists no Consultation Note on the server.";
+            await ShowErrorModal();
+        }
+        
+    }
+
+    
+
+    private List<string> fileNamesDiscipline = new();
+    private List<string> fileNamesCurrentDiscipline = new();
+
+    private string filepath = string.Empty;
+    private string filepathcurrent = string.Empty;
+
+    private void GetDisciplineFiles()
+    {
+        filepath = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\Discipline{ViewDisciplineSelected.Id}";
+        filepathcurrent = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\Discipline{shareddataService.disciplineNoteNum}";
+
+        fileNamesDiscipline = GetFileNames(filepath);
+        fileNamesCurrentDiscipline = GetFileNames(filepathcurrent);
+
+    }
+
+    private List<string> GetFileNames(string directoryPath)
+    {
+        try
+        {
+            // Get file names in the directory
+            return Directory.GetFiles(directoryPath).Select(Path.GetFileName).ToList();
+        }
+        catch (Exception ex)
+        {
+            return new List<string>();
+        }
+    }
+
+    private async Task DownloadFile(string fileName, string path)
+    {
+        // Construct the full path
+        string filePath = Path.Combine(path, fileName);
+
+        if (File.Exists(filePath))
+        {
+            byte[] fileBytes = File.ReadAllBytes(filePath);
+            await jsRuntime.InvokeAsync<object>("saveAsFile", fileName, fileBytes);
+        }
+    }
+
+    private int disid = 0;
+    private async Task CheckServerForDiscipline(OffenceBreach discipline)
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\Discipline{discipline.Id}\\DisciplineInvictusForm{discipline.Id}.docx";
+
+        if (File.Exists(ftpLocation))
+        {
+            disid = discipline.Id;
+            await DownloadInvictusFile(ftpLocation);
+        }
+        else
+        {
+            message = "There exists no saved Invictus Form on the server.";
+            await ShowErrorModal();
+            return;
+        }
+    }
+
+    
+
+
+
+    private void SaveAndExit()
+    {   
+        
+        newdiscipline.Id = shareddataService.disciplineNoteNum;
+        newdiscipline.recStatus = 1;
+        newdiscipline.EmployeeID = shareddataService.EmployeeID;
+        newdiscipline.SubmissionStatus = 0;
+        newdiscipline.BreachTypeID = 5; // No Outcome
+        newdiscipline.ApprovedForSend = 0;
+        //set process to not submitted
+        newdiscipline.DisciplineProcessID = 1;
+
+        if (isRichTextEditDetailsModified)
+        {
+            newdiscipline.Description = DetailsAsHTML;
+        }
+        //dservice.UpdateOffenceBreach(newdiscipline);
+        dservice.AddOffenceBreach(newdiscipline);
+
+
+        //Update List on page
+        employeebreaches = dservice.EmployeeBreaches(shareddataService.EmployeeID);
+        foreach (var item in employeebreaches)
+        {
+            item.OffenceName = offenceslist.FirstOrDefault(x => x.Id == item.OffenceID).OffenceName;
+            item.BreachName = breachtypeslist.FirstOrDefault(x => x.Id == item.BreachTypeID).BreachName;
+            if (item.SubmissionStatus == 1)
+            {
+                item.SubmissionStatusString = "Submitted";
+            }
+            else
+            {
+                item.SubmissionStatusString = "Not Submitted";
+            }
+        }
+
+        newdiscipline = new();
+        StateHasChanged();
+        CloseSaveAndExitModal();       
+
+    }
+
+    private RenderFragment GetDescription()
+    {
+        return builder =>
+        {
+            builder.AddMarkupContent(0, newdiscipline.Description);
+        };
+    }
+
+
+}

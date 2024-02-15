@@ -1,0 +1,385 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.rtl.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.rtl.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.rtl.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-grid.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-grid.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.rtl.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.rtl.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.rtl.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-reboot.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-reboot.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.rtl.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.rtl.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.rtl.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap-utilities.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap-utilities.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.rtl.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap.rtl.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.rtl.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.rtl.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap.rtl.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\css\\bootstrap.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.bundle.js",
+      "PackagePath": "staticwebassets\\js\\bootstrap.bundle.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.bundle.js.map",
+      "PackagePath": "staticwebassets\\js\\bootstrap.bundle.js.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.bundle.min.js",
+      "PackagePath": "staticwebassets\\js\\bootstrap.bundle.min.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.bundle.min.js.map",
+      "PackagePath": "staticwebassets\\js\\bootstrap.bundle.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.esm.js",
+      "PackagePath": "staticwebassets\\js\\bootstrap.esm.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.esm.js.map",
+      "PackagePath": "staticwebassets\\js\\bootstrap.esm.js.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.esm.min.js",
+      "PackagePath": "staticwebassets\\js\\bootstrap.esm.min.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.esm.min.js.map",
+      "PackagePath": "staticwebassets\\js\\bootstrap.esm.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.js",
+      "PackagePath": "staticwebassets\\js\\bootstrap.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.js.map",
+      "PackagePath": "staticwebassets\\js\\bootstrap.js.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.min.js",
+      "PackagePath": "staticwebassets\\js\\bootstrap.min.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\.nuget\\packages\\bootstrap\\5.3.1\\contentFiles\\any\\any\\wwwroot\\js\\bootstrap.min.js.map",
+      "PackagePath": "staticwebassets\\js\\bootstrap.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\obj\\Debug\\net7.0\\scopedcss\\projectbundle\\YODA.bundle.scp.css",
+      "PackagePath": "staticwebassets\\YODA.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\CapexVideo.mp4",
+      "PackagePath": "staticwebassets\\CapexVideo.mp4"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\EmployeeDetailsVideo.mp4",
+      "PackagePath": "staticwebassets\\EmployeeDetailsVideo.mp4"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\OIP.jpg",
+      "PackagePath": "staticwebassets\\Images\\OIP.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\PicYork.jpg",
+      "PackagePath": "staticwebassets\\Images\\PicYork.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\PicYork.png",
+      "PackagePath": "staticwebassets\\Images\\PicYork.png"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\R.jpg",
+      "PackagePath": "staticwebassets\\Images\\R.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SVGYork.png",
+      "PackagePath": "staticwebassets\\Images\\SVGYork.png"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SVGYorkBW.png",
+      "PackagePath": "staticwebassets\\Images\\SVGYorkBW.png"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SabieValley.jpg",
+      "PackagePath": "staticwebassets\\Images\\SabieValley.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SabieWoods2.JPG",
+      "PackagePath": "staticwebassets\\Images\\SabieWoods2.JPG"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SabieWoods3.JPG",
+      "PackagePath": "staticwebassets\\Images\\SabieWoods3.JPG"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SabieWoods4.JPG",
+      "PackagePath": "staticwebassets\\Images\\SabieWoods4.JPG"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SabieWoods5.tiff",
+      "PackagePath": "staticwebassets\\Images\\SabieWoods5.tiff"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\SideBar.png",
+      "PackagePath": "staticwebassets\\Images\\SideBar.png"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\f2.jpg",
+      "PackagePath": "staticwebassets\\Images\\f2.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\f7.jpg",
+      "PackagePath": "staticwebassets\\Images\\f7.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\loginscreenpic.jpg",
+      "PackagePath": "staticwebassets\\Images\\loginscreenpic.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\mainforestpic.jpg",
+      "PackagePath": "staticwebassets\\Images\\mainforestpic.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\pic1.jpg",
+      "PackagePath": "staticwebassets\\Images\\pic1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\pic2.jpg",
+      "PackagePath": "staticwebassets\\Images\\pic2.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\pic3.jpg",
+      "PackagePath": "staticwebassets\\Images\\pic3.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\sabiewoods.jpg",
+      "PackagePath": "staticwebassets\\Images\\sabiewoods.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\Images\\yorkforest.jpg",
+      "PackagePath": "staticwebassets\\Images\\yorkforest.jpg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\YorkMainVideo.mp4",
+      "PackagePath": "staticwebassets\\YorkMainVideo.mp4"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
+      "PackagePath": "staticwebassets\\css\\open-iconic"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\ICON-LICENSE",
+      "PackagePath": "staticwebassets\\css\\open-iconic"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\README.md",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\README.md"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.eot",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.eot"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.otf",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.otf"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.svg",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.svg"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.ttf",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.ttf"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.woff",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.woff"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\files\\ExcelDoc.xlsx",
+      "PackagePath": "staticwebassets\\files\\ExcelDoc.xlsx"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\files\\PdfDoc.pdf",
+      "PackagePath": "staticwebassets\\files\\PdfDoc.pdf"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\files\\WordDoc.docx",
+      "PackagePath": "staticwebassets\\files\\WordDoc.docx"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\jquery\\jquery.js",
+      "PackagePath": "staticwebassets\\jquery\\jquery.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\jquery\\jquery.min.js",
+      "PackagePath": "staticwebassets\\jquery\\jquery.min.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\jquery\\jquery.min.map",
+      "PackagePath": "staticwebassets\\jquery\\jquery.min.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\jquery\\jquery.slim.js",
+      "PackagePath": "staticwebassets\\jquery\\jquery.slim.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\jquery\\jquery.slim.min.js",
+      "PackagePath": "staticwebassets\\jquery\\jquery.slim.min.js"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\jquery\\jquery.slim.min.map",
+      "PackagePath": "staticwebassets\\jquery\\jquery.slim.min.map"
+    },
+    {
+      "Id": "C:\\Users\\HKotze\\Desktop\\Blazor\\YODA\\YODA\\wwwroot\\js\\myJS.js",
+      "PackagePath": "staticwebassets\\js\\myJS.js"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.YODA.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.YODA.props",
+      "PackagePath": "build\\YODA.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.YODA.props",
+      "PackagePath": "buildMultiTargeting\\YODA.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.YODA.props",
+      "PackagePath": "buildTransitive\\YODA.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

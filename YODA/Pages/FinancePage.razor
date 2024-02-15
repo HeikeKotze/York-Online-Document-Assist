@@ -1,0 +1,61 @@
+﻿@page "/Financial"
+
+
+@using YODA.Services
+@using YODA.Pages.CapexComponents
+
+@inject SharedDataService shareddataService
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Financial</PageTitle>
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="navToMainPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Financial Forms</h1>
+        <p>Select the Financial Form that you would like to submit.</p>
+    </center>
+
+    <br />
+    <hr />
+    <br />
+    <br />
+
+    <div class="container" style="width:600px">
+        <div class="row">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                <center>
+                    <button class="btn btn-dark btn-block" style="width: 60%; height:50px" @onclick="navToCUP">Capex</button>
+                </center>
+            </WhiteContainer>
+            </div>
+        </div>
+    </div>
+
+    
+
+
+</WhiteContainer>
+
+@code {
+
+    //Navigation---------------------------------------------------------------
+    private void navToCUP()
+    {
+        NavigationManager.NavigateTo($"/CapexUserPage");
+    }
+
+    private void navToMainPage()
+    {
+        NavigationManager.NavigateTo($"/MainOnlinePage");
+    }
+}

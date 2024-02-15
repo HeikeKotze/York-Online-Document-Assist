@@ -1,0 +1,324 @@
+﻿@page "/MessagesBoard"
+
+@inject NavigationManager navManager
+@using YODA.Pages.CapexComponents
+@using YODA.Services
+@using YODA.Repos.Models
+@inject SharedDataService shareddataService
+@inject IEmployeeService empService
+@inject IEmailService mailService
+
+<PageTitle>Admin Messages Board</PageTitle>
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button @onclick="navToMainPage" id="btnBack" class="btn btn-dark" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>YODA Admin Messages Board</h1>
+    </center>
+
+    <br />
+    <hr />
+    <br />
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                <center>
+                    
+                    <DataGrid TItem="MessageToAdmin" Data="@messages" Responsive Filterable ShowPager
+                               PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                     @bind-SelectedRow="@selectedMessage" SelectedRowStyling="@OnRowStyling">
+                         <DataGridColumns>
+                             <DataGridCommandColumn />
+                             <DataGridColumn Field="@nameof(MessageToAdmin.Id)" Caption="#" Width="5%" Editable="false"></DataGridColumn>
+                             <DataGridColumn Field="@nameof(MessageToAdmin.EmployeeID)" Width="15%" Caption="Employee ID" Editable="false"></DataGridColumn>
+                             <DataGridColumn Field="@nameof(MessageToAdmin.EmployeeName)" Width="20%" Caption="Name" Editable="false"></DataGridColumn>
+                             <DataGridColumn Field="@nameof(MessageToAdmin.DateString)" Width="20%" Caption="Date Sent" Editable="false"></DataGridColumn>
+                             <DataGridColumn Field="@nameof(MessageToAdmin.DateStringReply)" Width="20%" Caption="Date Replied" Editable="false"></DataGridColumn>
+                         </DataGridColumns>
+                         <PageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.PageNumber
+                             </Span>
+                         </PageButtonTemplate>
+                         <NextPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Next
+                             </Span>
+                         </NextPageButtonTemplate>
+                         <PreviousPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Previous
+                             </Span>
+                         </PreviousPageButtonTemplate>
+                         <LastPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Last
+                             </Span>
+                         </LastPageButtonTemplate>
+                         <FirstPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 First
+                             </Span>
+                         </FirstPageButtonTemplate>
+                         <TotalItemsTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.TotalItems
+                             </Span>
+                         </TotalItemsTemplate>
+                     </DataGrid>
+                     
+                </center>
+            </WhiteContainer>
+             </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                 <button @onclick="checkEmpID" class="btn btn-dark">View & Reply to Sender</button>
+            </div>
+        </div>
+    </div>
+
+</WhiteContainer>
+
+ <Blazorise.Modal @ref="modalReply">
+     <Blazorise.ModalContent Centered Size="ModalSize.Large">
+        <ModalHeader>
+            <ModalTitle>Reply to Sender</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="max-width: 100%;">
+                        <div class="container" style="margin-left:30px">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <label>Message ID</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedMessage.Id
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <label>Employee ID</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedMessage.EmployeeID
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <label>Employee Name</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedMessage.EmployeeName
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <label>Date Sent</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedMessage.DateString
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <label>Message</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedMessage.MessageBody
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <label>Reply</label>
+                                    </div>
+                                     @if(selectedMessage.ReplyToSenderMessageBody == null)
+                                    {
+                                        <div class="row">
+                                            <textarea @bind="selectedMessage.ReplyToSenderMessageBody" class="form-control"></textarea>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="alert alert-success">
+                                                @selectedMessage.ReplyToSenderMessageBody
+                                            </Div>
+                                        </div>                                        
+
+                                    }
+                                </div>
+                            </div>
+                            
+                            @if(selectedMessage.ReplyToSenderMessageBody == null)
+                            {
+                                <br />
+                                <div class="row">
+                                         <div class="col-md-11">
+                                             <center>
+                                                <button @onclick="sendMessage" style="width:40%" class="btn btn-dark">Send Message</button>
+                                            </center>
+                                         </div>
+                             </div>
+                            }                    
+                        </div>
+                    </div>
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark" type="button" @onclick="HideReplyModal">Close</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalError">
+     <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <WhiteContainer>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                    <div>
+                        Error
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @message
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </WhiteContainer>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="HideErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+ @code {
+    private List<MessageToAdmin> messages = new();
+    private MessageToAdmin selectedMessage = new();
+    private Blazorise.Modal modalReply = new();
+    private Blazorise.Modal modalError = new();
+    private string message = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        messages = mailService.GetAllMessages();
+        if(messages.Count != 0)
+        {
+            foreach(var item in messages)
+            {
+                item.EmployeeName = empService.GetById(item.EmployeeID).FullName;
+                item.DateString = item.DateSent.Value.ToString("yyyy-MM-dd");
+                if(item.ReplyDateSent != null)
+                {
+                    item.DateStringReply = item.ReplyDateSent.Value.ToString("yyyy-MM-dd");
+                }
+                else
+                {
+                    item.DateStringReply = "No Reply";
+                }
+            }
+        }
+    }
+
+    private void OnRowStyling(MessageToAdmin messages, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void navToMainPage()
+    {
+        navManager.NavigateTo("MainOnlinePage");
+    }
+
+    private void checkEmpID()
+    {
+        if(selectedMessage.Id == 0)
+        {
+            message = "You have not selected a message.";
+            ShowErrorModal();
+        }
+        else
+        {
+            ShowReplyModal();
+        }        
+    }
+
+    private void sendMessage()
+    {
+        if(selectedMessage.ReplyToSenderMessageBody == null)
+        {
+            message = "You can not send an empty message;";
+            ShowErrorModal();
+        }
+        else
+        {
+            string message = $"Hi,\r\n\r\nThe following message sent to YODA Admin received a reply:\r\n\r\nMessage Sent : {selectedMessage.MessageBody}\r\nReply : {selectedMessage.ReplyToSenderMessageBody}\r\n\r\nThank you for using the messaging system of YODA.\r\n\r\nRegards\r\nYork Online Document Assist";
+            Employee emp = empService.GetById(selectedMessage.EmployeeID);
+            Employee admin = empService.GetSingleEmployee("YODA-Admin");
+            selectedMessage.ReplyDateSent = DateTime.Now;
+            //Update
+            mailService.SaveEmailMessageToAdmin(selectedMessage);
+            mailService.SendEmailToSender(emp.EmailAddress, admin.EmailAddress, message);
+            HideReplyModal();
+            StateHasChanged();
+        }
+
+    }
+
+    private Task ShowReplyModal()
+    {
+        return modalReply.Show();
+    }
+
+    private Task HideReplyModal()
+    {
+        return modalReply.Hide();
+    }
+    private Task ShowErrorModal()
+    {
+        return modalError.Show();
+    }
+    private Task HideErrorModal()
+    {
+        return modalError.Hide();
+    }
+
+}

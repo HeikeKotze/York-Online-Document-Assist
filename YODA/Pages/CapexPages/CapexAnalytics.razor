@@ -1,0 +1,633 @@
+﻿@page "/CapexAnalyticsPage"
+
+@using YODA.Repos.Models
+@using YODA.Pages.CapexComponents
+@using YODA.Services
+
+@inject ILegalEntityService legalEntityService
+@inject ISiteService siteService
+@inject IProjectManagerService userService
+@inject IBusinessUnitService buService
+@inject ICapexUserService cuService
+@inject ICapexFormService cfService
+@inject IEmployeeService empService
+@inject IWorkRecordService wrservice
+@inject SharedDataService shareddataService
+
+@inject NavigationManager NavManager
+
+<WhiteContainer>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="navToUserPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Capex Analytics</h1>
+        <br />
+    </center>
+
+    <br />
+    <hr />
+    <br />
+
+<div class="container">
+        <div class="row">
+            <div class="col-12">
+                <p><strong>Filter Capex Forms</strong></p>
+            </div>
+        </div>
+</div>
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+                <label for="capexTitle">Legal Entity</label>
+                <button class="btn btn-dark w-100"  @onclick="ShowLEModal">Filter Legal Entities</button>
+        </div>
+            <div class="col-3">
+                <label for="capexTitle">Business Unit</label>
+                <button class="btn btn-dark w-100"  @onclick="ShowBUModal">Filter Business Units</button>
+        </div>
+        <div class="col-3">
+            <label>Departments</label>
+            <button class="btn btn-dark w-100" @onclick="ShowDeptModal">Filter Departments</button>
+        </div>
+        <div class="col-3">
+                <label for="capexTitle">Initiator</label>
+                <button class="btn btn-dark w-100"  @onclick="ShowCUModal">Filter Initiators</button>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <button class="btn btn-dark" id="btnFilter" @onclick="@Filter">Filter</button>
+            <button class="btn btn-dark" id="btnClearCFilter" @onclick="@ClearFilter">Clear Filter</button>
+        </div>
+    </div>
+</div>
+
+<br />
+<hr />
+<br />
+
+<div class="container">
+    <div class="row">
+        <Div Class="alert alert-success">
+        <WhiteContainer>
+                @if(combinedList is null)
+                {
+                    <p><em>No filtered Capex Forms yet...</em></p>
+                }
+                else
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Capex ID</th>
+                                <th>Capex Title</th>
+                                <th>Total Amount</th>
+                                <th>Capex Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in combinedList)
+                            {
+                                <tr>
+                                    <td>@item.CapexId</td>
+                                    <td>@item.CapexTitle</td>
+                                    <td>@item.TotalCost</td>
+                                    <td>@item.OutcomeString</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </WhiteContainer>
+            </Div>
+    </div>
+</div>
+
+<br />
+<hr />
+<br />
+
+@if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 1).AccessTypeID == 1){
+<div class="container">
+    <div class="row">
+        <AnalyticsCapexGrid></AnalyticsCapexGrid>
+    </div>
+</div>
+    }
+
+</WhiteContainer>
+
+<Blazorise.Modal @ref="LEModal">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Filter Legal Entities</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <WhiteContainer>
+                @if (le is null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    <DataGrid TItem="LegalEntity" Data="@le" Responsive Filterable ShowPager
+                               PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                     @bind-SelectedRow="@selectedEntity"
+                                SelectionMode="DataGridSelectionMode.Multiple"
+                     @bind-SelectedRows="selectedEntities" SelectedRowStyling="@OnRowStyling">
+                         <DataGridColumns>
+                             <DataGridMultiSelectColumn Width="30px"></DataGridMultiSelectColumn>
+                             <DataGridCommandColumn />
+                             <DataGridColumn Field="@nameof(LegalEntity.LegalEntityName)" Caption="Legal Entity Name" Editable="false"></DataGridColumn>
+                         </DataGridColumns>
+                         <PageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.PageNumber
+                             </Span>
+                         </PageButtonTemplate>
+                         <NextPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Next
+                             </Span>
+                         </NextPageButtonTemplate>
+                         <PreviousPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Previous
+                             </Span>
+                         </PreviousPageButtonTemplate>
+                         <LastPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Last
+                             </Span>
+                         </LastPageButtonTemplate>
+                         <FirstPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 First
+                             </Span>
+                         </FirstPageButtonTemplate>
+                         <TotalItemsTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.TotalItems
+                             </Span>
+                         </TotalItemsTemplate>
+                     </DataGrid>
+                }
+            </WhiteContainer>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseLEModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+
+
+<Blazorise.Modal @ref="CUModal">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Filter Initiators</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <WhiteContainer>
+                @if (emp is null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    <DataGrid TItem="Employee" Data="@emp" Responsive Filterable ShowPager
+                        PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                     @bind-SelectedRow="@selectedInitiator"
+                               SelectionMode="DataGridSelectionMode.Multiple"
+                     @bind-SelectedRows="selectedInitiators" SelectedRowStyling="@OnRowStyling">
+                     <DataGridColumns>
+                         <DataGridMultiSelectColumn Width="30px"></DataGridMultiSelectColumn>
+                         <DataGridCommandColumn />
+                         <DataGridColumn Field="@nameof(Employee.FullName)" Caption="Employee Name" Editable="false"></DataGridColumn>
+                     </DataGridColumns>
+                         <PageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.PageNumber
+                             </Span>
+                         </PageButtonTemplate>
+                         <NextPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Next
+                             </Span>
+                         </NextPageButtonTemplate>
+                         <PreviousPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Previous
+                             </Span>
+                         </PreviousPageButtonTemplate>
+                         <LastPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Last
+                             </Span>
+                         </LastPageButtonTemplate>
+                         <FirstPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 First
+                             </Span>
+                         </FirstPageButtonTemplate>
+                         <TotalItemsTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.TotalItems
+                             </Span>
+                         </TotalItemsTemplate>
+                     </DataGrid>
+                }
+            </WhiteContainer>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseCUModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="BUModal">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Filter Business Units</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <WhiteContainer>
+                @if (bu is null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    <DataGrid TItem="BusinessUnit" Data="@bu" Responsive Filterable ShowPager
+                               PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                     @bind-SelectedRow="@selectedBusinessUnit"
+                               SelectionMode="DataGridSelectionMode.Multiple"
+                     @bind-SelectedRows="selectedBusinessUnits" SelectedRowStyling="@OnRowStyling">
+                     <DataGridColumns>
+                         <DataGridMultiSelectColumn Width="30px"></DataGridMultiSelectColumn>
+                         <DataGridCommandColumn />
+                         <DataGridColumn Field="@nameof(BusinessUnit.BusinessUnitName)" Caption="Business Unit Name" Editable="false"></DataGridColumn>
+                     </DataGridColumns>
+                         <PageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.PageNumber
+                             </Span>
+                         </PageButtonTemplate>
+                         <NextPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Next
+                             </Span>
+                         </NextPageButtonTemplate>
+                         <PreviousPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Previous
+                             </Span>
+                         </PreviousPageButtonTemplate>
+                         <LastPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Last
+                             </Span>
+                         </LastPageButtonTemplate>
+                         <FirstPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 First
+                             </Span>
+                         </FirstPageButtonTemplate>
+                         <TotalItemsTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.TotalItems
+                             </Span>
+                         </TotalItemsTemplate>
+                     </DataGrid>
+                }
+            </WhiteContainer>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseBUModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="DeptModal">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Filter Departments</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <WhiteContainer>
+                @if (dept is null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    <DataGrid TItem="EmployeeDepartment" Data="@dept" Responsive Filterable ShowPager
+                               PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                     @bind-SelectedRow="@selectedDepartment"
+                               SelectionMode="DataGridSelectionMode.Multiple"
+                     @bind-SelectedRows="selectedEmployeeDepartments" SelectedRowStyling="@OnRowStyling">
+                         <DataGridColumns>
+                             <DataGridMultiSelectColumn Width="30px"></DataGridMultiSelectColumn>
+                             <DataGridCommandColumn />
+                             <DataGridColumn Field="@nameof(EmployeeDepartment.DepartmentName)" Caption="Department Name" Editable="false"></DataGridColumn>
+                         </DataGridColumns>
+                         <PageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.PageNumber
+                             </Span>
+                         </PageButtonTemplate>
+                         <NextPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Next
+                             </Span>
+                         </NextPageButtonTemplate>
+                         <PreviousPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Previous
+                             </Span>
+                         </PreviousPageButtonTemplate>
+                         <LastPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Last
+                             </Span>
+                         </LastPageButtonTemplate>
+                         <FirstPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 First
+                             </Span>
+                         </FirstPageButtonTemplate>
+                         <TotalItemsTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.TotalItems
+                             </Span>
+                         </TotalItemsTemplate>
+                     </DataGrid>
+                }
+            </WhiteContainer>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseDeptModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="ErrorModal">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <WhiteContainer>
+                <div class="alert alert-success">
+                    <center>
+                        @message
+                    </center>
+                </div>
+            </WhiteContainer>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+
+    //Variables--------------------------------------------------------------
+
+    List<LegalEntity> le = new();
+    List<CapexUser> cu = new();
+    List<Employee> emp = new();
+    List<BusinessUnit> bu = new();
+    List<EmployeeDepartment> dept = new();
+
+    //Filter lists and entities
+    LegalEntity selectedEntity = new();
+    List<LegalEntity> selectedEntities = new();
+    BusinessUnit selectedBusinessUnit = new();
+    List<BusinessUnit> selectedBusinessUnits = new();
+    Employee selectedInitiator = new();
+    List<Employee> selectedInitiators = new();
+    Employee selectedEmployee = new();
+    List<Employee> selectedEmployees = new ();
+    List<EmployeeDepartment> selectedEmployeeDepartments = new();
+    EmployeeDepartment selectedDepartment = new ();
+
+    //Single objects
+    Employee currentEmp = new();
+    BusinessUnit currentBusinessUnit = new();
+    LegalEntity currentLegalEntity = new();
+    EmployeeDepartment currentDepartment = new();
+
+    //error message
+    private string message = string.Empty;
+
+
+    //Combined list
+    //Initialized---------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 1).AccessTypeID == 1 || shareddataService.UserID == 1)
+        {
+            le = legalEntityService.GetLegalEntities();
+            bu = buService.GetBusinessUnitList();
+            emp = empService.GetAll();
+            if(shareddataService.UserID != 1)
+            {
+                emp.RemoveAt(0);
+            }
+            dept = empService.GetDepartmentList();
+        }
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).AccessTypeID == 2)
+        {
+            currentEmp = empService.GetSingleEmployee(shareddataService.UserName);
+            currentBusinessUnit = buService.GetBusinessUnitById(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).BusinessUnitID);
+            bu.Add(currentBusinessUnit);
+            currentLegalEntity = legalEntityService.GetLegalEntityById(currentEmp.CompanyNumberID);
+            le.Add(currentLegalEntity);
+            currentDepartment = empService.GetDepartment(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).DepartmentID);
+            dept.Add(currentDepartment);
+            emp = empService.GetEmployeesforBusinessUnitDepartment(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).BusinessUnitID, shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).DepartmentID);
+        }
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).AccessTypeID == 3)
+        {
+            currentBusinessUnit = buService.GetBusinessUnitById(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).BusinessUnitID);
+            bu.Add(currentBusinessUnit);
+            currentLegalEntity = legalEntityService.GetLegalEntityById(currentEmp.CompanyNumberID);
+            le.Add(currentLegalEntity);
+            currentDepartment = empService.GetDepartment(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).DepartmentID);
+            dept.Add(currentDepartment);
+            currentEmp = empService.GetSingleEmployee(shareddataService.UserName);
+            emp.Add(currentEmp);
+        }
+
+    }
+
+    //combined list for filtering--------------------------------------------
+    private List<CapexForm> combinedList = new();
+    private void Filter()
+    {
+        if(selectedEntities.Count > 0 && selectedBusinessUnits.Count > 0 && selectedInitiators.Count > 0 && selectedInitiators.Count > 0)
+        {
+            combinedList = cfService.CombinedDataForAnalytics(selectedEntities, selectedBusinessUnits, selectedInitiators, selectedEmployeeDepartments);
+            setOutcomes();
+        }
+        else
+        {
+            message = "You have not selected elements to filter.";
+            ShowErrorModal();
+            return;
+        }
+
+
+    }
+
+    //clear current filter---------------------------------------------------
+    private void ClearFilter()
+    {
+        selectedEntities = new List<LegalEntity>();
+        selectedBusinessUnits = new List<BusinessUnit>();
+        selectedInitiators = new List<Employee>();
+        selectedEmployeeDepartments = new();
+        combinedList = new();
+    }
+
+    //set outcome int to string----------------------------------------------
+    private void setOutcomes()
+    {
+        foreach (var item in combinedList)
+        {
+            if (item.CapexOutcome == 0)
+            {
+                item.OutcomeString = "Declined";
+            }
+            if (item.CapexOutcome == 1)
+            {
+                item.OutcomeString = "On Hold";
+            }
+            if (item.CapexOutcome == 2)
+            {
+                item.OutcomeString = "Approved";
+            }
+        }
+    }
+
+    //Navigation------------------------------------------------------------
+    private void navToUserPage()
+    {
+        NavManager.NavigateTo($"/CapexUserPage");
+    }
+
+    //Modals with lists-----------------------------------------------------
+    private Blazorise.Modal LEModal = new();
+    private Blazorise.Modal BUModal = new();
+    private Blazorise.Modal CUModal = new();
+    private Blazorise.Modal DeptModal = new();
+    private Blazorise.Modal ErrorModal = new();
+    private bool cancelClose;
+
+    private Task ShowErrorModal()
+    {
+        return ErrorModal.Show();
+    }
+    private Task CloseErrorModal()
+    {
+        return ErrorModal.Hide();
+    }
+
+    private Task ShowLEModal()
+    {
+        return LEModal.Show();
+    }
+
+    private Task CloseLEModal()
+    {
+        cancelClose = false;
+
+        return LEModal.Hide();
+    }
+
+    private Task ShowDeptModal()
+    {
+        return DeptModal.Show();
+    }
+
+    private Task CloseDeptModal()
+    {
+        cancelClose = false;
+
+        return DeptModal.Hide();
+    }
+
+    private Task ShowBUModal()
+    {
+        return BUModal.Show();
+    }
+
+    private Task CloseBUModal()
+    {
+        cancelClose = false;
+
+        return BUModal.Hide();
+    }
+
+    private Task ShowCUModal()
+    {
+        return CUModal.Show();
+    }
+
+    private Task CloseCUModal()
+    {
+        cancelClose = false;
+
+        return CUModal.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+ 
+
+    //selected row styling-----------------------------------------------------
+    private void OnRowStyling(LegalEntity le, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void OnRowStyling(Employee user, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void OnRowStyling(BusinessUnit bu, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void OnRowStyling(EmployeeDepartment dept, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+}

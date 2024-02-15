@@ -1,0 +1,724 @@
+﻿@page "/VIP/New"
+
+<PageTitle>@Title</PageTitle>
+@using YODA.Pages.CapexComponents
+@using Services
+@using YODA.Repos.Models
+@using System
+@using System.Text
+@using DocumentFormat.OpenXml
+@inject NavigationManager navManager
+@inject IEmployeeService empservice
+@inject IBusinessUnitService buservice
+@inject IRoleService roleservice
+@inject ICapexUserService cuservice
+@inject IAccessService aservice
+@inject ILegalEntityService leservice
+@inject IServerPathConfigService spservice
+@inject IWorkRecordService wordrecservice
+@inject IAccessLinkingService alService
+@inject IJSRuntime jsRuntime
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" @onclick="navToEmpUserPage" class="btn btn-dark" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <center>
+                <img style="width:100px; height:100px" src="Images/SVGYork.png" alt="" />
+                <h1>@Title</h1>
+            </center>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Employee Details</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label >First Name</label>
+                <input type="text" class="form-control" @bind-value="newEmployee.FirstName"/>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Surname</label>
+                <input type="text" class="form-control" @bind-value="newEmployee.Surname"/>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label >Identification Number</label>
+                <input type="number" class="form-control" @bind-value="newEmployee.IDNumber"/>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Employee Number</label>
+                <input type="text" class="form-control" @bind-value="newEmployee.EmployeeNumber"/>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+          <div class="col-6">
+                <label>Legal Enity</label>
+                    <select class="form-select" @onchange="LegalEntityClicked">
+                        <option value="">Select Legal Entity...</option>
+                        @foreach(var item in entities)
+                        {
+                        <option value="@item.LegalEntityId">@item.LegalEntityName</option>
+                        }
+                    </select>
+            </div> 
+            <div class="col-sm">
+                <label>Business Unit</label>
+                <select class="form-select" @onchange="BusinessUnitClicked" disabled="@businessunitshow">
+                    <option value="">Select Business Unit...</option>
+                    @foreach (var item in businessunits)
+                    {
+                        <option value="@item.BusinessUnitId">@item.BusinessUnitName</option>
+                    }
+                </select>
+                
+            </div>
+
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Department</label>
+                <select class="form-select" @onchange="DepartmentClicked" disabled="@departmentshow">
+                    <option value="">Select Department...</option>
+                    @foreach (var item in departments)
+                    {
+                        <option value="@item.Id">@item.DepartmentName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6">
+                <label >Role</label>
+                <select class="form-select" @onchange="RoleClicked" disabled="@roleshow">
+                    <option value="">Select Role...</option>
+                    @foreach(var item in roles)
+                    {
+                        <option value="@item.RoleId">@item.RoleName</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+  
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-success">
+                <WhiteContainer>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Module Type</th>
+                                <th>Choose Access Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(accessTypesEmp.Count > 0)
+                            {
+                                <tr>
+                                    <td>Employee Sign Up</td>
+                                    <td>
+                                        <select class="form-select" @bind="numEmp">
+                                            @foreach(var item in accessTypesEmp)
+                                            {
+                                                <option value="@item.AccessTypeId">@item.AccessTypeName</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                            @if(accessTypesCapex.Count > 0)
+                            {
+                                <tr>
+                                    <td>Capital Expenditure</td>
+                                    <td>
+                                        <select class="form-select" @bind="numCapex">
+                                            @foreach(var item in accessTypesCapex)
+                                            {
+                                                <option value="@item.AccessTypeId">@item.AccessTypeName</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                            @if(accessTypesDiscipline.Count > 0)
+                            {
+                                <tr>
+                                    <td>Employee Discipline</td>
+                                    <td>
+                                        <select class="form-select" @bind="numDiscipline">
+                                            @foreach(var item in accessTypesDiscipline)
+                                            {
+                                                <option value="@item.AccessTypeId">@item.AccessTypeName</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                            @if(accessTypesYoms.Count > 0)
+                            {
+                                <tr>
+                                    <td>York Online Management System</td>
+                                    <td>
+                                        <select class="form-select" @bind="numYOMS">
+                                            @foreach(var item in accessTypesYoms)
+                                            {
+                                                <option value="@item.AccessTypeId">@item.AccessTypeName</option>
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </WhiteContainer>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <br />
+    <hr />
+    <br />
+
+    <center>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button type="button" style="width:200px" class="btn btn-dark" @onclick="saveEmployee">Submit</button>
+            </div>
+        </div>
+    </div>
+    </center>
+
+</WhiteContainer>
+}
+
+<Blazorise.Modal @ref="modal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>@modaltitle</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                @if (error)
+                {
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @message
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @message
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="navToEmpUserPage" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back to User Page</button>
+            <button @onclick="CloseModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+
+    //variables to set
+    Employee newEmployee = new();
+    CapexUser newCapexUser = new();
+    Employee toSaveEmployee = new();
+
+
+    //modal strings
+    private string Title = "New Employee Form";
+    private string message = string.Empty;
+
+    //Modal instantiation
+    private Blazorise.Modal modal = new();
+    private string modaltitle = string.Empty;
+    private string modalparagraph = string.Empty;
+    private bool cancelClose;
+
+    //lists for dropdowns
+    private List<EmployeeDepartment> departments = new();
+    private List<BusinessUnit> businessunits = new();
+    private List<Role> roles = new();
+    private List<LegalEntity> entities = new();
+    private List<AccessType> accessTypesEmp = new();
+    private List<AccessType> accessTypesCapex = new();
+    private List<AccessType> accessTypesDiscipline = new();
+    private List<AccessType> accessTypesYoms = new();
+    private List<Modules> availableModules = new();
+
+    //access to other modals
+    private bool capexaccess = false;
+    private bool disciplineaccess = false;
+    private bool yomsaccess = false;
+
+    //dropdown disabled
+    private bool businessunitshow = true;
+    private bool departmentshow = true;
+    private bool roleshow = true;
+    private bool accessTypeshow = true;
+
+    //accesstype
+    AccessType newAccessType = new();
+
+    //variables for accesstype for modals
+    private int numCapex = 0;
+    private string stringCapex = string.Empty;
+    private int numDiscipline = 0;
+    private string stringDiscipline = string.Empty;
+    private int numYOMS = 0;
+    private string stringYoms = string.Empty;
+    private int numEmp = 0;
+
+
+    //Initialize--------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        //Get all business units
+        entities = leservice.GetLegalEntities();
+    }
+
+    //method to get business units according to legal entity
+    protected async void LegalEntityClicked(ChangeEventArgs changeEvent)
+    {
+        //newEmployee.CompanyNumberID;
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        businessunits = wordrecservice.GetBusinessUnitsForLegalEntity(intvalue);
+        newEmployee.CompanyNumberID = intvalue;
+        businessunitshow = false;
+    }
+
+    //method to get departments according to businessunit selected
+    protected async void BusinessUnitClicked(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        departments = wordrecservice.GetDepartmentsForBusnessUnit(intvalue);
+        departmentshow = false;
+        newCapexUser.BusinessUnitId = intvalue;
+    }
+
+    //method to get roles according to department selected
+    protected async void DepartmentClicked(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        roles = wordrecservice.GetRolesForDepartment(intvalue);
+        roleshow = false;
+        newEmployee.DepartmentID = intvalue;
+    }
+
+    protected async void RoleClicked(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        accessTypeshow = false;
+        //employee access type insert
+        accessTypesEmp = wordrecservice.GetAccessTypesforRole(intvalue);
+        accessTypesCapex = wordrecservice.GetAccessTypesForCapex(intvalue);
+        accessTypesDiscipline = wordrecservice.GetAccessTypesForDiscipline(intvalue);
+        accessTypesYoms = wordrecservice.GetAccessTypesForYOMS(intvalue);
+        newEmployee.RoleID = intvalue;
+        //numEmp = intvalue;
+
+        //set labels
+        // if(accessTypesCapex.Count > 0)
+        // {
+        //     numCapex = accessTypesCapex[0].AccessTypeId;
+        //     stringCapex = accessTypesCapex[0].AccessTypeName;
+        // }        
+        // if(accessTypesDiscipline.Count > 0)
+        // {
+        //     numDiscipline = accessTypesDiscipline[0].AccessTypeId;
+        //     stringDiscipline = accessTypesDiscipline[0].AccessTypeName;
+        // }        
+        // if (accessTypesYoms.Count > 0)
+        // {
+        //     numYOMS = accessTypesYoms[0].AccessTypeId;
+        //     stringYoms = accessTypesYoms[0].AccessTypeName;
+        // }       
+
+    }
+
+
+    //Navigation--------------------------------------------------------------------
+    private void navToEmpUserPage()
+    {
+        navManager.NavigateTo($"/VIPUserPage");
+    }
+
+    //save employee----------------------------------------------------------------
+    private bool error = false;
+
+    private async void saveEmployee()
+    {
+        if(newEmployee.FirstName == null || newEmployee.Surname == null || newEmployee.EmployeeNumber == null
+        || newEmployee.DepartmentID == 0 || newCapexUser.BusinessUnitId == 0 || newEmployee.RoleID == 0 || newEmployee.CompanyNumberID == 0)
+        {
+            error = true;
+        }
+        if(CheckThroughExistingEmployeeNumbers() == true)
+        {
+            error = true;
+        }
+
+        if (error)
+        {
+            modaltitle = "Error";
+            message = "Not all information added or employee number already exists.";
+
+            await ShowModal();
+        }
+        else
+        {
+            if (numEmp == 0 && accessTypesEmp.Count > 0)
+            {
+                numEmp = accessTypesEmp[0].AccessTypeId;
+            }
+            if(numCapex == 0 && accessTypesCapex.Count > 0)
+            {
+                numCapex = accessTypesCapex[0].AccessTypeId;
+            }
+            if (numDiscipline == 0 && accessTypesDiscipline.Count > 0)
+            {
+                numDiscipline = accessTypesDiscipline[0].AccessTypeId;
+            }
+            if (numYOMS == 0 && accessTypesYoms.Count > 0)
+            {
+                numYOMS = accessTypesYoms[0].AccessTypeId;
+            }
+
+            // //save employee
+            newEmployee.FullName = newEmployee.FirstName + " " + newEmployee.Surname;
+            empservice.AddUpdateEmployee(newEmployee);
+            toSaveEmployee = empservice.GetSingleEmployee(newEmployee.EmployeeNumber);
+            int employeeID = toSaveEmployee.EmployeeID;
+
+            // //save capexuser
+            newCapexUser.UserName = newEmployee.EmployeeNumber;
+            newCapexUser.UserPassword = GeneratePassword();
+            newCapexUser.RoleId = newEmployee.RoleID;
+            newCapexUser.RecStatus = 1;
+            newCapexUser.Lock = 1;
+            newCapexUser.NewUser = 0;
+            cuservice.AddNewCapexUser(newCapexUser);
+
+            //create new workrecord per module
+            //EMPLOYEE
+            if(numEmp > 0 && accessTypesEmp.Count > 0)
+            {
+                AccessLinking accessLinkingEMP = new();
+                EmployeeWorkRecord workRecordEMP = new();
+                accessLinkingEMP.BusinessUnitID = newCapexUser.BusinessUnitId;
+                accessLinkingEMP.DepartmentID = newEmployee.DepartmentID;
+                accessLinkingEMP.RoleID = newEmployee.RoleID;
+                accessLinkingEMP.AccessTypeID = numEmp;
+                accessLinkingEMP.ModuleID = 2;
+                accessLinkingEMP.RecStatus = 1;
+                //check if not empty
+                if (alService.GetIfLinkExists(accessLinkingEMP))
+                {
+                    workRecordEMP.BUDeptRoleID = alService.GetSpecificLinkingID(accessLinkingEMP);
+                }
+                else
+                {
+                    modaltitle = "Error";
+                    message = "The specific Access Type does not exist.";
+                    await ShowModal();
+                    return;
+                }
+                workRecordEMP.EmpID = toSaveEmployee.EmployeeID;
+                //date set
+                workRecordEMP.FromDate = DateTime.Now;
+                workRecordEMP.ToDate = null;
+                workRecordEMP.RecStatus = 1;
+                wordrecservice.AddWorkRecord(workRecordEMP);
+            }
+            
+
+            //CAPEX
+            if (numCapex > 0 && accessTypesCapex.Count > 0)
+            {
+                AccessLinking accessLinking = new();
+                EmployeeWorkRecord workRecord = new();
+                accessLinking.BusinessUnitID = newCapexUser.BusinessUnitId;
+                accessLinking.DepartmentID = newEmployee.DepartmentID;
+                accessLinking.RoleID = newEmployee.RoleID;
+                accessLinking.AccessTypeID = numCapex;
+                accessLinking.ModuleID = 1;
+                accessLinking.RecStatus = 1;
+                //check if not empty
+                if (alService.GetIfLinkExists(accessLinking))
+                {
+                    workRecord.BUDeptRoleID = alService.GetSpecificLinkingID(accessLinking);
+                }
+                else
+                {
+                    modaltitle = "Error";
+                    message = "The specific Access Type does not exist.";
+                    await ShowModal();
+                    return;
+                }
+                workRecord.BUDeptRoleID = alService.GetSpecificLinkingID(accessLinking);
+                workRecord.EmpID = employeeID;
+                //date set
+                workRecord.FromDate = DateTime.Now;
+                workRecord.ToDate = null;
+                workRecord.RecStatus = 1;
+                wordrecservice.AddWorkRecord(workRecord);
+            }
+            
+            
+
+            //DISCIPLINE (Everyone should have access, this is just to see if access is higher than 3)
+            if (numDiscipline > 0 && accessTypesDiscipline.Count > 0)
+            {
+                AccessLinking discipline1accessLinking = new();
+                EmployeeWorkRecord discipline1workRecord = new();
+                discipline1accessLinking.BusinessUnitID = newCapexUser.BusinessUnitId;
+                discipline1accessLinking.DepartmentID = newEmployee.DepartmentID;
+                discipline1accessLinking.RoleID = newEmployee.RoleID;
+                discipline1accessLinking.AccessTypeID = numDiscipline;
+                discipline1accessLinking.ModuleID = 3;
+                discipline1accessLinking.RecStatus = 1;
+                //check if not empty
+                if (alService.GetIfLinkExists(discipline1accessLinking))
+                {
+                    discipline1workRecord.BUDeptRoleID = alService.GetSpecificLinkingID(discipline1accessLinking);
+                }
+                else
+                {
+                    modaltitle = "Error";
+                    message = "The specific Access Type does not exist.";
+                    await ShowModal();
+                    return;
+                }
+                discipline1workRecord.BUDeptRoleID = alService.GetSpecificLinkingID(discipline1accessLinking);
+                discipline1workRecord.EmpID = employeeID;
+                //date set
+                discipline1workRecord.FromDate = DateTime.Now;
+                discipline1workRecord.ToDate = null;
+                discipline1workRecord.RecStatus = 1001;
+                wordrecservice.AddWorkRecord(discipline1workRecord);
+            }
+
+            if (numCapex > 0 && accessTypesYoms.Count > 0)
+            {
+                AccessLinking yomsaccessLinking = new();
+                EmployeeWorkRecord yomsworkRecord = new();
+                yomsaccessLinking.BusinessUnitID = newCapexUser.BusinessUnitId;
+                yomsaccessLinking.DepartmentID = newEmployee.DepartmentID;
+                yomsaccessLinking.RoleID = newEmployee.RoleID;
+                yomsaccessLinking.AccessTypeID = numYOMS;
+                yomsaccessLinking.ModuleID = 4;
+                yomsaccessLinking.RecStatus = 1;
+                //check if not empty
+                if (alService.GetIfLinkExists(yomsaccessLinking))
+                {
+                    yomsworkRecord.BUDeptRoleID = alService.GetSpecificLinkingID(yomsaccessLinking);
+                }
+                else
+                {
+                    modaltitle = "Error";
+                    message = "The specific Access Type does not exist.";
+                    await ShowModal();
+                    return;
+                }
+                yomsworkRecord.BUDeptRoleID = alService.GetSpecificLinkingID(yomsaccessLinking);
+                yomsworkRecord.EmpID = employeeID;
+                //date set
+                yomsworkRecord.FromDate = DateTime.Now;
+                yomsworkRecord.ToDate = null;
+                yomsworkRecord.RecStatus = 1001;
+                wordrecservice.AddWorkRecord(yomsworkRecord);
+            }
+
+            //setmodal
+            modaltitle = "Save Employee";
+            message = "You have successfully saved this employee";
+            //create document with login details
+            await RunTemplate();
+            await ShowModal();            
+
+        }
+
+        newEmployee = new();
+        newCapexUser = new();
+
+    }
+
+    //Password generator--------------------------------------------------
+    private static Random random = new Random();
+
+    public static string GeneratePassword()
+    {
+        const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < 8; i++)
+        {
+            int index = random.Next(characters.Length);
+            password.Append(characters[index]);
+        }
+
+        return password.ToString();
+    }
+
+    //Modal show or hide---------------------------------------------------
+    private Task ShowModal()
+    {
+        return modal.Show();
+
+    }
+
+    private Task CloseModal()
+    {
+        return modal.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //Document creation to download-----------------------------------------
+    //Path
+    string localPath = "C:\\\\YODA";
+    string newPath = "C:\\\\YODA\\newemp.docx";
+    string template = "\\\\172.16.28.51\\YorkInfo\\Hr\\Templates\\NewEmployeeTemplate.docx";
+
+    public void PopulateWordTemplate(string templatePath)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(template, newPath);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPath, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+            ReplaceTextWithActualData(body);
+        }
+    }
+
+    //replace template variables with actual data
+    public void ReplaceTextWithActualData(Body body)
+    {
+        foreach(var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+        {
+            if (text.Text.Contains("empnumber"))
+            {
+                text.Text = text.Text.Replace("empnumber", newEmployee.EmployeeNumber);
+            }
+            if (text.Text.Contains("newpassword"))
+            {
+                text.Text = text.Text.Replace("newpassword", newCapexUser.UserPassword);
+            }
+        }
+    }
+
+    public bool CheckThroughExistingEmployeeNumbers()
+    {
+        return empservice.existingEmployeeNumber(newEmployee.EmployeeNumber);
+    }
+
+    //populate, save and download---------------------------------------------
+    private async Task RunTemplate()
+    {
+        //Directories
+        string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{newEmployee.EmployeeID}\\LoginDetails";
+        string ftplocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{newEmployee.EmployeeID}\\LoginDetails\\newemplogindetails.docx";
+
+        //Create Server Directory for Employee
+        Directory.CreateDirectory(ftpdirectory);
+
+        PopulateWordTemplate(template);
+
+        //Download populated template
+        if (File.Exists(newPath))
+        {
+            byte[] fileBites = File.ReadAllBytes(newPath);
+            await jsRuntime.InvokeAsync<object>("saveAsFile", $"{newEmployee.FirstName}-Login-Details.docx", fileBites);
+        }
+
+        //Copy file from local directory to server directory
+        File.Copy(newPath, ftplocation);
+               
+        //Delete local file saved
+        if (File.Exists(newPath))
+        {
+            File.Delete(newPath);
+        }
+    }
+
+    
+
+
+}

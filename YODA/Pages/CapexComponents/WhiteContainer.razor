@@ -1,0 +1,9 @@
+﻿@inherits ComponentBase
+
+<div class="white-container">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

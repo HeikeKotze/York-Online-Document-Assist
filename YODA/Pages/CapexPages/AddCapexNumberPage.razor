@@ -1,0 +1,345 @@
+﻿@page "/AddCapexNumber"
+
+
+@using YODA.Repos.Models
+@using YODA.Services
+@using YODA.Pages.CapexComponents
+@inject ICapexUserService cuservice
+@inject ICapexFormService cfservice
+@inject IAccessService accessService
+@inject NavigationManager navManager
+@inject ICapexFormService capexFormService
+@inject ILocationCostCodeService lccservice
+@inject IBalanceSheetCodeService bscservice
+@inject SharedDataService shareddataService
+@inject IEmailService emailService
+@inject IEmployeeService empService
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" @onclick="navToCapexUserPage" class="btn btn-dark" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Capex Project Numbers</h1>
+    </center>
+
+    <center>
+        <div class="container d-flex justify-content-center align-items-center">
+            <div class="row">
+                <div class="col-12" style="width:700px">
+                    Choose an capex form in the list to add the Project Number, Location Cost Code and Balance Sheet Code to the Capex Form.
+                </div>
+            </div>
+        </div>
+    </center>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container d-flex justify-content-center align-items-center">
+        <div class="row">
+            <div class="col-8" style="width:1100px">
+                <h3 style="margin-left:30px">Add Capex Number</h3>
+                <Div Class="alert alert-success">
+                    <WhiteContainer>
+                        @if (capexforms is null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            <DataGrid TItem="CapexForm" Data="@capexforms" Responsive Filterable ShowPager
+                                       PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ButtonSize = Size.Small}"
+                             @bind-SelectedRow="@selectedform" SelectedRowStyling="@OnRowStyling">
+                                 <DataGridColumns>
+                                     <DataGridColumn Field="@nameof(CapexForm.CapexId)" Caption="Capex Form ID" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Field="@nameof(CapexForm.CapexTitle)" Caption="Capex Title" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Field="@nameof(CapexForm.Initiator)" Caption="Initiator" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Field="@nameof(CapexForm.ProjectNumber)" Caption="Project Number" Editable="false"></DataGridColumn>
+                                 </DataGridColumns>
+                                 <PageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         @context.PageNumber
+                                     </Span>
+                                 </PageButtonTemplate>
+                                 <NextPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Next
+                                     </Span>
+                                 </NextPageButtonTemplate>
+                                 <PreviousPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Previous
+                                     </Span>
+                                 </PreviousPageButtonTemplate>
+                                 <LastPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Last
+                                     </Span>
+                                 </LastPageButtonTemplate>
+                                 <FirstPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         First
+                                     </Span>
+                                 </FirstPageButtonTemplate>
+                                 <TotalItemsTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         @context.TotalItems
+                                     </Span>
+                                 </TotalItemsTemplate>
+                             </DataGrid>
+                        }
+                    </WhiteContainer>
+                </Div>               
+            </div>
+        </div>
+    </div>
+
+
+    <center>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <button class="btn btn-dark" style="margin-left:20px" @onclick="CheckCapexID" type="button">Add Capex Information</button>
+                    <button class="btn btn-dark" style="margin-left:20px" @onclick="CheckCapexIDforView" type="button">View Capex Form</button>
+                </div>
+            </div>
+        </div>
+    </center>
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalAdd" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Add Capex Number</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-success">
+                           You are about to add a Capex Number for @message .
+                        </div>   
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <label>Capex Project Number</label>
+                        <input type="text" class="form-control" @bind-value="projectnumber" />
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                    <label>Location Cost Code</label>
+                        <select class="form-select" @bind="lccid">
+                            @foreach(var item in lcclist)
+                            {
+                                <option value="@item.LocationCostCodeId">@item.LocationCostCodeName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <label>Balance Sheet Code</label>
+                        <select class="form-select" @bind="bscid">
+                            @foreach(var item in bsclist)
+                            {
+                                <option value="@item.BalanceSheetCodeId">@item.BalanceSheetCodeName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="SaveProjectNumber" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseAddModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalError" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Add Capex Number</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Error
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    //Variables-------------------------------------------------------------------
+    private List<CapexForm> capexforms = new();
+    private List<Employee> employees = new();
+    private CapexForm selectedform = new();
+    private Employee currentEmp = new();
+    private Employee initiatorEmp = new();
+    private List<BalanceSheetCode> bsclist = new();
+    private List<LocationCostCode> lcclist = new();
+    private string? message = string.Empty;
+    private string? projectnumber = string.Empty;
+    private int lccid = 0;
+    private int bscid = 0;
+    private int cid = 0;
+
+    //Initialization--------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        capexforms = cfservice.GetCapexFormsWhereAllHaveSigned();
+        bsclist = bscservice.GetBalanceSheetCodes();
+        lcclist = lccservice.GetLocationCostCodes();
+        currentEmp = empService.GetById(shareddataService.UserID);
+        employees = empService.GetAll();
+    }
+
+    private void CheckCapexID()
+    {
+        cid = selectedform.CapexId;
+
+        if (cid > 0)
+        {
+            message = "Capex ID: " + cid;
+            ShowAddModal();
+        }
+        else
+        {
+            message = "You have not selected a Capex Form";
+            ShowErrorModal();
+        }
+
+    }
+
+    private void CheckCapexIDforView()
+    {
+        cid = selectedform.CapexId;
+        if(cid == 0)
+        {
+            message = "You have not selected a Capex Form";
+            ShowErrorModal();
+        }
+        else
+        {
+            shareddataService.capexid = cid.ToString();
+            navToViewForm();
+        }
+
+    }
+
+    //Save project number, location cost code and balance sheet code---------------
+    private void SaveProjectNumber()
+    {
+        if (cid != 0 && projectnumber != null && bscid != 0 && lccid != 0)
+        {
+            string message = $"Hi,\r\n\r\nThe following Capex has been assigned a Project Number, Location Cost Code & Balance Sheet Code:\r\n\r\nCapex ID : {selectedform.CapexId}\r\nInitiator : {selectedform.Initiator}\r\nCapex Title: {selectedform.CapexTitle}\r\nProject Number: {projectnumber}\r\n\r\nPlease visit YODA for more information.\r\n\r\nRegards\r\nYork Online Document Assist";
+            initiatorEmp = empService.GetById(employees.FirstOrDefault(x => x.FullName == selectedform.Initiator).EmployeeID);
+            cfservice.UpdateProjectNumberEtc(cid, projectnumber, bscid, lccid);
+            emailService.SendCapexNumberToInitiator(currentEmp.EmailAddress, initiatorEmp.EmailAddress, message, selectedform.CapexId);
+            capexforms = cfservice.GetCapexFormsWhereAllHaveSigned();
+            StateHasChanged();
+        }
+        else
+        {
+            message = "You have not provided all of the required information";
+            ShowErrorModal();
+        }
+
+        StateHasChanged();
+
+        //reset variables
+        cid = 0;
+        projectnumber = null;
+        bscid = 0;
+        lccid = 0;
+
+        CloseAddModal();
+
+    }
+
+    //Navigation-------------------------------------------------------------------
+    private void navToCapexUserPage()
+    {
+        navManager.NavigateTo($"/CapexUserPage");
+    }
+
+    private void navToViewForm()
+    {
+        navManager.NavigateTo("/ViewCapexForm");
+    }
+
+    //Modals instantiate----------------------------------------------------------
+    private Blazorise.Modal modalAdd = new();
+    private Blazorise.Modal modalError = new();
+    private bool cancelClose;
+
+    //Show / Hide modals
+    private Task ShowAddModal()
+    {
+        return modalAdd.Show();
+
+    }
+
+    private Task CloseAddModal()
+    {
+        return modalAdd.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return modalError.Show();
+
+    }
+
+    private Task CloseErrorModal()
+    {
+        return modalError.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //selected row styling------------------------------------------------------
+    private void OnRowStyling(CapexForm capexForm, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+
+}

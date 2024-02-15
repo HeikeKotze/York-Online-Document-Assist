@@ -1,0 +1,209 @@
+﻿@using YODA.Repos
+@using YODA.Repos.Models;
+@using YODA.Services
+
+@inject ICapexFormService capexService
+@inject NavigationManager navManager
+@inject IInstructionService instructionService
+@inject ISignatoryService signatoryService
+@inject IEmployeeService empService
+@inject SharedDataService shareddataService
+
+<Div Class="row">
+    <Div Class="alert alert-success">
+        <WhiteContainer>
+            @if (capexforms is null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Capex ID</th>
+                            <th>Capex Title</th>
+                            <th>Initiator</th>
+                            <th>Instructions</th>
+                            <th>View</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var capex in capexforms)
+                        {
+                            <tr>
+                                <td>@capex.CapexId</td>
+                                <td>@capex.CapexTitle</td>
+                                <td>@capex.Initiator</td>
+                                <td><button id="btnInstructions" @onclick="()=>GetCellValueForInstructions(capexforms.IndexOf(capex))" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Instructions</button></td>
+                                <td><button id="btnView" @onclick="()=>GetCellValueForView(capexforms.IndexOf(capex))" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">View</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </WhiteContainer>
+    </Div>   
+</Div>
+
+<Blazorise.Modal @ref="modalRef" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Instructions for this Capex Form</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            @if (signatories != null && signatories.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Signatory</th>
+                            <th>Instruction / Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in signatories)
+                        {
+                            <tr>
+                                <td>@(new MarkupString(c.UserName))</td>
+                                <td>@(new MarkupString(c.FkScReason))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p><em>There are no instructions or reasons for this form...</em></p>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    //Variables--------------------------------------------------------------------
+    private List<CapexForm> capexforms = new();
+    private List<FkSignatoriesCapex> signatories = new();
+    private int idint = 0;
+
+    private int selectedRowIndex = -1;
+    private int selectedColumnIndex = 0;
+
+    public string? name = string.Empty;
+    private Employee sigEmp = new();
+
+    //Page initialization----------------------------------------------------------
+    protected override void OnInitialized()
+    {
+
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).AccessTypeID == 1)
+        {
+            capexforms = capexService.GetCapexForDeclined();
+        }
+        //Figure out department businessunit-------------- ############ -------------
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).AccessTypeID == 2)
+        {
+            capexforms = capexService.GetCapexForDeclinedBusinessUnit(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).BusinessUnitID, shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).DepartmentID);
+        }
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).AccessTypeID == 3)
+        {
+            capexforms = capexService.GetCapexForDeclinedInitiator(shareddataService.UserName);
+        }
+
+    }
+
+    
+    //Get specific row capexid for view button-------------------------------------
+    private void GetCellValueForView(int rowIndex)
+    {
+        if (rowIndex >= 0 && rowIndex < capexforms.Count)
+        {
+            selectedRowIndex = rowIndex;
+            var selectedItem = capexforms[selectedRowIndex];
+            string cellValue = selectedColumnIndex switch
+            {
+                0 => selectedItem.CapexId.ToString(),
+                1 => selectedItem.CapexTitle.ToString(),
+                2 => selectedItem.Initiator.ToString(),
+                _ => "Invalid Column Index",
+            };
+            shareddataService.capexid = cellValue;
+            navToView();
+        }
+
+    }
+
+
+    //Get specific row capexid for instructions button-------------------------------------
+    private void GetCellValueForInstructions(int rowIndex)
+    {
+        if (rowIndex >= 0 && rowIndex < capexforms.Count)
+        {
+            selectedRowIndex = rowIndex;
+            var selectedItem = capexforms[selectedRowIndex];
+            string cellValue = selectedColumnIndex switch
+            {
+                0 => selectedItem.CapexId.ToString(),
+                1 => selectedItem.CapexTitle.ToString(),
+                2 => selectedItem.Initiator.ToString(),
+                _ => "Invalid Column Index",
+            };
+            shareddataService.capexid = cellValue;
+            if (int.TryParse(shareddataService.capexid, out int num))
+            {
+                idint = num;
+            }
+            setInstructions();
+            ShowModal();
+        }
+
+    }
+
+    
+    //Set instructions for capex-----------------------------------------------------------
+    public void setInstructions()
+    {
+        signatories = instructionService.GetInstructions(idint);
+        foreach (var item in signatories)
+        {
+            name = signatoryService.GetUserName(item.FkScSignatoryId);
+            sigEmp = empService.GetSingleEmployee(name);
+            item.UserName = sigEmp.FullName;
+        }
+    }
+
+    //Navigation---------------------------------------------------------------------------
+    public void navToView()
+    {
+        navManager.NavigateTo($"/ViewCapexForm");
+    }
+
+
+    //Modals-------------------------------------------------------------------------------
+    private bool cancelClose;
+    private Blazorise.Modal modalRef = new();
+
+    private Task ShowModal()
+    {
+        return modalRef.Show();
+    }
+
+    private Task CloseModal()
+    {
+        cancelClose = false;
+
+        return modalRef.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+}
+

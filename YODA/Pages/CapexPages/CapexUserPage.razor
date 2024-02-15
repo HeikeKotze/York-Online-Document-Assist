@@ -1,0 +1,412 @@
+﻿@page "/CapexUserPage"
+
+@using YODA.Repos.Models
+@using YODA.Services
+@using YODA.Pages.CapexComponents
+
+@inject ICapexFormService capexFormService
+@inject ICapexUserService cuservice
+@inject IAccessService accessService
+@inject SharedDataService shareddataService
+@inject NavigationManager NavigationManager
+
+<WhiteContainer>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" @onclick="navToFinPage" class="btn btn-dark" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Capex User</h1>
+        <p>Add, Edit, Sign and View selected Capex Forms.</p>
+    </center>
+
+</WhiteContainer>
+<WhiteContainer>
+
+    <br />
+
+    <div class="container">
+        <p><strong>Search and View Capex Forms</strong></p>
+    </div>
+
+  
+    <br />
+
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <label>Capex Title to Search...</label>
+                <input class="form-control" type="text" @bind-value="chosen" />
+                
+            </div>
+            <div class="col-2">
+                <label></label>
+                <button class="btn btn-dark" style=" margin-top:25px" @onclick="getCapex" type="submit">Search</button>
+            </div>
+        </div>       
+    </div>
+    
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="alert alert-success">
+                @if(capexFormsForSearch.Count > 0)
+                {
+                    <WhiteContainer>
+                        <DataGrid TItem="CapexForm" Data="@capexFormsForSearch" Responsive Filterable ShowPager
+                                   PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                         @bind-SelectedRow="@selectedForm" SelectedRowStyling="@OnRowStyling" Class="table table-striped">
+                             <DataGridColumns>
+                                 <DataGridCommandColumn />
+                                 <DataGridColumn Field="@nameof(CapexForm.CapexId)" Width="10%" Caption="Capex ID" Editable="false"></DataGridColumn>
+                                 <DataGridColumn Field="@nameof(CapexForm.CapexTitle)" Width="60%" Caption="Title" Editable="false"></DataGridColumn>
+                                 <DataGridColumn Field="@nameof(CapexForm.Initiator)" Width="30%" Caption="Initiator" Editable="false"></DataGridColumn>
+
+                             </DataGridColumns>
+                             <PageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     @context.PageNumber
+                                 </Span>
+                             </PageButtonTemplate>
+                             <NextPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     Next
+                                 </Span>
+                             </NextPageButtonTemplate>
+                             <PreviousPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     Previous
+                                 </Span>
+                             </PreviousPageButtonTemplate>
+                             <LastPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     Last
+                                 </Span>
+                             </LastPageButtonTemplate>
+                             <FirstPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     First
+                                 </Span>
+                             </FirstPageButtonTemplate>
+                             <TotalItemsTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     @context.TotalItems
+                                 </Span>
+                             </TotalItemsTemplate>
+                         </DataGrid>
+
+                     </WhiteContainer>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <button class="btn btn-dark" @onclick="CapexFormClick" type="button">View Capex</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <em>No Capex Searched...</em>
+                            </Div>
+                        </div>
+                    </div>                    
+                }
+                                             
+            </div>
+            
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div Class="container">
+        <div Class="row">
+            <div Class="col-4" >
+                <button id="btnNotSubmitted" @onclick="onNotSubmittedClick" class="btn btn-dark" style=" display:block; width:100%; text-align:center; margin-top:3px; padding:15px">Forms Not Submitted</button>
+            </div>
+            <div Class="col-4" >
+                <button id="btnCompleted" @onclick="onCompletedClick" class="btn btn-dark" style=" display:block; width:100%; text-align:center; margin-top:3px; padding:15px">Completed Forms</button>
+                    <div class="row">
+                        <div class="col-sm-4">
+                        <button id="btnApproved" @onclick="onApprovedClick" class="btn btn-dark" style="display:block; width: 100%; margin-top:3px; height:30px; font-size:12px; padding:5px">Approved</button>
+                        </div>
+                        <div class="col-sm-4">
+                        <button id="btnOnHold" @onclick="onOnHoldClick" class="btn btn-dark" style="display:block; width: 100%; margin-top:3px; height:30px; font-size:12px; padding:5px">On Hold</button>
+                        </div>
+                        <div class="col-sm-4">
+                        <button id="btnDeclined" @onclick="onDeclinedClick" class="btn btn-dark" style="display:block; width: 100%; margin-top:3px; height:30px; font-size:12px; padding:5px">Declined</button>
+                        </div>
+                    </div>
+            </div>
+            <div Class="col-4" >
+                <button id="btnAwaitingApproval" @onclick="onAwaitingClick" class="btn btn-dark" style=" display:block; width:100%; text-align:center; margin-top:3px; padding:15px">Forms Awaiting Approval</button>
+            </div>
+        </div>
+    </div> 
+    
+    <br />
+
+    <div class="container">
+        @if (notsubmitted)
+        {
+            <NotSubmittedCapexGrid></NotSubmittedCapexGrid>
+        }
+        @if (completed)
+        {
+            <CompletedCapexGrid></CompletedCapexGrid>
+        }
+        @if (awaitingapproval)
+        {
+            <AwaitingApprovalCapexGrid></AwaitingApprovalCapexGrid>
+        }
+        @if (approved)
+        {
+            <ApprovedCapexGrid></ApprovedCapexGrid>
+        }
+        @if (onhold)
+        {
+            <OnHoldCapexGrid></OnHoldCapexGrid>
+        }
+        @if (declined)
+        {
+            <DeclinedCapexGrid></DeclinedCapexGrid>
+        }
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                @if (anaylticsvisible)
+                {
+                    <button id="btnAnalytics" class="btn btn-dark" style="width:115px" @onclick="navToAnalytics">Analytics</button>
+                }               
+                @if (capexnumberaccess)
+                {
+                    <button id="btnCapexNumberAdd" class="btn btn-dark" style="margin-left: 10px; width:170px" @onclick="navToCapexProjectNumber">Add Capex Number</button>
+                }              
+            </div>
+            <div class="col-sm">
+            <button id="btnNewForm" class="btn btn-dark float-end" style="width:115px" @onclick="navToNewForm">New Form</button>
+            </div>
+        </div>
+    </div>
+
+</WhiteContainer>
+
+
+
+@code {
+
+    //grid variables--------------------------------------------------------------
+    CapexUser capexforCompleted = new();
+    CapexUser capexforApproved = new();
+    CapexUser capexforOnHold = new();
+    CapexUser capexforDeclined = new();
+    UserAccess userAccess = new();
+    List<CapexForm> cf = new();
+    List<CapexForm> capexFormsForSearch = new();
+    CapexForm selectedForm = new();
+    private string? chosen = string.Empty;
+
+    public string selectedSearchValue { get; set; }
+    public string selectedAutoCompleteText { get; set; }
+
+    //boolean values to only show one component at a time
+    private bool notsubmitted = false;
+    private bool completed = false;
+    private bool awaitingapproval = true;
+    private bool approved = false;
+    private bool onhold = false;
+    private bool declined = false;
+    private bool capexnumberaccess = false;
+
+    //still has to work on analytics page
+    private bool anaylticsvisible = false;
+
+    public string? send = string.Empty;
+    public int sendid = 0;
+
+    //open grid components for selected-----------------------------------------------------
+    private void onNotSubmittedClick()
+    {
+        notsubmitted = true;
+        completed = false;
+        awaitingapproval = false;
+        approved = false;
+        onhold = false;
+        declined = false;
+    }
+
+    private void onCompletedClick()
+    {
+        completed = true;
+        awaitingapproval = false;
+        approved = false;
+        onhold = false;
+        declined = false;
+        notsubmitted = false;
+    }
+
+    private void onAwaitingClick()
+    {
+        awaitingapproval = true;
+        approved = false;
+        onhold = false;
+        declined = false;
+        notsubmitted = false;
+        completed = false;
+
+    }
+
+    private void onApprovedClick()
+    {
+        approved = true;
+        onhold = false;
+        declined = false;
+        notsubmitted = false;
+        completed = false;
+        awaitingapproval = false;
+    }
+
+    private void onOnHoldClick()
+    {
+        onhold = true;
+        declined = false;
+        notsubmitted = false;
+        completed = false;
+        awaitingapproval = false;
+        approved = false;
+
+    }
+
+    private void onDeclinedClick()
+    {
+        declined = true;
+        notsubmitted = false;
+        completed = false;
+        awaitingapproval = false;
+        approved = false;
+        onhold = false;
+    }
+
+
+
+    //Initialize---------------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        //analytics page to edit at the moment
+        if(shareddataService.UserID == 1)
+        {
+            anaylticsvisible = true;
+        }
+
+        int newform = 0;
+
+        shareddataService.capexid = newform.ToString();
+
+        if (shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 1).AccessTypeID == 1)
+        {
+            cf = capexFormService.GetAllCapexForms();
+        }
+        if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 1).AccessTypeID == 2)
+        {
+            cf = capexFormService.GetAllCapexFormsForBusinessUnit(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).BusinessUnitID, shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).DepartmentID);
+        }
+        if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 1).AccessTypeID == 3)
+        {
+            cf = capexFormService.GetAllCapexFormsForInitiator(shareddataService.UserName);
+        }
+
+        //Asset admin
+        if(shareddataService.UserID == 1 || shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID ==2).RoleID == 11)
+        {
+            capexnumberaccess = true;
+        }
+
+    }
+
+    //Get specific capex form after selection in dropdown----------------------------
+    private void getCapex()
+    {
+        capexFormsForSearch = capexFormService.GetCapexWhereCapexTitleHas(chosen);
+    }
+
+    private int selectedRowIndex = 0;
+    private int selectedColumnIndex = 0;
+
+    //get capex id cell value--------------------------------------------------------
+    public string GetCellValue()
+    {
+
+        if (selectedRowIndex >= 0 && selectedRowIndex < cf.Count)
+        {
+            var selectedItem = cf[selectedRowIndex];
+            string cellValue = selectedColumnIndex switch
+            {
+                0 => selectedItem.CapexId.ToString(),
+                1 => selectedItem.CapexTitle.ToString(),
+                2 => selectedItem.Initiator.ToString(),
+                _ => "Invalid Column Index",
+            };
+            return cellValue;
+        }
+        else return "0";
+    }
+
+
+    //View Capex form for search grid--------------------------------------------------
+    // public void onViewClick()
+    // {
+    //     shareddataService.capexid = capexForm.CapexId.ToString();
+    //     NavigationManager.NavigateTo($"/ViewCapexForm");
+    // }
+
+    //navigation---------------------------------------------------------------------
+    public void navToFinPage()
+    {
+        NavigationManager.NavigateTo("/Financial");
+    }
+    private void navToAnalytics()
+    {
+        NavigationManager.NavigateTo($"/CapexAnalyticsPage");
+    }
+
+    private void navToNewForm()
+    {
+        NavigationManager.NavigateTo($"/Capex/Add");
+    }
+
+    private void navToCapexProjectNumber()
+    {
+        NavigationManager.NavigateTo($"/AddCapexNumber");
+    }
+
+    private void OnRowStyling(CapexForm cf, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void CapexFormClick()
+    {
+        shareddataService.capexid = selectedForm.CapexId.ToString();
+        NavigationManager.NavigateTo($"/ViewCapexForm");
+    }
+
+}

@@ -1,0 +1,1686 @@
+﻿@page "/VIP/View"
+
+<PageTitle>View VIP Form</PageTitle>
+@using YODA.Pages.CapexComponents
+@using Services
+@using YODA.Repos.Models
+@inject NavigationManager navManager
+@inject IEmployeeService service
+@inject ILegalEntityService leService
+@inject IAccessService accessservice
+@inject SharedDataService shareddataService
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="navToVIPUserPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <center>
+                <img style="width:100px; height:100px" src="Images/SVGYork.png" alt="" />
+                <h1>View Employee Form</h1>
+            </center>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Company & Employee Number</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Company Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.CompanyNumberName
+                </div>                
+            </div>
+            <div class="col-6">
+                <label for="CapexTitle">Employee Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.EmployeeNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Personal Details</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Title</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.TitleName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Title</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.FirstName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Surname</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Surname
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Full Names</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.FullName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Prefered Names</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PreferedName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-11">
+                <label for="CapexTitle">Residential Address</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.ResidentialAddress
+                </div>
+            </div>
+            <div class="col-1">
+                <label for="CapexTitle">Code</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.ResidentialCode
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-11">
+                <label for="CapexTitle">Postal Address</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PostalAddress
+                </div>
+            </div>
+            <div class="col-1">
+                <label for="CapexTitle">Code</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PostalCode
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Home Phone Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.HomePhoneNo
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Cellphone Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.CellNo
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Nationality</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.NationalityName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Place of Birth</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PlaceOfBirth
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Home Language</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.LanguageName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Accomodation</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Accomodation
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    
+    
+    <div class="container">
+        <label for="CapexTitle">Language Proficiencies</label>
+        <div class="alert alert-success">
+        <WhiteContainer>
+        <div class="row">
+            <div class="col-12">
+                        @if (languageProficienciesList != null && languageProficienciesList.Any())
+                        {
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Language</th>
+                                        <th>Speak</th>
+                                        <th>Read</th>
+                                        <th>Write</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var list in languageProficienciesList)
+                                    {
+                                        <tr>
+                                            <td>@list.LanguageName</td>
+                                            <td>@list.Speak</td>
+                                            <td>@list.Read</td>
+                                            <td>@list.Write</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <p><em>There are no language proficiencies for this employee...</em></p>
+                        }
+            </div>
+        </div>
+        </WhiteContainer>
+        </div>
+    </div>
+    
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Identity Details</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Identity Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.IDNumber
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Passport Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PassportNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <label for="CapexTitle">Driving Licence Codes</label>
+        <div class="alert alert-success">
+        <WhiteContainer>
+        <div class="row">
+            <div class="col-12">                
+                <div class="container">
+                        <div class="row">
+                            @if (licenceCodesList != null && licenceCodesList.Any())
+                            {
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Driving Licence Codes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var list in licenceCodesList)
+                                        {
+                                            <tr>
+                                                <td>@list.LicenceCodeName</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p><em>There are no licence codes for this employee...</em></p>
+                            }
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+        </WhiteContainer>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Company Details</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Date Engaged</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DateEngaged
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Date Joined Group</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DateJoinedGroup
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Date of Birth</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DateOfBirth
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Gender</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.GenderName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Marital Status</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MaritalStatusName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Race</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.RaceName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Tax Status</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.TaxStatus
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Bread Winner</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.BreadWinner
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Dependants</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Dependants
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Pension Scheme</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PensionScheme
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Medical Aid</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MedicalAid
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Medical Aid Dependants</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MedicalAidDependants
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Medical Aid Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MedicalAidNumber
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Company Email</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.EmailAddress
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+
+        <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Tax / Banking Details</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Pay Period</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PayPeriodName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Cost Code</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.CostCode
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Department</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DepartmentName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Pay Method</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PayMethodName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    @if (bankingshow)
+    {
+        <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Bank</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Bank
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Branch</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Branch
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Account Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.AccountNumber
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Tax Reference Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.TaxReferenceNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    }   
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Revenue Officer</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.RevenueOfficer
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Job Information</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Job Grade</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.JobGradeName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Date to Job Grade</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DateToJobGrade
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Job Title</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.JobTitle
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Job Category</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.JobCategory
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Shift Employee</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.ShiftEmployee
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Salary Details</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Hourly Pay Rate (Wages Only)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.HourlyPayRate
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Monthly Pay Rate (Staff Only)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MonthlyPayRate
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Bonus Amount</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.BonusAmount
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Normal Weekly Hours</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.NormalWeeklyHours
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Days per Week</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DaysPerWeek
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+    
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Pension</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">CTC</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PensionPercentageOfCTC
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">ROL</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PensionPercentageOfROL
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Standard Leave Allowance Details</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Annual Entitlement</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.AnnualEntitlement
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Monthly Accrual</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MonthlyAccrual
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Accumulative</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Accumalative
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Non-Accumulative</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.NonAccumalative
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Sick Leave Cycle (Years)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.SickLeaveCycle
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Monthly Accrual (Days per Month)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MonthlySickLeaveAccrual
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Marital Status</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Date of Marriage</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DateOfMarriage
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Maiden Name</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MaidenName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Spouse's Name</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.SpouseName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Emergency Contact Numbers</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <label for="CapexTitle">Name of Contact</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.NameOfEmergencyContact
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Telephone Number (Home)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.HomeNumberEmergencyContact
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Telephone Number (Work)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.WorkNumberEmergencyContact
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-11">
+                <label for="CapexTitle">Address</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.AddressEmergencyContact
+                </div>
+            </div>
+            <div class="col-1">
+                <label for="CapexTitle">Code</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.AddressCodeEmergencyContact
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Dependants</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    
+    <div class="container">
+        <div class="alert alert-success">
+        <WhiteContainer>
+        <div class="row">
+                    @if (dependantsList != null && dependantsList.Any())
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Surname</th>
+                                    <th>Name</th>
+                                    <th>Relationship</th>
+                                    <th>Gender</th>
+                                    <th>Date of Birth</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var list in dependantsList)
+                                {
+                                    <tr>
+                                        <td>@list.Surname</td>
+                                        <td>@list.Name</td>
+                                        <td>@list.Relationship</td>
+                                        <td>@list.Gender</td>
+                                        <td>@list.DateOfBirth</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p><em>There are no dependants for this employee...</em></p>
+                    }
+        </div>
+        </WhiteContainer>
+        </div>
+    </div>
+    
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Beneficiaries</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+            <div class="row">
+                    @if (beneficiariesList != null && beneficiariesList.Any())
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Relationship</th>
+                                    <th>ID Number</th>
+                                    <th>Percentage of Benefit</th>
+                                    <th>Date of Birth</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var list in beneficiariesList)
+                                {
+                                    <tr>
+                                        <td>@list.FullName</td>
+                                        <td>@list.Relationship</td>
+                                        <td>@list.IDNumber</td>
+                                        <td>@list.PercentageOfBenefit</td>
+                                        <td>@list.DateOfBirth</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p><em>There are no beneficiaries for this employee...</em></p>
+                    }
+            </div>
+        </WhiteContainer>
+        </div>
+        </div>
+    
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Next of Kin</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Surname</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.SurnameNextOfKin
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">First Name</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.FirstNameNextOfKin
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Telephone Number (Home)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.HomeNumberNextOfKin
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Telephone Number (Work)</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.WorkNumberNextOfKin
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-11">
+                <label for="CapexTitle">Address</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.AddressNextOfKin
+                </div>
+            </div>
+            <div class="col-1">
+                <label for="CapexTitle">Code</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.AddressCodeNextOfKin
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Previous Employment</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+            <div class="row">
+                    @if (previousEmploymentsList != null && previousEmploymentsList.Any())
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Employer</th>
+                                    <th>Date Start</th>
+                                    <th>Date End</th>
+                                    <th>Job Title</th>
+                                    <th>Salary</th>
+                                    <th>Reason Leaving</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var list in previousEmploymentsList)
+                                {
+                                    <tr>
+                                        <td>@list.Employer</td>
+                                        <td>@list.DateStart</td>
+                                        <td>@list.DateEnd</td>
+                                        <td>@list.JobTitle</td>
+                                        <td>@list.Salary</td>
+                                        <td>@list.ReasonLeaving</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p><em>There are no previous employments for this employee...</em></p>
+                    }
+            </div>
+        </WhiteContainer>
+        </div>
+        </div>
+    
+
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Educational History</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+            <div class="row">
+                    @if (educationalHistoriesList != null && educationalHistoriesList.Any())
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Place of Study</th>
+                                    <th>Date Start</th>
+                                    <th>Date End</th>
+                                    <th>Subjects</th>
+                                    <th>Qualification</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var list in educationalHistoriesList)
+                                {
+                                    <tr>
+                                        <td>@list.PlaceOfStudy</td>
+                                        <td>@list.StartDate</td>
+                                        <td>@list.EndDate</td>
+                                        <td>@list.Subjects</td>
+                                        <td>@list.Qualification</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p><em>There are no previous educational history for this employee...</em></p>
+                    }
+            </div>
+        </WhiteContainer>
+        </div>
+        </div>
+    
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Union Membership</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Union Name</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.UnionName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Membership Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MembershipNumberUnion
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Date Joined</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DateJoinedUnion
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Monthly Subscriptions</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.MonthlySubscriptionUnion
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Sport, Hobbies & Interests</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <label for="CapexTitle">Sport, Hobbies & Interests</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.SportHobbiesInterests
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Medical History</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <label for="CapexTitle">Allergies</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Allergies
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <label for="CapexTitle">Disabilities</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.Disabilities
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Blood Group</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.BloodGroup
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Doctor's Name</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DoctorName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Telephone Number</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.DoctorTelephoneNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">State of Health</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.StateOfHealth
+                </div>
+            </div>
+            <div class="col-sm">
+                <label for="CapexTitle">Pre-Employment Examination</label>
+                <div class=" alert alert-success" role="alert">
+                    @employee.PreEmploymentExamination
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container">
+        <div class="alert alert-success">
+        <WhiteContainer>
+            <div class="row">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Downloadable Content</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ID Copy</td>
+                            @if(fileNamesID != null && fileNamesID.Count > 0)
+                            {
+                                <table class="table table-success">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:80%">File Name</th>
+                                            <th style="width:20%">Download</th>
+                                        </tr>
+                                    </thead>
+                                <tbody>
+                                    @foreach(var item in fileNamesID)
+                                    {
+                                        <tr>
+                                            <td>@item</td>
+                                            <td><button @onclick="()=>DownloadFile(item, idpath)" class="btn btn-dark" style="width:90px; float:right margin-left:10px; font-size:12px;  padding:5px; height:30px">Download</button></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <td>No ID copy available...</td>
+                            }
+
+                </tr>
+                <tr>
+                    <td>Drivers Licency Copy</td>
+                            @if(fileNamesDrivers != null && fileNamesDrivers.Count > 0)
+                            {
+                                <table class="table table-success">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:80%">File Name</th>
+                                            <th style="width:20%">Download</th>
+                                        </tr>
+                                    </thead>
+                                <tbody>
+                                    @foreach(var item in fileNamesDrivers)
+                                    {
+                                        <tr>
+                                            <td>@item</td>
+                                            <td><button @onclick="()=>DownloadFile(item, drivers)" class="btn btn-dark" style="width:90px; font-size:12px; padding:5px; height:30px">Download</button></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <td>No drivers licence available...</td>
+                            }
+                </tr>
+                <tr>
+                    <td>Contract Copy</td>
+                    @if(fileNamesContract != null && fileNamesContract.Count > 0)
+                            {
+                                <table class="table table-success">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:80%">File Name</th>
+                                            <th style="width:20%">Download</th>
+                                        </tr>
+                                    </thead>
+                                <tbody>
+                                    @foreach(var item in fileNamesContract)
+                                    {
+                                        <tr>
+                                            <td>@item</td>
+                                            <td><button @onclick="()=>DownloadFile(item, contract)" class="btn btn-dark" style="width:90px; font-size:12px; padding:5px; height:30px">Download</button></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <td>No contract copy available...</td>
+                            }
+                </tr>
+                <tr>
+                    <td>Bank Statements Copy</td>
+                    @if(fileNamesBankingInfo != null && fileNamesBankingInfo.Count > 0)
+                    {
+                        <table class="table table-success">
+                            <thead>
+                                <tr>
+                                    <th style="width:80%">File Name</th>
+                                    <th style="width:20%">Download</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+                            @foreach(var item in fileNamesBankingInfo)
+                            {
+                                <tr>
+                                    <td>@item</td>
+                                    <td><button @onclick="()=>DownloadFile(item, bankinfo)" class="btn btn-dark" style="width:90px; font-size:12px; padding:5px; height:30px">Download</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <td>No banking information available...</td>
+                    }
+                </tr>
+                <tr>
+                    <td>Signed Documents</td>
+                    @if(fileNamesSignedDocs != null && fileNamesSignedDocs.Count > 0)
+                    {
+                    <table class="table table-success">
+                    <thead>
+                        <tr>
+                            <th style="width:80%">File Name</th>
+                            <th style="width:20%">Download</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var item in fileNamesSignedDocs)
+                        {
+                            <tr>
+                                <td>@item</td>
+                                <td><button @onclick="()=>DownloadFile(item, signeddoc)" class="btn btn-dark" style="width:90px; font-size:12px; padding:5px; height:30px">Download</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                    </table>       
+                    }
+                    else
+                    {
+                        <td>No signed documents available...</td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+        </Div>
+        </WhiteContainer>
+        </div>
+    </div>
+
+
+</WhiteContainer>
+
+@code {
+    //Lists and employee & access variables---------------------------------
+    Employee employee = new();
+    List<Beneficiaries> beneficiariesList = new();
+    List<Dependants> dependantsList = new();
+    List<LanguageProficiency> languageProficienciesList = new();
+    List<PreviousEmployment> previousEmploymentsList = new();
+    List<EducationalHistory> educationalHistoriesList = new();
+    List<LicenceCodes> licenceCodesList = new();
+
+    private bool bankingshow = false;
+
+    //Navigation------------------------------------------------------------
+    private void navToVIPUserPage()
+    {
+        navManager.NavigateTo($"/VIPUserPage");
+    }
+
+    //Initialize---------------------------------------------------------
+    protected override void OnInitialized()
+    {
+
+        employee = service.GetById(shareddataService.EmployeeID);
+        beneficiariesList = service.GetBeneficiaries(shareddataService.EmployeeID);
+        dependantsList = service.GetDependants(shareddataService.EmployeeID);
+        languageProficienciesList = service.GetLanguages(shareddataService.EmployeeID);
+        previousEmploymentsList = service.GetPreviousEmployments(shareddataService.EmployeeID);
+        educationalHistoriesList = service.GetEducationalHistory(shareddataService.EmployeeID);
+        licenceCodesList = service.GetLicenceCodes(shareddataService.EmployeeID);
+
+        //
+        if(shareddataService.EmployeeWorkRecords.Where(x=>x.EmpID == shareddataService.EmployeeID).Any() && shareddataService.accessLinkings.Any(x=>x.ModuleID == 2))
+        {
+            bankingshow = true;
+        }
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).BusinessUnitID == 2 
+        && shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).DepartmentID == 2 || 
+        shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 2).DepartmentID == 1 ||
+        shareddataService.UserID == 1 )
+        {
+            bankingshow = true;
+        }
+
+        //corresponding values
+        foreach(var item in languageProficienciesList)
+        {
+            item.LanguageName = service.GetCorrespondingLanguage(item.LanguageID);
+        }
+        foreach(var item in licenceCodesList)
+        {
+            item.LicenceCodeName = service.GetCorrespondingLicenceCode(item.LicenceCodeID);
+        }
+
+        //corresponding values
+        employee.LanguageName = service.GetCorrespondingLanguage(employee.HomeLanguageID);
+        employee.TitleName = service.GetCorrespondingTitle(employee.TitleID);
+        employee.GenderName = service.GetCorrespondingGender(employee.GenderID);
+        employee.RaceName = service.GetCorrespondingRace(employee.RaceID);
+        employee.NationalityName = service.GetCorrespondingNationality(employee.NationalityID);
+        employee.PayPeriodName = service.GetCorrespondingPayPeriod(employee.PayPeriodID);
+        employee.DepartmentName = service.GetCorrespondingDepartment(employee.DepartmentID);
+        employee.PayMethodName = service.GetCorrespondingPayMethod(employee.PayMethodID);
+        employee.JobGradeName = service.GetCorrespondingJobGrade(employee.JobGradeID);
+        employee.UnionName = service.GetCorrespondingUnion(employee.UnionID);
+        employee.MaritalStatusName = service.GetCorrespondingMaritalStatus(employee.MaritalStatusID);
+        employee.CompanyNumberName = leService.GetCorrespondingLegalEntity(employee.CompanyNumberID);
+
+        GetEmployeeFiles(); 
+    }
+
+    //Downloads file saved on server---------------------------------------------
+    // private async Task DownloadFile(string path)
+    // {
+
+    //     if (File.Exists(path))
+    //     {
+    //         byte[] fileBytes = File.ReadAllBytes(path);
+    //         await jsRuntime.InvokeAsync<object>("saveAsFile", path, fileBytes);
+    //     }
+    // }
+
+    private List<string> fileNamesID = new();
+    private List<string> fileNamesDrivers = new();
+    private List<string> fileNamesContract = new();
+    private List<string> fileNamesBankingInfo = new();
+    private List<string> fileNamesSignedDocs = new();
+
+    private string idpath = string.Empty;
+    private string drivers = string.Empty;
+    private string contract = string.Empty;
+    private string bankinfo = string.Empty;
+    private string signeddoc = string.Empty;
+
+    private void GetEmployeeFiles()
+    {
+        idpath = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\IDCopy";
+        drivers = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\DriversLicence";
+        contract = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\Contract";
+        bankinfo = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\BankingInfo";
+        signeddoc = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\SignDocuments";
+
+        fileNamesID = GetFileNames(idpath);
+        fileNamesDrivers = GetFileNames(drivers);
+        fileNamesBankingInfo = GetFileNames(bankinfo);
+        fileNamesContract = GetFileNames(contract);
+        fileNamesSignedDocs = GetFileNames(signeddoc);
+    }
+
+    private async Task DownloadFile(string fileName, string path)
+    {
+        // Construct the full path
+        string filePath = Path.Combine(path, fileName);
+
+        if (File.Exists(filePath))
+        {
+            byte[] fileBytes = File.ReadAllBytes(filePath);
+            await jsRuntime.InvokeAsync<object>("saveAsFile", fileName, fileBytes);
+        }
+    }
+
+
+    private List<string> GetFileNames(string directoryPath)
+    {
+    try
+    {
+        // Get file names in the directory
+        return Directory.GetFiles(directoryPath).Select(Path.GetFileName).ToList();
+    }
+    catch (Exception ex)
+    {
+        return new List<string>();
+    }
+}
+
+
+}

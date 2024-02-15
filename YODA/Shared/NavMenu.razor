@@ -1,0 +1,113 @@
+﻿<div hideWhenPrint class="top-row ps-3 navbar navbar-dark" style="opacity:1; background-image: linear-gradient(to left, black 60%, white 100%)">
+    <div class="container-fluid">
+        <img style="width:30px; height:30px; opacity:0.7" src="/Images/SVGYork.png" alt="" />
+        <a class="navbar-brand" >York Online</a>       
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable hideWhenPrint" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="@("/MainOnlinePage")" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        @if (NOfinAccessBool)
+            {
+            <div class="nav-item px-3">
+
+                <NavLink class="nav-link" href="@("/Financial")" @onclick="()=>expandSubMenu=!expandSubMenu">
+                    <span class="oi oi-dollar" aria-hidden="true"></span> Financial
+                </NavLink>
+                @if (expandSubMenu)
+                {
+                    <ul class="nav flex-column">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="@("/CapexUserPage")">
+                                <span class="oi oi-clipboard" aria-hidden="true"></span> Capex Form
+                            </NavLink>
+                        </li>
+                    </ul>
+
+                }                    
+        </div>
+        }
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="@("/Hr")" @onclick="()=>expandHRSubMenu=!expandHRSubMenu">
+                <span class="oi oi-people" aria-hidden="true" ></span> HR
+            </NavLink>
+            @if (expandHRSubMenu)
+            {
+                <ul class="nav flex-column">
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link" href="@("/VIPUserPage")">
+                            <span class="oi oi-person" aria-hidden="true"></span> Employee Take On
+                        </NavLink>
+                        @if (NOdisciplineAccessBool)
+                        {
+                            <NavLink class="nav-link" href="@($"/Discipline")">
+                                <span class="oi oi-zoom-in" aria-hidden="true"></span>Relations
+                            </NavLink>
+                        }
+                    </li>
+                </ul>
+                
+
+            }
+        </div>
+        @if (NOitAccessBool)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" Match="NavLinkMatch.All">
+                    <span class="oi oi-monitor" aria-hidden="true"></span> IT
+                </NavLink>
+            </div>
+        }
+        
+    </nav>
+    <center>
+        <img style="width:200px; margin-left:0; height:auto; position:absolute; margin-left:-40%; opacity:0.8; bottom:5px;" src="/Images/PicYork.png" alt="" />
+    </center>
+    
+</div>
+
+
+@using YODA.Services
+@using YODA.Repos.Models
+@inject IAccessService accessService
+@inject SharedDataService sharedataService
+
+@code {
+
+    private bool collapseNavMenu = true;
+    private bool expandSubMenu;
+    private bool expandHRSubMenu;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private bool NOfinAccessBool = false;
+    private bool NOitAccessBool = false;
+    private bool NOdisciplineAccessBool = false;
+
+
+    protected override void OnInitialized()
+    {
+        if(sharedataService.accessLinkings.Exists(x=>x.ModuleID == 1))
+        {
+            NOfinAccessBool = true;
+        }
+        if(sharedataService.accessLinkings.Exists(x=>x.ModuleID == 3))
+        {
+            NOdisciplineAccessBool = true;
+        }
+
+    }
+}

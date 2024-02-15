@@ -1,0 +1,250 @@
+﻿@page "/MainOnlinePage"
+
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@inject NavigationManager NavigationManager
+@inject IAccessService accessservice
+@inject ICapexUserService cuservice
+@inject IEmailService emailservice
+@inject SharedDataService shareddataService
+@inject IWorkRecordService wrService
+
+<PageTitle>York Online</PageTitle>
+
+<WhiteContainer>
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Welcome to the York Online System</h1>
+        <p>This system was designed for workflow management.</p>
+    </center>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="alert alert-success">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <Card Height="Height.Is100" VerticalAlignment="VerticalAlignment.Middle">
+                        <CardBody>
+                            <center><Blazorise.CardTitle Size="4">Instructional Videos</Blazorise.CardTitle></center>
+                            <br />
+                            <br />
+                            <ListGroup @bind-SelectedItem="selectedItem" Mode="ListGroupMode.Selectable" Style="cursor:pointer">
+                                <ListGroupItem Clicked="ShowCapexModal"><center>Capex</center></ListGroupItem>
+                                <ListGroupItem Clicked="ShowEmpModal"><center>Employee Details</center></ListGroupItem>
+                            </ListGroup>
+                        </CardBody>
+                    </Card>
+                </div>
+                <div class="col-sm-4">
+                    <Card>
+                        <CardBody>
+                            <center><Blazorise.CardTitle Size="4">How to use the York Online System?</Blazorise.CardTitle></center>
+                            <br />
+                            <video controls style="width: 100%; height:100%">
+                                <source src="/YorkMainVideo.mp4" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        </CardBody>
+                    </Card>
+                </div>
+                <div class="col-sm-4">
+                    <Card Height="Height.Is100">
+                        <CardBody>
+                            <center><Blazorise.CardTitle Size="4">Departments</Blazorise.CardTitle></center>
+                            <br />
+                            <br />
+                            <ListGroup @bind-SelectedItem="selectedItem" Mode="ListGroupMode.Selectable" Style="cursor:pointer">
+                                <ListGroupItem Disabled="nofinancialAccess" Clicked="navToFinancial"><center>Financial</center></ListGroupItem>
+                                <ListGroupItem  Clicked="navToHR"><center>Human Resources</center></ListGroupItem>
+                                @* <ListGroupItem Disabled="itAccess"><center>Information Technology</center></ListGroupItem> *@
+                            </ListGroup>
+                        </CardBody>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    @* <br />
+
+    <div class="container">
+        <div class="alert alert-success">
+        <div class="row">
+            <div class="col-4">
+                <GreenContainer>
+                    <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                        <h3>Instructional Videos</h3>
+                        <div>
+                            <br /><br />
+                            <table class="table table-striped">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Videos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <button class="btn btn-dark" style="width:170px" @onclick="ShowCapexModal" >Capex</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <button class="btn btn-dark" style="width:170px" @onclick="ShowEmpModal" >Employee Details</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </GreenContainer>
+            </div>
+            <div class="col-4">
+                <GreenContainer>
+                    <div class="" style="text-align:center; max-width:100%; align-content:center;">
+                        <h3>
+                            How to use the York Online System?
+                        </h3>
+                        <div>
+                            <br />
+                            <br />
+                            <video controls style="width: 100%; height:100%">
+                                <source src="/YorkMainVideo.mp4" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                </GreenContainer>
+            </div>
+            <div class="col-4">
+                <GreenContainer>
+                    <div style="align-content:center; max-width:100%">
+                        <h3 style="text-align: center;">Departments</h3>
+                    <ListGroup Mode="ListGroupMode.Selectable" Style="cursor:pointer">
+                            <ListGroupItem Disabled="nofinancialAccess" Clicked="navToFinancial"><center>Financial</center></ListGroupItem>
+                            <ListGroupItem Clicked="navToHR"><center>Human Resources</center></ListGroupItem>
+                            <ListGroupItem Disabled="itAccess"><center>Information Technology</center></ListGroupItem>
+                    </ListGroup>
+                        </div>
+                    @* <div class="" style="max-width:100%; align-content:center;">
+                        <h3 style="text-align: center;">Departments</h3>
+                        <br />
+                        <br />
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+                            <button class="btn btn-dark btn-block mb-3" disabled="@nofinancialAccess" style="width: 80%;height:45px" @onclick="navToFinancial">Financial</button>               
+                            <button class="btn btn-dark btn-block mb-3" style="width: 80%;height:45px" @onclick="navToHR" >HR</button>
+                            <button class="btn btn-dark btn-block mb-3" disabled =" @itAccess" style="width: 80%;height:45px" >IT</button>
+                        </div>
+                    </div> 
+                </GreenContainer>
+            </div>
+        </div>
+        </div>
+    </div> *@
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalCapex">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>How do I submit a Capex Form?</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <Blazorise.Field>
+                <center>
+                    <video controls style="width: 80%; height:100%">
+                        <source src="/CapexVideo.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                </center>
+            </Blazorise.Field>
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark" type="button" @onclick="HideCapexModal">Close</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalEmployeeDetails">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>How do I update my employee details?</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <Blazorise.Field>
+                <center>
+                    <video controls style="width: 80%; height:100%">
+                        <source src="/EmployeeDetailsVideo.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                </center>
+            </Blazorise.Field>
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark" type="button" @onclick="HideEmpModal">Close</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    private CapexUser user = new();
+    private bool nofinancialAccess = true;
+    private bool itAccess = false;
+    private string selectedItem = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        //Check to see if the person has Capex Access
+        if(shareddataService.accessLinkings.Exists(x=>x.ModuleID == 1))
+        {
+            nofinancialAccess = false;
+        }
+    }
+
+    //Video Modal
+    private Blazorise.Modal modalCapex = new();
+    private Blazorise.Modal modalEmployeeDetails = new();
+
+    private string message = string.Empty;
+
+    private Task ShowCapexModal()
+    {
+        selectedItem = string.Empty;
+        return modalCapex.Show();
+    }
+
+    private Task HideCapexModal()
+    {
+        return modalCapex.Hide();
+    }
+
+    private Task ShowEmpModal()
+    {
+        selectedItem = string.Empty;
+        return modalEmployeeDetails.Show();
+    }
+
+    private Task HideEmpModal()
+    {
+        return modalEmployeeDetails.Hide();
+    }
+
+    //Navigation
+    private void navToFinancial()
+    {
+        selectedItem = string.Empty;
+        NavigationManager.NavigateTo("/Financial");
+    }
+
+    private void navToHR()
+    {
+        selectedItem = string.Empty;
+        NavigationManager.NavigateTo("/Hr");
+    }
+
+
+}

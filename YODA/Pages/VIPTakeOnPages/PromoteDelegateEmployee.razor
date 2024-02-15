@@ -1,0 +1,886 @@
+﻿@page "/PromoteDelegatePage"
+
+<PageTitle>Promote & Delegate</PageTitle>
+@inject NavigationManager navManager
+
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@inject IEmployeeService service
+@inject IBusinessUnitService buservice
+@inject IAccessService accessService
+@inject IEmployeeService empService
+@inject IWorkRecordService workrecService
+@inject IAccessLinkingService alService
+@inject IServerPathConfigService spservice
+@inject IBusinessUnitService buservice
+@inject IRoleService roleservice
+@inject IAccessLinkingService alservice
+@inject SharedDataService shareddataService
+@inject ILegalEntityService legalservice
+
+@inject IJSRuntime JSRuntime
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="navToEmployeeUserPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Promote or Delegate Employee</h1>
+        <p>Review current work record for employee.</p>
+    </center>
+
+    <br />
+    <hr />
+    <br />
+
+     <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Employee ID</label>
+                <div class="alert alert-success">
+                    @emp.EmployeeID
+                </div>
+            </div>
+            <div class="col-sm">
+                <label>Employee Number</label>
+                <div class="alert alert-success">
+                    @emp.EmployeeNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Legal Entity</label>
+                <div class="alert alert-success">
+                    @workrecords[0].EntityName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label>Business Unit</label>
+                <div class="alert alert-success">
+                    @workrecords[0].BusinessUnitName                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Department</label>
+                <div class="alert alert-success">
+                    @emp.DepartmentName
+                </div>
+            </div>
+            <div class="col-sm">
+                <label>Role</label>
+                <div class="alert alert-success">
+                    @emp.RoleName
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Date of Employment (From Date)</label>
+                <div class="alert alert-success">
+                    @workrecords[0].FromDateString
+                </div>
+            </div>
+            <div class="col-sm">
+                <label>Date of Employment (To Date)</label>
+                <div class="alert alert-success">
+                    @workrecords[0].ToDateString
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-7 mx-auto" style="width:80%">
+                <label>Current Module Access Types</label>
+                <div class="alert alert-success">
+                    <WhiteContainer>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>Access Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in workrecords)
+                                {
+                                    <tr>
+                                        <td>@item.ModuleName</td>
+                                        <td>@item.AccessTypeName</td>
+                                        <td>@item.Status</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </WhiteContainer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <br />
+
+    <center>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <button class="btn btn-dark" @onclick="ShowConfirmCeaseEmploymentModal" type="button">Cease Employment</button>
+                    <button class="btn btn-dark" @onclick="ShowAllocateModal" type="button">Assign New Access / Work Record</button>
+                    <button class="btn btn-dark" @onclick="ShowPromoteModal" type="button">Promote Employee</button>
+                </div>
+            </div>
+        </div>
+    </center>
+
+
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalPromote" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+        <ModalHeader>
+            <ModalTitle>Promote Employee</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+             <div class="container">
+                 <div class="row">
+                     <div class="col-6">
+                         <label>Legal Enity</label>
+                         <select class="form-select" @onchange="LegalEntityClicked">
+                             <option value="">Select Legal Entity...</option>
+                             @foreach (var item in legalentities)
+                            {
+                                <option value="@item.LegalEntityId">@item.LegalEntityName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm">
+                        <label>Business Unit</label>
+                        <select class="form-select" @onchange="BusinessUnitClicked" disabled="@businessunitshow">
+                            <option value="">Select Business Unit...</option>
+                            @foreach (var item in businessunits)
+                            {
+                                <option value="@item.BusinessUnitId">@item.BusinessUnitName</option>
+                            }
+                        </select>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <label>Department</label>
+                        <select class="form-select" @onchange="DepartmentClicked" disabled="@departmentshow" >
+                            <option value="">Select Department...</option>
+                            @foreach (var item in departments)
+                            {
+                                <option value="@item.Id">@item.DepartmentName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label>Role</label>
+                        <select class="form-select" @onchange="RoleClicked" disabled="@roleshow">
+                            <option value="">Select Role...</option>
+                            @foreach (var item in roles)
+                            {
+                                <option value="@item.RoleId">@item.RoleName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                        <label>From Date</label>
+                        <input type="date" class="form-control" @bind-value="fromDatePromote"/>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <center>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-success">
+                            You are about to promote this employee. The previous work record of this employee will be deactivated.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </center>
+
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="ShowConfirmPromoteModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="ClosePromoteModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalAllocate" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+        <ModalHeader>
+            <ModalTitle>Allocate New Access / Work Record Employee</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+             <div class="container">
+                 <div class="row">
+                     <div class="col-6">
+                         <label>Legal Enity</label>
+                         <select class="form-select" @onchange="LegalEntityClickedAssign">
+                             <option value="">Select Legal Entity...</option>
+                             @foreach (var item in legalentities)
+                            {
+                                <option value="@item.LegalEntityId">@item.LegalEntityName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm">
+                        <label>Business Unit</label>
+                        <select class="form-select" @onchange="BusinessUnitClickedAssign" disabled="@businessunitshowassign">
+                            <option value="">Select Business Unit...</option>
+                            @foreach (var item in businessunits)
+                            {
+                                <option value="@item.BusinessUnitId">@item.BusinessUnitName</option>
+                            }
+                        </select>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <label>Department</label>
+                        <select class="form-select" @onchange="DepartmentClickedAssign" disabled="@departmentshowassign">
+                            <option value="">Select Department...</option>
+                            @foreach (var item in departments)
+                            {
+                                <option value="@item.Id">@item.DepartmentName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label>Role</label>
+                        <select class="form-select" @onchange="RoleClickedAssign" disabled="@roleshowassign">
+                            <option value="">Select Role...</option>
+                            @foreach (var item in roles)
+                            {
+                                <option value="@item.RoleId">@item.RoleName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                    <label>Module Name</label>
+                        <select class="form-select" @onchange="ModuleClickedAssign" disabled="@moduleshowassign">
+                        <option value="">Select Module...</option>
+                        @foreach (var item in modulesForAllocate)
+                        {
+                            <option value="@item.Id">@item.ModuleName</option>
+                        }
+                    </select>
+                </div>
+                    <div class="col-sm">
+                        <label>Employee Access Type</label>
+                        <select class="form-select" @bind="AccessTypeAllocate" disabled="@accessTypeshowassign">
+                            <option value="">Select Access Type...</option>
+                            @foreach (var item in accessTypesForAllocate)
+                            {
+                                <option value="@item.AccessTypeId">@item.AccessTypeName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <label>From Date</label>
+                        <input type="date" class="form-control" @bind-value="fromdateAllocate" />
+                    </div>
+                    <div class="col-sm">
+                        <label>To Date</label>
+                        <input type="date" class="form-control" @bind-value="@todateAllocate"/>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <center>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-success">
+                                You are about to assign a new responsibility to this employee for a specific module. 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </center>
+
+        </ModalBody>
+        <ModalFooter>
+             <button @onclick="ShowConfirmAllocateModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseAllocateModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalConfirmPromote" Closing="@OnModalClosing">
+     <Blazorise.ModalContent Centered Size="ModalSize.Default">
+         <ModalHeader>
+             <ModalTitle>Confirm Save</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <WhiteContainer>
+                 <center>
+                     <div class="container">
+                         <div class="row">
+                             <div class="alert alert-success">
+                             Are you sure you want to promote this employee?
+                             </div>
+                         </div>
+                     </div>
+                 </center>
+             </WhiteContainer>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="SavePromoteEmployee" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+             <button @onclick="CloseConfirmPromoteModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalConfirmAllocate" Closing="@OnModalClosing">
+     <Blazorise.ModalContent Centered Size="ModalSize.Default">
+         <ModalHeader>
+             <ModalTitle>Confirm Save</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <WhiteContainer>
+                 <center>
+                     <div class="container">
+                         <div class="row">
+                             <div class="alert alert-success">
+                                 Are you sure you want to temporarily allocate responsibilities this employee?
+                             </div>
+                         </div>
+                     </div>
+                 </center>
+             </WhiteContainer>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="SaveAllocateNewRoleToEmployee" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+             <button @onclick="CloseConfirmAllocateModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalConfirmCeaceEmployment" Closing="@OnModalClosing">
+     <Blazorise.ModalContent Centered Size="ModalSize.Default">
+         <ModalHeader>
+             <ModalTitle>Cease Employment</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <WhiteContainer>
+                 <center>
+                     <div class="container">
+                         <div class="row">
+                             <div class="alert alert-success">
+                                 Are you sure you want to cease the employment of this employee? <br /><br />
+                                 You will not be able to reverse this decision.
+                             </div>
+                         </div>
+                     </div>
+                 </center>
+             </WhiteContainer>
+         </ModalBody>
+         <ModalFooter>
+             <button class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+             <button @onclick="CloseConfirmCeaseEmploymentModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ <Blazorise.Modal @ref="errorModal" Closing="@OnModalClosing">
+     <Blazorise.ModalContent Centered Size="ModalSize.Default">
+         <ModalHeader>
+             <ModalTitle>Error</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <WhiteContainer>
+                 <center>
+                     <div class="container">
+                         <div class="row">
+                             <div class="alert alert-success">
+                                 @errorMessage
+                             </div>
+                         </div>
+                     </div>
+                 </center>
+             </WhiteContainer>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ @code {
+    private List<EmployeeWorkRecord> workrecords = new();
+    private List<BusinessUnit> businessunits = new();
+    private List<EmployeeDepartment> departments = new();
+    private List<Modules> modules = new();
+    private List<Role> roles = new();
+    private List<AccessType> accesstypes = new();
+    private List<AccessLinking> accesslinks = new();
+    private List<LegalEntity> legalentities = new();
+    private Employee emp = new();
+
+    private EmployeeWorkRecord selectedRecord = new();
+    public AccessLinking accessLink = new();
+    private bool isPromoteClicked = false;
+    private int? eid = 0;
+    private string errorMessage = string.Empty;
+
+    private Blazorise.Modal modalPromote = new();
+    private Blazorise.Modal modalAllocate = new();
+    private Blazorise.Modal modalConfirmPromote = new();
+    private Blazorise.Modal modalConfirmAllocate = new();
+    private Blazorise.Modal modalConfirmCeaceEmployment = new();
+    private Blazorise.Modal errorModal = new();
+    private bool cancelClose;
+
+    //show for promote
+    //dropdown disabled
+    private bool businessunitshow = true;
+    private bool departmentshow = true;
+    private bool roleshow = true;
+    private bool accessTypeshow = true;
+
+    //show for new access link / work record
+    //dropdown disabled
+    private bool businessunitshowassign = true;
+    private bool departmentshowassign = true;
+    private bool roleshowassign = true;
+    private bool moduleshowassign = true;
+    private bool accessTypeshowassign = true;
+
+    //id's for promotion
+    private int BUidPromote = 0;
+    private int DeptidPromote = 0;
+    private int RoleidPromote = 0;
+    private int BUidAllocate = 0;
+    private int DeptidAllocate = 0;
+    private int RoleidAllocate = 0;
+    private int ModuleidAllocate = 0;
+    private int AccessTypeAllocate = 0;
+
+    //
+    DateTime fromDatePromote = DateTime.Now;
+
+    //when dropdowns clicked
+    //method to get business units according to legal entity
+    protected async void LegalEntityClicked(ChangeEventArgs changeEvent)
+    {
+        //newEmployee.CompanyNumberID;
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        businessunits = workrecService.GetBusinessUnitsForLegalEntity(intvalue);
+        businessunitshow = false;
+    }
+
+    //method to get departments according to businessunit selected
+    protected async void BusinessUnitClicked(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        departments = workrecService.GetDepartmentsForBusnessUnit(intvalue);
+        departmentshow = false;
+        BUidPromote = intvalue;
+    }
+
+    //method to get roles according to department selected
+    protected async void DepartmentClicked(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        roles = workrecService.GetRolesForDepartment(intvalue);
+        roleshow = false;
+        DeptidPromote = intvalue;
+    }
+
+    protected async void RoleClicked(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        accessTypeshow = false;
+        RoleidPromote = intvalue;
+    }
+
+    protected async void LegalEntityClickedAssign(ChangeEventArgs changeEvent)
+    {
+        //newEmployee.CompanyNumberID;
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        businessunits = workrecService.GetBusinessUnitsForLegalEntity(intvalue);
+        businessunitshowassign = false;
+    }
+    protected async void BusinessUnitClickedAssign(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        departments = workrecService.GetDepartmentsForBusnessUnit(intvalue);
+        departmentshowassign = false;
+        BUidAllocate = intvalue;
+    }
+    protected async void DepartmentClickedAssign(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        roles = workrecService.GetRolesForDepartment(intvalue);
+        roleshowassign = false;
+        DeptidAllocate = intvalue;
+    }
+    protected async void RoleClickedAssign(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        modulesForAllocate = workrecService.GetModulesForRole(intvalue);
+        moduleshowassign = false;
+        RoleidAllocate = intvalue;
+    }
+    protected async void ModuleClickedAssign(ChangeEventArgs changeEvent)
+    {
+        string id = changeEvent.Value.ToString();
+        int intvalue = int.Parse(id);
+        accessTypesForAllocate = accesstypes;
+        accessTypeshowassign = false;
+        ModuleidAllocate = intvalue;
+    }
+
+
+    private Task ShowConfirmPromoteModal()
+    {
+        return modalConfirmPromote.Show();
+    }
+    private Task CloseConfirmPromoteModal()
+    {
+        return modalConfirmPromote.Hide();
+    }
+    private Task ShowConfirmAllocateModal()
+    {
+        return modalConfirmAllocate.Show();
+    }
+    private Task CloseConfirmAllocateModal()
+    {
+        return modalConfirmAllocate.Hide();
+    }
+    private Task ShowConfirmCeaseEmploymentModal()
+    {
+        return modalConfirmCeaceEmployment.Show();
+    }
+    private Task CloseConfirmCeaseEmploymentModal()
+    {
+        return modalConfirmCeaceEmployment.Hide();
+    }
+    private Task ShowErrorModal()
+    {
+        return errorModal.Show();
+    }
+    private Task CloseErrorModal()
+    {
+        return errorModal.Hide();
+    }
+
+    private Task ShowPromoteModal()
+    {
+        return modalPromote.Show();
+
+    }
+
+    private Task ClosePromoteModal()
+    {
+        return modalPromote.Hide();
+    }
+
+    private Task ShowAllocateModal()
+    {
+        return modalAllocate.Show();
+
+    }
+
+    private Task CloseAllocateModal()
+    {
+        return modalAllocate.Hide();
+    }
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //initialization-------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+
+        businessunits = buservice.GetBusinessUnitList();
+        departments = empService.GetEmployeeDepartments();
+        modules = workrecService.GetAllModules();
+        roles = roleservice.GetRoles();
+        accesstypes = workrecService.GetAccessTypes();
+        legalentities = legalservice.GetLegalEntities();
+
+        //Get work records for employee
+        workrecords = workrecService.GetEmployeeWorkRecords(shareddataService.EmployeeID);
+
+        GetInfo();
+
+        emp = empService.GetById(shareddataService.EmployeeID);
+        emp.RoleName = roles.FirstOrDefault(x => x.RoleId == emp.RoleID).RoleName;
+        emp.DepartmentName = departments.FirstOrDefault(x => x.Id == emp.DepartmentID).DepartmentName;
+
+    }
+
+    //get info
+    private void GetInfo()
+    {
+        #region getinfo
+        //Get AccessLinks
+        foreach (var item in workrecords)
+        {
+            accessLink = alservice.GetAccessLinkingForID(item.BUDeptRoleID);
+            accesslinks.Add(accessLink);
+            item.BusinessUnitName = businessunits.FirstOrDefault(x => x.BusinessUnitId == accessLink.BusinessUnitID).BusinessUnitName;
+            item.DepartmentName = departments.FirstOrDefault(x => x.Id == accessLink.DepartmentID).DepartmentName;
+            item.RoleName = roles.FirstOrDefault(x => x.RoleId == accessLink.RoleID).RoleName;
+            item.ModuleName = modules.FirstOrDefault(x => x.Id == accessLink.ModuleID).ModuleName;
+            item.AccessTypeName = accesstypes.FirstOrDefault(x => x.AccessTypeId == accessLink.AccessTypeID).AccessTypeName;
+            item.FromDateString = item.FromDate.Value.ToString("yyyy-MM-dd");
+            item.EntityName = workrecService.GetLegalEntityName(accessLink.BusinessUnitID);
+
+            if (item.ToDateString != null)
+            {
+                item.ToDateString = item.ToDate.Value.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                item.ToDateString = "No end date";
+            }
+            if (item.FromDate < DateTime.Now && (item.ToDate > DateTime.Now || item.ToDate == null))
+            {
+                item.Status = "Active";
+            }
+            else
+            {
+                item.Status = "Not Active";
+            }
+
+        }
+
+        bool hasDuplicateModuleID = accesslinks
+            .GroupBy(obj => obj.ModuleID)
+            .Any(group => group.Count() > 1);
+
+        if (hasDuplicateModuleID)
+        {
+            foreach (var group in accesslinks.GroupBy(obj => obj.ModuleID))
+            {
+                if (group.Count() > 1)
+                {
+                    // Get all the objects with the duplicate ModuleID
+                    var duplicateObjects = group.ToList();
+                    int maxAttributeValue = duplicateObjects.Max(obj => obj.AccessTypeID);
+
+                    foreach(var rec in workrecords)
+                    {
+                        if (workrecService.GetLinking(duplicateObjects.FirstOrDefault(x=>x.AccessTypeID == maxAttributeValue).Id) != null)
+                        {
+                            AccessLinking link = new();
+                            link = workrecService.GetLinking(duplicateObjects.FirstOrDefault(x => x.AccessTypeID == maxAttributeValue).Id);
+                            if(rec.BUDeptRoleID == link.Id)
+                            {
+                                rec.Status = "Not Active";
+                            }
+                            else
+                            {
+                                rec.Status = "Active";
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+
+        #endregion
+    }
+
+    private void CheckActiveWorkRecords(List<EmployeeWorkRecord> list)
+    {
+
+
+    }
+
+    //Navigation
+    private void navToEmployeeUserPage()
+    {
+        navManager.NavigateTo("/VIPUserPage");
+    }
+
+    //selected row styling--------------------------------------------------------
+    private void OnRowStyling(EmployeeWorkRecord record, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private List<Modules> modulesForAllocate = new();
+    private List<AccessType> accessTypesForAllocate = new();
+    DateTime fromdateAllocate = DateTime.Now;
+    DateTime todateAllocate = DateTime.Now;
+    //Save Allocate Employee
+    private void SaveAllocateNewRoleToEmployee()
+    {
+        AccessLinking accessLinking = new();
+        AccessLinking specificLinking = new();
+
+        accessLinking.BusinessUnitID = BUidAllocate;
+        accessLinking.DepartmentID = DeptidAllocate;
+        accessLinking.RoleID = RoleidAllocate;
+        accessLinking.ModuleID = ModuleidAllocate;
+        accessLinking.AccessTypeID = AccessTypeAllocate;
+        accessLinking.RecStatus = 1;
+
+        specificLinking = alservice.GetAccessLinking(accessLinking);
+
+        if(specificLinking.Id == 0)
+        {
+            alservice.AddAccessLinking(accessLinking);
+            specificLinking = alservice.GetAccessLinking(accessLinking);
+        }
+
+        EmployeeWorkRecord newWorkRecord = new();
+        newWorkRecord.BUDeptRoleID = specificLinking.Id;
+        newWorkRecord.EmpID = emp.EmployeeID;
+        newWorkRecord.FromDate = fromdateAllocate;
+        newWorkRecord.ToDate = todateAllocate;
+        newWorkRecord.RecStatus = 1;
+        workrecService.AddWorkRecord(newWorkRecord);
+
+        CloseConfirmAllocateModal();
+        CloseAllocateModal();
+        workrecords = workrecService.GetEmployeeWorkRecords(shareddataService.EmployeeID);
+        GetInfo();
+        emp = empService.GetById(shareddataService.EmployeeID);
+        emp.RoleName = roles.FirstOrDefault(x => x.RoleId == emp.RoleID).RoleName;
+        emp.DepartmentName = departments.FirstOrDefault(x => x.Id == emp.DepartmentID).DepartmentName;
+        StateHasChanged();
+    }
+
+    //Save Promote Employee
+    private void SavePromoteEmployee()
+    {
+        //update current workrecords todate to now
+        workrecService.UpdateAllWorkRecordsToDate(workrecords);
+
+        //Get chosen dropdownids
+        AccessLinking accessLinking = new();
+        List<AccessLinking> listOfLinks = new();
+
+        accessLinking.BusinessUnitID = BUidPromote;
+        accessLinking.DepartmentID = DeptidPromote;
+        accessLinking.RoleID = RoleidPromote;
+
+        //get list of accesslinkings
+        listOfLinks = alservice.GetSpecificAccessLinkings(accessLinking);
+
+        //create a workrecord for each
+        foreach(var link in listOfLinks)
+        {
+            EmployeeWorkRecord newWorkRecord = new();
+            newWorkRecord.BUDeptRoleID = link.Id;
+            newWorkRecord.EmpID = emp.EmployeeID;
+            newWorkRecord.FromDate = fromDatePromote;
+            newWorkRecord.ToDate = null;
+            newWorkRecord.RecStatus = 1;
+            workrecService.AddWorkRecord(newWorkRecord);
+        }
+        CloseConfirmPromoteModal();
+        ClosePromoteModal();
+        workrecords = workrecService.GetEmployeeWorkRecords(shareddataService.EmployeeID);
+        GetInfo();
+        emp = empService.GetById(shareddataService.EmployeeID);
+        emp.RoleName = roles.FirstOrDefault(x => x.RoleId == emp.RoleID).RoleName;
+        emp.DepartmentName = departments.FirstOrDefault(x => x.Id == emp.DepartmentID).DepartmentName;
+        StateHasChanged();
+    }
+    //Save Cease Employment
+    private void SaveCeaseEmployment()
+    {
+        empService.CeaseEmployee(emp.EmployeeID);
+        CloseConfirmCeaseEmploymentModal();
+        navToEmployeeUserPage();
+    }
+
+}

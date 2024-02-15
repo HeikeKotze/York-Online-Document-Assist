@@ -1,0 +1,457 @@
+﻿@inherits LayoutComponentBase
+@using YODA.Repos.Models
+@using YODA.Services
+@using YODA.Pages.CapexComponents
+@inject NavigationManager NavigationManager
+@inject IEmployeeService service
+@inject SharedDataService shareddataService
+@inject IAccessService accessService
+@inject ILoginService loginService
+@inject IEmailService emailService
+@inject IEmployeeService empService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@inject IJSRuntime JSRuntime
+
+
+@using System.Text.RegularExpressions
+
+<PageTitle>York Online</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu/>
+    </div>
+
+    <main class="page-background-class">
+        <div class="top-row px-4" hideWhenPrint>
+            <img style="width:110px; height:110px" class="bwimage" src="/Images/SVGYorkBW.png" alt="" />
+            <button type="button" class="avatar-btn" style="margin-right:5px" @onclick="ShowInfoModal">
+                <Span Class="oi oi-info"></Span>
+            </button>
+            <button type="button" class="avatar-btn" style="margin-right:5px;" @onclick="ShowUserModal">
+                <Span Class="oi oi-person"></Span>
+            </button>
+             <button type="button" class="avatar-btn" @onclick="ShowModal">
+                <Span Class="oi oi-account-logout"></Span>
+                
+                @* @initials *@
+            </button> 
+        </div>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<Blazorise.Modal @ref="modalRef" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Sign Out</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                    <div class="alert alert-success" role="alert">
+                        Are you sure you want to Sign Out?
+                    </div>
+                    <div class="container" style="max-width:40%">
+                        <div class="row">
+                            <button class="btn btn-dark" @onclick=@SignOutClicked>Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="infoModal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+        <ModalHeader>
+            <ModalTitle>YODA Information</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+             @if(shareddataService.UserID != 1)
+            {
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4><strong>Tutorials</strong></h4>
+                            <br />
+                            <p class="paragraphwithlinks">To gain further insights on navigating specific sections and accessing forms within the system, kindly proceed to the <NavLink class="navlinkparagraph" @onclick="navToHomePage">Home</NavLink> page. There, you'll find instructional videos that provide comprehensive guidance. Explore the "Instructional Videos" section for visual assistance. Alternatively, for a more extensive resource library, you can visit <a href="http://media.york.co.za/" class="navlinkparagraph" target="_blank">YorkTube</a>. Thank you for choosing our platform, and we hope these resources enhance your user experience.</p>
+                            <br />
+                            <h4><Strong>Contact Us</Strong></h4>
+                            <br />
+                            <p>
+                                If you have any inquiries or need assistance with the system, please don't hesitate to reach out to us via email. We welcome your questions and will respond promptly to provide the support you require.
+                            </p>
+                            <br />
+                            <div class="alert alert-success">
+                                <WhiteContainer>
+                                    <label>Message</label>
+                                    <textarea style="width:100%" class="form-control" @bind="emailmessage"></textarea>
+                                    <center>
+                                        <button class="btn btn-dark" style="margin-top:10px; width:30%" @onclick="sendEmailToYorkAdmin">Send Email</button>
+                                    </center>
+                                </WhiteContainer>
+                            </div>
+                            @if (errormessage != string.Empty)
+                            {
+                                <div class="alert alert-success">
+                                    <center>
+                                        @errormessage
+                                    </center>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <center>
+                                <button @onclick="navToAdminMessages" class="btn btn-dark">Go to Messages Board</button>
+                            </center>                           
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseInfoModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="userModal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>User Management</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="container">
+                <div class="row">
+                    <div class="alert alert-success">
+                        <Strong>Change Password</Strong>
+                    </div>
+                    <label>If you change your password you will be signed out of the system.</label> 
+                </div>
+                <br />                
+            </div>
+            <div class="container" style="text-align:center">
+                <div class="row">
+                     <button type="button" class="btn btn-dark" @onclick="changePasswordOption">New Password</button>
+                </div>
+            </div>
+            <br />
+            @if (newpasswordclicked)
+            {
+                <div class="container">
+                    <div class="row">
+                        <h6><strong>Passwords should contain at least one of each of the following character types:</strong></h6>
+                        <br />
+                        <p>
+                            Uppercase letters: A-Z
+                        </p>
+                        <p>Lowercase letters: a-z</p>
+                        <p>Numbers: 0-9</p>
+                        <p>Symbols: ~`!#$%^&*()_-+={[}]|\:;"'.?/</p>
+                        <br />
+                        <h6><strong>Your password should be at least be 8 digits.</strong></h6>
+                        <br />
+                    </div>
+                </div>
+                <br />
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                        <br>
+                        <label>Current Password</label>
+                        <input type="password" class="form-control" @bind-value="oldPass">
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-12">
+                        <label>New Password</label>
+                        <input type="password" class="form-control" @bind-value="newPass">
+                        </div>
+                    </div>
+                    @if(message != string.Empty)
+                    {
+                        <br />
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    }
+                    
+                    <br />
+                    <div class="row">
+                        <button type="button" class="btn btn-dark" @onclick="ChangePassword">Submit change</button>
+                    </div>
+                </div>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseUserModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code{
+    #region not using
+    // List<UserAccess> userAccess = new();
+
+    // protected override void OnInitialized()
+    // {
+    //     userAccess = accessService.GetAllUserAccess(shareddataService.UserID);
+    // }
+
+    // protected override void OnParametersSet()
+    // {
+    //     object un = null;
+    //     object pw = null;
+    //     object userid = null;
+    //     object accesstype = null;
+    //     object businessunit = null;
+    //     int userId;
+    //     int accessTypeId;
+    //     int businessUnitId;
+
+
+    //     if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("UserName", out un) == true)
+    //     {
+    //         UserName = un?.ToString();
+    //     }
+    //     if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("Password", out pw) == true)
+    //     {
+    //         Password = pw?.ToString();
+    //     }
+    //     if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("UserID", out var userIdStr) == true)
+    //     {
+    //         if (int.TryParse(userIdStr?.ToString(), out var parsedUserId))
+    //         {
+    //             userId = parsedUserId;
+    //             UserID = userId;
+    //         }
+    //     }
+
+
+    //     if ((this.Body.Target as RouteView)?.RouteData.RouteValues?.TryGetValue("BusinessUnitID", out var businessUnitIdStr) == true)
+    //     {
+    //         if (int.TryParse(businessUnitIdStr?.ToString(), out var parsedBusinessUnitId))
+    //         {
+    //             businessUnitId = parsedBusinessUnitId;
+    //             BusinessUnitID = businessUnitId;
+    //         }
+    //     }
+
+
+
+    // }
+    #endregion
+
+    private bool newpasswordclicked = false;
+    private bool PasswordExists = false;
+    private string newPass = string.Empty;
+    private string oldPass = string.Empty;
+    private string message = string.Empty;
+
+
+    private void changePasswordOption()
+    {
+        if (newpasswordclicked == false)
+        {
+            newpasswordclicked = true;
+        }
+        else
+        {
+            newpasswordclicked = false;
+        }
+    }
+
+    private void ChangePassword()
+    {
+        if(shareddataService.Password == oldPass)
+        {
+            PasswordExists = loginService.checkIfPasswordExists(newPass);
+            if (PasswordExists)
+            {
+                message = "This password already exists in the system";
+                oldPass = "";
+                newPass = "";
+            }
+            else
+            {
+                if (IsPasswordValid(newPass))
+                {
+                    loginService.ChangePassword(shareddataService.UserID, newPass);
+                    CloseUserModal();
+                    NavigationManager.NavigateTo("/");
+                }
+                else
+                {
+                    message = "The password you entered does not match the required format.";
+                    oldPass = "";
+                    newPass = "";
+                }
+            }
+        }
+        else
+        {
+            message = "The password you entered does not match your actual password.";
+            oldPass = "";
+            newPass = "";
+        }
+
+
+    }
+
+    private Blazorise.Modal modalRef = new();
+    private Blazorise.Modal userModal = new();
+    private Blazorise.Modal infoModal = new();
+
+    private bool cancelClose;
+
+    private Task ShowInfoModal()
+    {
+        return infoModal.Show();
+    }
+    private Task CloseInfoModal()
+    {
+        cancelClose = false;
+        emailmessage = string.Empty;
+        errormessage = string.Empty;
+
+        return infoModal.Hide();
+    }
+
+    private Task ShowModal()
+    {
+        return modalRef.Show();
+    }
+
+    private Task CloseModal()
+    {
+        cancelClose = false;
+
+        return modalRef.Hide();
+    }
+
+    private Task ShowUserModal()
+    {
+        return userModal.Show();
+    }
+
+    private Task CloseUserModal()
+    {
+        cancelClose = false;
+        newpasswordclicked = false;
+        return userModal.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    private void SignOutClicked()
+    {
+        //Have to window.open first??
+        //JSRuntime.InvokeVoidAsync("window.open()");
+        NavigationManager.NavigateTo("/");
+    }
+
+    //Regular expressions to check if the password matches the format--------
+    static bool IsPasswordValid(string password)
+    {
+        // Check if the password is at least 8 characters long
+        if (password.Length < 8)
+        {
+            return false;
+        }
+        if (!Regex.IsMatch(password, "[A-Z]"))
+        {
+            return false;
+        }
+        if (!Regex.IsMatch(password, "[a-z]"))
+        {
+            return false;
+        }
+
+        if (!Regex.IsMatch(password, "[0-9]"))
+        {
+            return false;
+        }
+        if (!Regex.IsMatch(password, @"[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]"))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void navToHomePage()
+    {
+        CloseInfoModal();
+        NavigationManager.NavigateTo("/MainOnlinePage");
+    }
+
+    private string emailmessage = string.Empty;
+    private string errormessage = string.Empty;
+    Employee currentEmployee = new();
+    Employee yodaAdmin = new();
+    MessageToAdmin toAdmin = new();
+
+    private void sendEmailToYorkAdmin()
+    {
+        currentEmployee = empService.GetSingleEmployee(shareddataService.UserName);
+        yodaAdmin = empService.GetSingleEmployee("YODA-Admin");
+
+        if(emailmessage != string.Empty)
+        {
+
+            if(currentEmployee.EmailAddress != null)
+            {
+                toAdmin.EmployeeID = currentEmployee.EmployeeID;
+                toAdmin.MessageBody = emailmessage;
+                toAdmin.RecStatus = 1;
+                toAdmin.DateSent = DateTime.Now;
+
+                emailService.SendEmailToYODAAdmin(currentEmployee.EmailAddress, yodaAdmin.EmailAddress, emailmessage, currentEmployee.FullName);
+                emailService.SaveEmailMessageToAdmin(toAdmin);
+                emailmessage = string.Empty;
+                errormessage = "Email sent.";
+            }
+            else
+            {
+                errormessage = "Your company email is not registered in the system.";
+            }
+
+        }
+        else
+        {
+            errormessage = "Sending an email with no content is not possible.";
+        }
+
+    }
+
+    private void navToAdminMessages()
+    {
+        CloseInfoModal();
+        NavigationManager.NavigateTo("MessagesBoard");
+    }
+
+
+}

@@ -1,0 +1,1484 @@
+﻿@page "/Discipline/View"
+
+<PageTitle>@Title</PageTitle>
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+
+@inject IDisciplineService dservice
+@inject IEmployeeService eservice
+@inject IRoleService rservice
+@inject ISiteService siteservice
+@inject SharedDataService shareddataService
+@inject NavigationManager navManager
+@inject IJSRuntime JSRuntime
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                @* <button id="btnBack" class="btn btn-dark" @onclick="navToDisciplineUserPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button> *@
+                <ListGroup Mode="ListGroupMode.Selectable" @bind-SelectedItem="selectedItem" Style="cursor:pointer;float:right;width:90px">
+                        <ListGroupItem @onclick="navToDisciplineUserPage"><center>Back</center></ListGroupItem>
+                </ListGroup>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <center>
+                <img style="width:100px; height:100px" src="Images/SVGYork.png" alt="" />
+                <h1>@Title</h1>
+            </center>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4>Recorded Employee Offences</h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+            <div class="alert alert-success">
+            <WhiteContainer>            
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-9 border-end">
+                        @if(employeebreaches != null && employeebreaches.Count > 0)
+                        {
+                            <DataGrid Bordered Filterable TItem="OffenceBreach" Data="employeebreaches" @bind-SelectedRow="selectedDiscipline" Responsive Sortable SortMode="DataGridSortMode.Single" SelectedRowStyling="@OnRowStylingBreaches">
+                                 <DataGridCommandColumn />
+                                 <DataGridColumn Field="@nameof(OffenceBreach.Id)" Width="10%" Caption="#" Sortable="false" />
+                                 <DataGridColumn Field="@nameof(OffenceBreach.OffenceName)" Width="45%" Caption="Offence Name" Sortable="false" />
+                                 <DataGridColumn Field="@nameof(OffenceBreach.DateString)" Width="15%" Caption="Date"  />
+                                 <DataGridColumn Field="@nameof(OffenceBreach.ProcessString)" Width="15%" Caption="Status" />
+                                 <DataGridColumn Field="@nameof(OffenceBreach.BreachName)" Width="15%" Caption="Outcome" />                        
+                             </DataGrid>            
+                        }
+                        else
+                        {
+                            <p><em>No recorded disciplines for this employee...</em></p>
+                        }
+                    </div>
+                    <div class="col-3">
+                        @if (employeebreaches != null && employeebreaches.Count > 0)
+                        {
+                            <center><h5>Actions</h5></center>
+                            <hr />
+                            <ListGroup Mode="ListGroupMode.Selectable" @bind-SelectedItem="selectedItem" Style="cursor:pointer">
+                                <ListGroupItem @onclick="DeleteDiscipline"><center>Delete Conduct</center></ListGroupItem>
+                                <ListGroupItem @onclick="EditDiscipline"><center>Edit Conduct</center></ListGroupItem>
+                                <ListGroupItem @onclick="ShowmodalDisciplineView"><center>View Conduct</center></ListGroupItem>
+                                <ListGroupItem @onclick="checkIDforAppeal"><center>Appeal Outcome</center></ListGroupItem>
+                            </ListGroup>
+                        }
+                    </div>
+                    </div>
+                </div>
+            </WhiteContainer>
+            </div>
+        
+
+    
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4>Recorded Corrective Counselling Notes</h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="alert alert-success">
+        <WhiteContainer>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-9 border-end">
+                        @if (counsellingNotes != null && counsellingNotes.Count > 0)
+                        {
+                            <DataGrid Filterable Bordered TItem="CounsellingNotes" Data="counsellingNotes" @bind-SelectedRow="selectedNotes" PageSize="999" Responsive Sortable SortMode="DataGridSortMode.Single" SelectedRowStyling="@OnRowStyling">
+                                 <DataGridCommandColumn />
+                                 <DataGridColumn Field="@nameof(CounsellingNotes.Id)" Caption="#" Sortable="false" />
+                                 <DataGridColumn Field="@nameof(CounsellingNotes.ConsultantName)" Caption="Consultant Name" Sortable="false" />
+                                 <DataGridColumn Field="@nameof(CounsellingNotes.OffenceName)" Caption="Offence" Editable />
+                                 <DataGridColumn Field="@nameof(CounsellingNotes.DateString)" Caption="Consultation Date" Editable />
+                                 <DataGridColumn Field="@nameof(CounsellingNotes.SubmissionStatusString)" Caption="Status" Editable />
+                             </DataGrid>
+                        }
+                        else
+                        {
+                            <p><em>No recorded counselling notes for this employee...</em></p>
+                        }
+                </div>
+                <div class="col-sm-3">
+                    @if (counsellingNotes != null && counsellingNotes.Count > 0)
+                        {
+                            <center><h5>Actions</h5></center>
+                            <hr />
+                            <ListGroup Mode="ListGroupMode.Selectable" @bind-SelectedItem="selectedItem" Style="cursor:pointer">
+                                <ListGroupItem @onclick="DeleteCounsellingNote"><center>Delete Counselling Note</center></ListGroupItem>
+                            <ListGroupItem @onclick="EditCounsellingNote"><center>Edit Counselling Note</center></ListGroupItem>
+                            <ListGroupItem @onclick="ShowViewNoteModal"><center>View Counselling Note</center></ListGroupItem>
+                    </ListGroup>
+                    }
+                </div>    
+                
+            </div>
+        </div>
+        </WhiteContainer>
+    </div>
+   
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalDisciplineView" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+         <ModalHeader>
+             <ModalTitle>View Conduct</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             @if (selectedDiscipline.Id != 0)
+            {
+                    <div style="max-width: 100%;">
+                        <div class="container" style="margin-left:30px">
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <h3>Discipline Information</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+                
+                    <div style="max-width: 100%;">
+                        <div class="container" style="margin-left:30px">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Employee Full Name</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @employee.FullName
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Employee Number</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @employee.EmployeeNumber
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Position / Role</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedDiscipline.RoleName
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Union</strong>
+                                    </div>
+                                    <div class="row">
+                                        @if (employee.UnionID != null)
+                                        {
+                                            <div class="alert alert-success">
+                                                @employee.UnionName
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-success">
+                                                No Union
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Site</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @siteselected
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Date of Alledged Offence</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedDiscipline.DateString
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Employee Suspension Date</strong>
+                                    </div>
+                                    <div class="row">
+                                        @if (selectedDiscipline.DateSuspended != null)
+                                        {
+                                            <div class="alert alert-success">
+                                                @selectedDiscipline.SuspendedDateString
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-success">
+                                                No Suspension
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Contact Details</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @employee.EmailAddress
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Hearing Address</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedDiscipline.HearingAddress
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Outcome</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @selectedDiscipline.BreachName
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <strong>Description</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @if (selectedDiscipline.Description != null)
+                                            {
+                                                @(new MarkupString(selectedDiscipline.Description))
+                                            }
+                                            else
+                                            {
+                                                <p><em>No description logged...</em></p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <strong>Outcome Description</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @if (selectedDiscipline.OutcomeDescription != null)
+                                            {
+                                                @(new MarkupString(selectedDiscipline.OutcomeDescription))
+                                            }
+                                            else
+                                            {
+                                                <p><em>No outcome description logged...</em></p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <strong>Files To Download</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            <WhiteContainer>
+                                            @if(fileNamesDiscipline != null && fileNamesDiscipline.Count > 0)
+                                            {
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:80%">File Name</th>
+                                                            <th style="width:20%">Download</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach(var item in fileNamesDiscipline)
+                                                        {
+                                                            <tr>
+                                                                <td>@item</td>
+                                                                <td><button @onclick="()=>DownloadFile(item, filepath)" class="btn btn-dark" style="width:90px; float:right; margin-left:10px; font-size:12px;  padding:5px; height:30px">Download</button></td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                            else
+                                            {
+                                                <p><em>No files uploaded for this discipline yet...</em></p>
+                                            }
+
+                                        </WhiteContainer>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @if(appealFilesDiscipline.Count > 0)
+                        {
+                                    <br />
+                                    <hr/>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-11">
+                                            <h3>Appeal Information</h3>
+                                        </div>
+                                    </div>
+                                
+                                    <br />
+                            
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <div class="row">
+                                                <strong>Grounds of Appeal</strong>
+                                            </div>
+                                            <div class="row">
+                                                <div class="alert alert-success">
+                                                    @groundsstring
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-1">
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="row">
+                                                <strong>Date of Appeal</strong>
+                                            </div>
+                                            <div class="row">
+                                                <div class="alert alert-success">
+                                                    @appeal.DateOfAppeal
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                            
+                                
+                            
+                                    <div class="row">
+                                        <div class="col-md-11">
+                                            <div class="row">
+                                                <strong>Reason</strong>
+                                            </div>
+                                            <div class="row">
+                                                <div class="alert alert-success">
+                                                    @if (!string.IsNullOrWhiteSpace(appeal.Reason))
+                                                    {
+                                                        <div>@(new MarkupString(appeal.Reason))</div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>No content available.</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                            
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="row">
+                                        <strong>Outcome</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            @if (appeal.OutcomeString == null)
+                                            {
+                                                @appealoutcomestring
+                                            }
+                                            else
+                                            {
+                                                @appeal.OutcomeString
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                
+
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <strong>Appeal Files To Download</strong>
+                                    </div>
+                                    <div class="row">
+                                        <div class="alert alert-success">
+                                            <WhiteContainer>
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:80%">File Name</th>
+                                                                <th style="width:20%">Download</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var item in appealFilesDiscipline)
+                                                            {
+                                                                <tr>
+                                                                    <td>@item</td>
+                                                                    <td><button @onclick="()=>DownloadFile(item, filepath)" class="btn btn-dark" style="width:90px; float:right; margin-left:10px; font-size:12px;  padding:5px; height:30px">Download</button></td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                            </WhiteContainer>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (canEditAppealOutcome)
+                            {
+
+                            <br />
+                            <hr/>
+                            <br />
+                            @* @if condition for HR employee / Linmari *@
+                            
+
+
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        <h3>Allocate Outcome for Appeal</h3>
+                                    </div>
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="row">
+                                            <strong>Outcome of Appeal</strong>
+                                        </div>
+                                        <div class="row">
+                                            <select class="form-select" @bind="outcomeint">
+                                                @foreach (var item in appealOutcomes)
+                                                {
+                                                    <option value="@item.Id">@item.OutcomeName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-1">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="row">
+                                            <strong>Upload Appeal Outcome</strong>
+                                        </div>
+                                        <div class="row">
+                                            <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileAppealOutcomeDocumentSelected" multiple></Microsoft.AspNetCore.Components.Forms.InputFile>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="row">
+                                            <strong>Changed Discipline Outcome?</strong>
+                                        </div>
+                                        <div class="row">
+                                            <Blazorise.RadioGroup TValue="string" Name="Bread Winner"        
+                                                    Buttons
+                                             Color="Blazorise.Color.Light" Class="form-control" @bind-CheckedValue="outcomechanged">
+                                                 <Blazorise.Radio Value="@("Yes")">Yes</Blazorise.Radio>
+                                                 <Blazorise.Radio Value="@("No")">No</Blazorise.Radio>
+                                             </Blazorise.RadioGroup>
+                                         </div>
+                                     </div>
+                                     <div class="col-1">
+                                     </div>
+                                     @if (outcomechanged == "Yes")
+                                    {
+                                        <div class="col-md-5">
+                                            <div class="row">
+                                                <strong>New Outcome</strong>
+                                            </div>
+                                            <div class="row">
+                                                <select class="form-select" @bind="newoutcomeint">
+                                                    @foreach (var item in breachtypes)
+                                                    {
+                                                        <option value="@item.Id">@item.BreachName</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }                                       
+                                </div>
+
+                                <br />
+
+                                <div class="row">
+                                        <div class="col-md-11">
+                                    <button @onclick="UpdateAppealOutcome" class="btn btn-dark" type="button">Update Outcome</button>
+                                        </div>
+                                    </div>
+                                }
+                            
+                        }
+                        </div>
+                    </div>
+            }
+            else
+            {
+                <WhiteContainer>
+                    <div style="max-width:100%; margin: 15px auto;">
+                        <div class="container">
+                            <div class="row">
+                                No Discipline Selected
+                            </div>
+                        </div>
+                    </div>
+                </WhiteContainer>
+            }
+
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="ClosemodalDisciplineView" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+
+<Blazorise.Modal @ref="modalViewNote" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered Size="ModalSize.Large">
+        <ModalHeader>
+            <ModalTitle>View Corrective Counselling Note # @selectedNotes.Id</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="max-width:100%; margin: 15px auto;">
+                
+                <div class="container">
+                     <div>
+                         <strong>Employee</strong>
+                     </div>
+                    <div class="row">                        
+                         <div class="alert alert-success">
+                             @employee.FullName
+                         </div>                                                                                                               
+                     </div>
+                     <div>
+                         <strong>Consultant</strong>
+                     </div>
+                     <div class="row">
+                        <div class="alert alert-success">
+                            @selectedNotes.ConsultantName
+                        </div>
+                     </div>
+                     <div>
+                         <strong>Offence</strong>
+                     </div>
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @selectedNotes.OffenceName
+                        </div>
+                    </div>
+                     <div>
+                         <strong>Violation Detials</strong>
+                     </div>
+                     <div class="row">
+                         <div class="alert alert-success">
+                             @(new MarkupString(selectedNotes.ViolationDetails))
+                         </div>
+                     </div>
+                    <div>
+                        <strong>Response</strong>
+                    </div>
+                     <div class="row">
+                         <div class="alert alert-success">
+                             @(new MarkupString(selectedNotes.EmployeeResponse))
+                         </div>
+                     </div>
+                    <div>
+                        <strong>Action Plan</strong>
+                    </div>
+                     <div class="row">
+                         <div class="alert alert-success">
+                             @(new MarkupString(selectedNotes.ActionPlan))
+                         </div>
+                     </div>
+                    <div>
+                        <strong>Consultation Date</strong>
+                    </div>
+                     <div class="row">
+                         <div class="alert alert-success">
+                             @selectedNotes.DateString
+                         </div>
+                     </div>
+                    @if(selectedNotes.SignedNoteSubmitted == null)
+                    {
+                        <div>
+                            <strong>Submit Signed Counselling Note</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleSignedCounsellingNote" multiple></Microsoft.AspNetCore.Components.Forms.InputFile>
+                            </div>
+                        </div>
+                        <div>
+                            <button @onclick="SubmitSignedCounsellingNote" class="btn btn-dark">Submit</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <strong>Signed Counselling Submission Date</strong>
+                        </div>
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @selectedNotes.SignedNoteSubmitted.Value.ToString("yyyy-MM-dd")
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="()=>CheckServerForNotes(selectedNotes)"  class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Download</button>
+            <button @onclick="CloseViewNoteModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalError" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Error
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalDelete" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Delete Corrective Counselling Note / Discipline</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                Are you sure you want to delete this counselling note?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark" @onclick="finalDeleteCN" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button  class="btn btn-dark" @onclick="CloseDeleteModal" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+<Blazorise.Modal @ref="modalDeleteDiscipline" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Delete Discipline</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                Are you sure you want to delete this employee discipline?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+        </ModalBody>
+        <ModalFooter>
+            <button class="btn btn-dark" @onclick="finalDeleteDiscipline" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button class="btn btn-dark" @onclick="CloseDeleteModal" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+
+@code {
+    //Page Title
+    private string Title = "View Employee Conduct";
+
+    //list of breaches for the selected employee
+    private List<OffenceBreach> employeebreaches = new();
+    private List<Offence> offences = new();
+    private List<Employee> employees = new();
+    private List<Role> roles = new();
+    private List<Site> sites = new();
+    private List<BreachType> breachtypes = new();
+    private List<AppealDiscipline> appealDisciplines = new();
+    private List<GroundsOfAppeal> appealGrounds = new();
+    private List<AppealOutcomes> appealOutcomes = new();
+
+    //selected
+    private OffenceBreach selectedDiscipline = new();
+    private CounsellingNotes selectedNotes = new();
+    private Employee employee = new();
+    AppealDiscipline appeal = new();
+    private string siteselected = string.Empty;
+    private string groundsstring = string.Empty;
+    private string appealoutcomestring = string.Empty;
+    private string outcomechanged = string.Empty;
+
+    //modals
+    private Blazorise.Modal modalViewNote = new();
+    private Blazorise.Modal modalDisciplineView = new();
+    private Blazorise.Modal modalError = new();
+    private Blazorise.Modal modalDelete = new();
+    private Blazorise.Modal modalDeleteDiscipline = new();
+    private bool cancelClose;
+
+    private string selectedItem = string.Empty;
+
+    //make appeal outcome visible
+    private bool canEditAppealOutcome = false;
+
+    //list of counselling sessions
+    private List<CounsellingNotes> counsellingNotes = new();
+
+    //Initialization---------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 3).AccessTypeID == 1 || shareddataService.UserID == 1)
+        {
+            canEditAppealOutcome = true;    
+        }
+        shareddataService.disciplineNoteNum = 0;
+        employeebreaches = dservice.EmployeeBreaches(shareddataService.EmployeeID);
+        appealDisciplines = dservice.GetAppealDisciplines();
+        appealGrounds = dservice.GetGroundsOfAppeals();
+        appealOutcomes = dservice.GetAppealOutcomes();
+
+        foreach(var item in employeebreaches)
+        {
+            item.OffenceName = dservice.GetOffenceName(item.OffenceID);
+            item.BreachName = dservice.GetBreachname(item.BreachTypeID);
+            item.ProcessString = dservice.GetDisciplineProcess(item.DisciplineProcessID).ProcessName;
+
+            if(item.Date != null)
+            {
+                item.DateString = item.Date.Value.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                item.DateString = "No Date";
+            }
+
+            if (item.SubmissionStatus == 1)
+            {
+                item.SubmissionStatusString = "Submitted";
+            }
+            else
+            {
+                item.SubmissionStatusString = "Not Submitted";
+            }
+        }
+        offences = dservice.GetOffenceList();
+        employees = eservice.GetAll();
+        counsellingNotes = dservice.GetCounsellingNotesForEmp(shareddataService.EmployeeID);
+        employee = eservice.GetById(shareddataService.EmployeeID);
+        roles = rservice.GetRoles();
+        employee.RoleName = roles.FirstOrDefault(x => x.RoleId == employee.RoleID).RoleName;
+        sites = siteservice.GetSites();
+        breachtypes = dservice.GetBreachTypeList();
+
+
+        //additional information for notes grid
+        foreach(var item in counsellingNotes)
+        {
+            if(item.ConsultantID != null)
+            {
+                item.ConsultantName = employees.FirstOrDefault(x => x.EmployeeID == item.ConsultantID).FullName;
+            }
+            else
+            {
+                item.ConsultantName = "No Consultant";
+            }
+
+            item.DateString = item.DateOfConsultation.Value.ToString("yyyy-MM-dd");
+            item.OffenceName = offences.FirstOrDefault(x => x.Id == item.OffenceID).OffenceName;
+
+            if(item.SubmissionStatus == 1)
+            {
+                item.SubmissionStatusString = "Submitted";
+            }
+            else
+            {
+                item.SubmissionStatusString = "Not Submitted";
+            }
+        }
+    }
+
+    //Navigation-------------------------------------------------------------------------
+    private void navToDisciplineUserPage()
+    {
+        navManager.NavigateTo($"/Discipline");
+    }
+
+    private Task ShowViewNoteModal()
+    {
+        if(selectedNotes.Id != 0)
+        {
+            return modalViewNote.Show();
+        }
+        else
+        {
+            message = "You have not selected a note to view.";
+            return ShowErrorModal();
+        }
+
+
+    }
+
+    private Task CloseViewNoteModal()
+    {
+        return modalViewNote.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return modalError.Show();
+
+    }
+
+    private Task CloseErrorModal()
+    {
+        return modalError.Hide();
+    }
+
+    private Task ShowDeleteModal()
+    {
+        return modalDelete.Show();
+    }
+    private Task CloseDeleteModal()
+    {
+        return modalDelete.Hide();
+    }
+    private Task ShowDeleteDisciplineModal()
+    {
+        return modalDeleteDiscipline.Show();
+    }
+    private Task CloseDeleteDisciplineModal()
+    {
+        return modalDeleteDiscipline.Hide();
+    }
+
+    private Task ShowmodalDisciplineView()
+    {
+        if(selectedDiscipline.Id != 0)
+        {
+            siteselected = sites.FirstOrDefault(x => x.SiteId == selectedDiscipline.SiteID).SiteName;
+            selectedDiscipline.RoleName = roles.FirstOrDefault(x => x.RoleId == employee.RoleID).RoleName;
+            selectedDiscipline.DateString = selectedDiscipline.Date.Value.ToString("yyyy-MM-dd");
+            selectedDiscipline.BreachName = breachtypes.FirstOrDefault(x => x.Id == selectedDiscipline.BreachTypeID).BreachName;
+            if (selectedDiscipline.DateSuspended != null)
+            {
+                selectedDiscipline.SuspendedDateString = selectedDiscipline.DateSuspended.Value.ToString("yyyy-MM-dd");
+            }
+            else
+            {
+                selectedDiscipline.SuspendedDateString = "No Suspension";
+            }
+
+            GetDisciplineFiles();
+            GetAppealFiles();
+
+            appeal = dservice.GetAppealDiscipline(selectedDiscipline.Id);
+            if(appeal.Id != 0)
+            {
+                groundsstring = appealGrounds.FirstOrDefault(x => x.Id == appeal.GroundsOfAppealID).NameOfGrounds;
+
+                if (appeal.OutcomeID != null)
+                {
+                    appeal.OutcomeString = appealOutcomes.FirstOrDefault(x => x.Id == appeal.OutcomeID).OutcomeName;
+                    canEditAppealOutcome = false;
+                }
+                else
+                {
+                    
+                    appealoutcomestring = "No Outcome yet...";
+                }
+            }
+
+
+
+
+            return modalDisciplineView.Show();
+        }
+        else
+        {
+            message = "No Discipline selected.";
+            return modalError.Show();
+        }
+
+    }
+
+    private Task ClosemodalDisciplineView()
+    {
+        return modalDisciplineView.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    CounsellingNotes Note = new();
+
+    // private async Task downloadnote()
+    // {
+    //     string ftplocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\EmployeeDiscipline\\{Note.EmployeeID}\\CounsellingNote{Note.Id}.docx";
+    //     if (File.Exists(ftplocation))
+    //     {
+    //         byte[] fileBytes = File.ReadAllBytes(ftplocation);
+    //         await JSRuntime.InvokeAsync<object>("saveAsFile", $"CounsellingNote{Note.Id}.docx", fileBytes);
+    //         await CloseViewNoteModal();
+    //     }
+    //     else
+    //     {
+    //         await ShowErrorModal();
+    //         return;
+    //     }        
+    // }
+
+    private int noteid = 0;
+    private string message = string.Empty;
+    private async Task CheckServerForNotes(CounsellingNotes note)
+    {
+        string ftplocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\CounsellingNote{note.Id}";
+        if (Directory.Exists(ftplocation))
+        {
+            noteid = note.Id;
+            string[] existingFiles = Directory.GetFiles(ftplocation);
+
+            if (existingFiles.Length > 0)
+            {
+                await DownloadFile(existingFiles[0], ftplocation);
+            }
+            else
+            {
+                message = "There exists no file in the specified location.";
+                await ShowErrorModal();
+            }
+        }
+        else
+        {
+            message = "There exists no Consultation Note on the server.";
+            await ShowErrorModal();
+        }
+    }
+
+
+    private List<string> fileNamesDiscipline = new();
+
+    private string filepath = string.Empty;
+
+    private void GetDisciplineFiles()
+    {
+        filepath = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\Discipline{selectedDiscipline.Id}";
+
+        fileNamesDiscipline = GetFileNames(filepath);
+
+    }
+
+    private List<string> appealFilesDiscipline = new();
+
+    private string filepathappeal = string.Empty;
+
+    private void GetAppealFiles()
+    {
+        filepath = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employee.EmployeeID}\\EmployeeDiscipline\\Discipline{selectedDiscipline.Id}\\Appeals";
+
+        appealFilesDiscipline = GetFileNames(filepath);
+    }
+
+    private List<string> GetFileNames(string directoryPath)
+    {
+        try
+        {
+            // Get file names in the directory
+            return Directory.GetFiles(directoryPath).Select(Path.GetFileName).ToList();
+        }
+        catch (Exception ex)
+        {
+            return new List<string>();
+        }
+    }
+
+
+    private async Task DownloadFile(string path)
+    {
+        if (File.Exists(path))
+        {
+            byte[] fileBytes = File.ReadAllBytes(path);
+            await JSRuntime.InvokeAsync<object>("saveAsFile", Path.GetFileName(path), fileBytes);
+        }
+    }
+
+    private async Task DownloadFile(string fileName, string path)
+    {
+        // Construct the full path
+        string filePath = Path.Combine(path, fileName);
+
+        if (File.Exists(filePath))
+        {
+            byte[] fileBytes = File.ReadAllBytes(filePath);
+            await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, fileBytes);
+        }
+    }
+
+    // private async Task DownloadInvictusFile(string path)
+    // {
+    //     if (File.Exists(path))
+    //     {
+    //         byte[] fileBytes = File.ReadAllBytes(path);
+    //         await JSRuntime.InvokeAsync<object>("saveAsFile", $"DisciplineInvictusForm{disid}.docx", fileBytes);
+    //     }
+    // }
+
+    private void OnRowStylingBreaches(OffenceBreach notes, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void OnRowStyling(CounsellingNotes notes, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    private void EditCounsellingNote()
+    {
+        //submitted
+        if(selectedNotes.SubmissionStatus == 1)
+        {
+            message = "No editing allowed. This Counselling Note has already been submitted.";
+            ShowErrorModal();
+        }
+        //not submitted
+        else
+        {
+            shareddataService.disciplineNoteNum = selectedNotes.Id;
+            shareddataService.EmployeeID = employee.EmployeeID;
+            navManager.NavigateTo("Consultation");
+        }
+    }
+
+    private void EditDiscipline()
+    {
+        //submitted
+        if(selectedDiscipline.SubmissionStatus == 1)
+        {
+            message = "No editing allowed. This Discipline has already been submitted.";
+            ShowErrorModal();
+        }
+        //notsubmitted
+        else
+        {
+            shareddataService.disciplineNoteNum = selectedDiscipline.Id;
+            shareddataService.EmployeeID = employee.EmployeeID;
+            navManager.NavigateTo("/Discipline/Add");
+        }
+    }
+
+    private string deletestring = string.Empty;
+    private void DeleteCounsellingNote()
+    {
+        if(selectedNotes.SubmissionStatus == 1)
+        {
+            message = "You can not delete a counselling note after it has been submitted.";
+            ShowErrorModal();
+        }
+        else
+        {
+            ShowDeleteModal();
+        }
+    }
+
+    private void DeleteDiscipline()
+    {
+        if(selectedDiscipline.SubmissionStatus == 1)
+        {
+            message = "You can not delete an employee discipline after it has been submitted.";
+            ShowErrorModal();
+        }
+        else
+        {
+            ShowDeleteDisciplineModal();
+        }
+    }
+
+    private void checkIDforAppeal()
+    {
+        if(selectedDiscipline.Id == 0)
+        {
+            message = "You have not chosen a discipline to appeal.";
+            ShowErrorModal();
+        }
+        else
+        {
+            if(selectedDiscipline.BreachTypeID != 5)
+            {
+                if(selectedDiscipline.EmployeeID == shareddataService.UserEmployeeID)
+                {
+                    //check to see if there is already an appeal lodged
+                    if(appealDisciplines.FirstOrDefault(x=>x.OffenceBreachID == selectedDiscipline.Id) == null)
+                    {
+                        shareddataService.disciplineNoteNum = selectedDiscipline.Id;
+                        navManager.NavigateTo("AppealPage");
+                    }
+                    else
+                    {
+                        message = "A disciplinary appeal has already been submitted for this case.";
+                        ShowErrorModal();
+                    }
+
+                }
+                else
+                {
+                    message = "Only the employee subject to disciplinary action may appeal the decision.";
+                    ShowErrorModal();
+                }
+
+            }
+            else
+            {
+                message = "The disciplinary action taken against this employee cannot be appealed at this stage.";
+                ShowErrorModal();
+            }
+        }
+    }
+
+    private void finalDeleteCN()
+    {
+        if(selectedNotes.Id != 0)
+        {
+            dservice.DeleteCounsellingNote(selectedNotes.Id);
+
+            counsellingNotes = dservice.GetCounsellingNotesForEmp(shareddataService.EmployeeID);
+            foreach (var item in counsellingNotes)
+            {
+                if (item.ConsultantID != null)
+                {
+                    item.ConsultantName = employees.FirstOrDefault(x => x.EmployeeID == item.ConsultantID).FullName;
+                }
+                else
+                {
+                    item.ConsultantName = "No Consultant";
+                }
+
+                item.DateString = item.DateOfConsultation.Value.ToString("yyyy-MM-dd");
+                item.OffenceName = offences.FirstOrDefault(x => x.Id == item.OffenceID).OffenceName;
+
+                if (item.SubmissionStatus == 1)
+                {
+                    item.SubmissionStatusString = "Submitted";
+                }
+                else
+                {
+                    item.SubmissionStatusString = "Not Submitted";
+                }
+            }
+            StateHasChanged();
+            CloseDeleteModal();
+        }
+        else
+        {
+            message = "No Counselling Note has been selected to delete.";
+            ShowErrorModal();
+        }
+
+    }
+
+    private void finalDeleteDiscipline()
+    {
+        if(selectedDiscipline.Id != 0)
+        {
+            dservice.DeleteDiscipline(selectedDiscipline.Id);
+            employeebreaches = dservice.EmployeeBreaches(shareddataService.EmployeeID);
+            foreach (var item in employeebreaches)
+            {
+                item.OffenceName = dservice.GetOffenceName(item.OffenceID);
+                item.BreachName = dservice.GetBreachname(item.BreachTypeID);
+                item.DateString = item.Date.Value.ToString("yyyy-MM-dd");
+                if (item.SubmissionStatus == 1)
+                {
+                    item.SubmissionStatusString = "Submitted";
+                }
+                else
+                {
+                    item.SubmissionStatusString = "Not Submitted";
+                }
+            }
+            StateHasChanged();
+            CloseDeleteDisciplineModal();
+        }
+        else
+        {
+            message = "No Discipline has been selected to delete.";
+            ShowErrorModal();
+        }
+    }
+
+    //File handling for different documents------------------------------------------------
+    private long maxFileSize = 1024 * 1024 * 5; //represents 5MB
+    private int maxAllowedFiles = 1;
+    private IBrowserFile? fileSignedNote;
+    private string? relativepathSignedNote = string.Empty;
+    private string? filenameNote = string.Empty;
+
+    private async Task HandleSignedCounsellingNote(InputFileChangeEventArgs e)
+    {
+        fileSignedNote = e.File;
+        relativepathSignedNote = await captureFile();
+    }
+
+    private async Task<string> captureFile()
+    {
+        if(fileSignedNote is null || fileSignedNote.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            // string relativePath = string.Empty;
+
+            string originalFileName = Path.GetFileName(fileSignedNote.Name);
+
+            string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\EmployeeDiscipline\\CounsellingNote{selectedNotes.Id}\\{originalFileName}";
+            string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\EmployeeDiscipline\\CounsellingNote{selectedNotes.Id}";
+
+            // relativePath = Path.Combine($"{id}", originalFileName);
+
+            if (Directory.Exists(ftpdirectory))
+            {
+                string[] existingFiles = Directory.GetFiles(ftpdirectory);
+                foreach (var existingFile in existingFiles)
+                {
+                    File.Delete(existingFile);
+                }
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileSignedNote.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(ftpdirectory);
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileSignedNote.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+
+            filenameNote = originalFileName;
+            return filenameNote;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    private void SubmitSignedCounsellingNote()
+    {
+        selectedNotes.SignedNoteSubmitted = DateTime.Now;
+        dservice.UpdateCounsellingNoteAfterDocumentUpload(selectedNotes);
+    }
+
+    private IBrowserFile? fileAppealOutcomeDocument;
+    private string? relativePathAppealOutcomeDocuments = string.Empty;
+    private string? filenameAppealOutcomeDocuments = string.Empty;
+
+    private async Task HandleFileAppealOutcomeDocumentSelected(InputFileChangeEventArgs e)
+    {
+        fileAppealOutcomeDocument = e.File;
+        relativePathAppealOutcomeDocuments = await captureFileAppealOutcomeDocument(employee.EmployeeID);
+    }
+
+    private async Task<string> captureFileAppealOutcomeDocument(int id)
+    {
+        if (fileAppealOutcomeDocument is null || fileAppealOutcomeDocument.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            string? relativePath;
+
+            string originalFileName = Path.GetFileName(fileAppealOutcomeDocument.Name);
+
+            string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\EmployeeDiscipline\\Discipline{selectedDiscipline.Id}\\Appeals\\{originalFileName}";
+            string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\EmployeeDiscipline\\Discipline{selectedDiscipline.Id}\\Appeals";
+
+            relativePath = Path.Combine($"{id}", originalFileName);
+
+            if (Directory.Exists(ftpdirectory))
+            {
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileAppealOutcomeDocument.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(ftpdirectory);
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileAppealOutcomeDocument.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+
+            filenameAppealOutcomeDocuments = originalFileName;
+            return relativePath;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    private int outcomeint = 0;
+    private int newoutcomeint = 0;
+    private void UpdateAppealOutcome()
+    {
+
+        if(outcomeint == 0)
+        {
+            message = "Appeal Outcome information needed.";
+            ShowErrorModal();
+            outcomeint = 0;
+        }
+        else
+        {
+            if(outcomechanged == "Yes")
+            {
+                if(newoutcomeint == 0)
+                {
+                    message = "New outcome selection needed.";
+                    ShowErrorModal();
+                    newoutcomeint = 0;
+                }
+                else
+                {
+                    dservice.ChangeOutcomeOfDiscipline(selectedDiscipline, newoutcomeint);
+                }               
+
+            }
+
+            dservice.ChangeDisciplineProcess(selectedDiscipline.Id, 5);
+            dservice.ChangeOutcomeOfAppeal(appeal.Id, outcomeint);
+            ClosemodalDisciplineView();
+
+            foreach (var item in employeebreaches)
+            {
+                item.OffenceName = dservice.GetOffenceName(item.OffenceID);
+                item.BreachName = dservice.GetBreachname(item.BreachTypeID);
+                item.ProcessString = dservice.GetDisciplineProcess(item.DisciplineProcessID).ProcessName;
+            }
+
+        }
+        
+    }
+
+}

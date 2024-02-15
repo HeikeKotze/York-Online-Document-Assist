@@ -1,0 +1,517 @@
+﻿@page "/Discipline"
+
+<PageTitle>@Title</PageTitle>
+@inject NavigationManager navManager
+
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@inject IEmployeeService service
+@inject IAccessService aservice
+@inject SharedDataService shareddataService
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                @* <button id="btnBack" class="btn btn-dark" @onclick="navToHRPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button> *@
+                <ListGroup @bind-SelectedItem="selectedItem" Mode="ListGroupMode.Selectable" Style="cursor:pointer;float:right;width:90px">
+                    <ListGroupItem Clicked="navToHRPage"><center>Back</center></ListGroupItem>
+                </ListGroup>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Employee Relations User Page</h1>
+    </center>
+</WhiteContainer>
+<WhiteContainer>
+    <br />
+
+    <center>
+        <div class="container d-flex justify-content-center align-items-center">
+            <div class="row">
+                <div class="col-12" style="width:700px">
+                   Choose an employee in the list provided. Add or view chosen employee offences.
+                </div>
+            </div>
+        </div>
+    </center>
+
+    <br />
+
+    <div class="alert alert-success">
+        <WhiteContainer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-9 border-end">
+                        <DataGrid TItem="Employee" Data="@employees" Bordered Responsive Filterable ShowPager Style="cursor:pointer"
+                                   PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                         @bind-SelectedRow="@selectedUser" SelectedRowStyling="@OnRowStyling">
+                             <DataGridColumns>
+                                 <DataGridCommandColumn />
+                                 <DataGridColumn Field="@nameof(Employee.EmployeeNumber)" Width="30%" Caption="Employee Number" Editable="false"></DataGridColumn>
+                                 <DataGridColumn Field="@nameof(Employee.FullName)" Width="40%" Caption="Employee Name" Editable="false"></DataGridColumn>
+                                 <DataGridColumn Field="@nameof(Employee.DepartmentName)" Width="30%" Caption="Department" Editable="false"></DataGridColumn>
+                             </DataGridColumns>
+                             <PageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     @context.PageNumber
+                                 </Span>
+                             </PageButtonTemplate>
+                             <NextPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     Next
+                                 </Span>
+                             </NextPageButtonTemplate>
+                             <PreviousPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     Previous
+                                 </Span>
+                             </PreviousPageButtonTemplate>
+                             <LastPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     Last
+                                 </Span>
+                             </LastPageButtonTemplate>
+                             <FirstPageButtonTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     First
+                                 </Span>
+                             </FirstPageButtonTemplate>
+                             <TotalItemsTemplate>
+                                 <Span TextColor="TextColor.Success">
+                                     @context.TotalItems
+                                 </Span>
+                             </TotalItemsTemplate>
+                         </DataGrid>
+                    </div>
+                    <div class="col-sm-3">
+                         <center><h5>Actions</h5></center>
+                         <hr />
+                         
+                         <ListGroup Shadow="Blazorise.Shadow.Small" Mode="ListGroupMode.Selectable" @bind-SelectedItem="selectedItem" Style="cursor:pointer">
+                             <ListGroupItem  @onclick="checkEmployeeIDView"><center>View / Edit Conduct</center></ListGroupItem>
+                             @if (NotshowAddButton)
+                            {
+                                <ListGroupItem @onclick="checkEmployeeIDConsult"><center>Add Counselling Note</center></ListGroupItem>
+                                <ListGroupItem @onclick="checkEmployeeID"><center>Add Discipline</center></ListGroupItem>
+                            }
+                            @if (ConfirmAndAllocate)
+                            {
+                                <ListGroupItem @onclick="navToAllocateDiscipline"><center>Authorise Conduct</center></ListGroupItem>
+                            } 
+                            @if (ShowAllDisciplinariesAccess)
+                            {
+                                <ListGroupItem @onclick="NavToAllDisciplinaries"><center>View All Disciplinaries</center></ListGroupItem>
+                            }                           
+                        </ListGroup>
+                    </div>
+                </div>
+            </div>
+        </WhiteContainer>
+    </div>
+    
+
+    @* <br />
+    <hr />
+    <br />
+
+    <div class="container d-flex justify-content-center align-items-center">
+        <div class="row">
+            <div class="col-8" style="width:900px">
+                <h3 style="margin-left:30px">Add / View Employee Discipline</h3>
+                <div class="alert alert-success">
+                    <WhiteContainer>
+                        @if (employees is null)
+                        {
+                            <p><em>Loading...</em></p>
+                        }
+                        else
+                        {
+                            <DataGrid TItem="Employee" Data="@employees" Responsive Filterable ShowPager
+                                       PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                             @bind-SelectedRow="@selectedUser" SelectedRowStyling="@OnRowStyling">
+                                 <DataGridColumns>
+                                     <DataGridCommandColumn />
+                                     <DataGridColumn Field="@nameof(Employee.EmployeeNumber)" Width="30%" Caption="Employee Number" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Field="@nameof(Employee.FullName)" Width="40%" Caption="Employee Name" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Field="@nameof(Employee.DepartmentName)" Width="30%" Caption="Department" Editable="false"></DataGridColumn>
+                                 </DataGridColumns>
+                                 <PageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         @context.PageNumber
+                                     </Span>
+                                 </PageButtonTemplate>
+                                 <NextPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Next
+                                     </Span>
+                                 </NextPageButtonTemplate>
+                                 <PreviousPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Previous
+                                     </Span>
+                                 </PreviousPageButtonTemplate>
+                                 <LastPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Last
+                                     </Span>
+                                 </LastPageButtonTemplate>
+                                 <FirstPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         First
+                                     </Span>
+                                 </FirstPageButtonTemplate>
+                                 <TotalItemsTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         @context.TotalItems
+                                     </Span>
+                                 </TotalItemsTemplate>
+                             </DataGrid>
+
+                        }
+                    </WhiteContainer>
+                </div>               
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <center>
+        <div class="container">
+            <div class="row">
+                <center>
+                <div class="col-12" style="width:1000px">
+                        <button class="btn btn-dark" style="margin-right:10px" @onclick="checkEmployeeIDView" type="button">View / Edit Employee Conduct</button>
+                        @if (NotshowAddButton)
+                        {
+                            <button type="button" @onclick="checkEmployeeIDConsult" class="btn btn-dark">Add Employee Counselling Note</button>
+                            <button type="button" style="margin-left:10px" class="btn btn-dark" @onclick="checkEmployeeID">Add Employee Discipline</button>
+
+                        }
+                        @if(ConfirmAndAllocate)
+                        {
+                        <button type="button" style="margin-left:10px" class="btn btn-dark" @onclick="navToAllocateDiscipline">Authorise Documented Conduct</button>
+                        }                                                                 
+                </div>
+                
+                            <div class="col-12">
+                            <button type="button" @onclick="NavToAllDisciplinaries" style="margin-left:10px; margin-top:10px" class="btn btn-dark">Show All Disciplinaries</button>
+                           
+                            </div>
+                        
+                </center>
+            </div>
+        </div>
+    </center> *@
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalAdd" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Add Discipline</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Are you sure you want to add discipline for the following employee?
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="navToAddDisciplineEmployee" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseAddModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalAddNote" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Add Counselling Note</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Are you sure you want to add a counselling note for the following employee?
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="navToConsultationPage" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseAddNoteModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalView" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>View Discipline</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Are you sure you want to view discipline for the following employee?
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="navToViewDisciplineEmployee" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseViewModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalError" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Error
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    //Modal strings
+    private string Title = "Discipline User Page";
+    private string message = string.Empty;
+    private bool NotshowAddButton = false;
+    private bool ConfirmAndAllocate = false;
+    private bool ShowAllDisciplinariesAccess = false;
+
+    //List employees in table
+    List<Employee> employees = new();
+    Employee oneemployee = new();
+    UserAccess access = new();
+
+
+    //Selected user to view
+    Employee selectedUser = new();
+    private string selectedItem = string.Empty;
+
+    //Navigation
+    private void navToViewDisciplineEmployee()
+    {
+        navManager.NavigateTo($"/Discipline/View");
+    }
+
+    private void navToAddDisciplineEmployee()
+    {       
+        navManager.NavigateTo($"/Discipline/Add");
+    }
+
+    //Initialization--------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        //AccessLinkings
+        if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 3).AccessTypeID == 1 || shareddataService.UserID == 1)
+        {
+            employees = service.GetAll();
+
+            //remove YODA admin from view if not YODA admin
+            if(shareddataService.UserID != 1)
+            {
+                employees.RemoveAt(0);
+            }
+            NotshowAddButton = true;
+            ConfirmAndAllocate = true;
+            ShowAllDisciplinariesAccess = true;
+        }
+        else if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 3).AccessTypeID == 2)
+        {
+            employees = service.GetEmployeesforBusinessUnitDepartment(shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 3).BusinessUnitID, shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 3).DepartmentID);
+            NotshowAddButton = true;
+            //remove YODA admin from view if not YODA admin
+            if(shareddataService.UserID != 1 && shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 3).DepartmentID == 3)
+            {
+                employees.RemoveAt(0);
+            }
+        }
+        else if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 3).AccessTypeID == 3)
+        {
+            oneemployee = service.GetSingleEmployee(shareddataService.UserName);
+            employees.Add(oneemployee);
+            NotshowAddButton = false;
+        }
+        //Get department name of employee
+        foreach(var item in employees)
+        {
+            item.DepartmentName = service.GetCorrespondingDepartment(item.DepartmentID);
+        }
+
+        shareddataService.disciplineNoteNum = 0;
+    }
+
+    //Modals instantiate------------------------------------------------------
+    private Blazorise.Modal modalAdd = new();
+    private Blazorise.Modal modalError = new();
+    private Blazorise.Modal modalView = new();
+    private Blazorise.Modal modalAddNote = new();
+    private bool cancelClose;
+
+    //Show / Hide modals
+    private Task ShowAddNoteModal()
+    {
+        return modalAddNote.Show();
+    }
+    private Task CloseAddNoteModal()
+    {
+        return modalAddNote.Hide();
+    }
+    private Task ShowAddModal()
+    {
+        return modalAdd.Show();
+
+    }
+
+    private Task CloseAddModal()
+    {
+        return modalAdd.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return modalError.Show();
+
+    }
+
+    private Task CloseErrorModal()
+    {
+        return modalError.Hide();
+    }
+
+    private Task ShowViewModal()
+    {
+        return modalView.Show();
+
+    }
+
+    private Task CloseViewModal()
+    {
+        return modalView.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //Check ID of chosen employee in list. To check if the user chose something
+    private void checkEmployeeID()
+    {
+
+        shareddataService.EmployeeID = service.GetEmpID(selectedUser);
+        if (shareddataService.EmployeeID > 0)
+        {
+            message = "Employee ID: " + shareddataService.EmployeeID;
+            ShowAddModal();
+        }
+        else
+        {
+            message = "You have not selected an employee to add.";
+            ShowErrorModal();
+        }
+    }
+
+    //Check ID of chosen employee in list. To check if user chose a employee to view
+    private void checkEmployeeIDView()
+    {
+        shareddataService.EmployeeID = service.GetEmpID(selectedUser);
+        if (shareddataService.EmployeeID > 0)
+        {
+            message = "Employee ID: " + shareddataService.EmployeeID;
+            ShowViewModal();
+        }
+        else
+        {
+            message = "You have not selected an employee to view.";
+            ShowErrorModal();
+        }
+    }
+
+    private void checkEmployeeIDConsult()
+    {
+        shareddataService.EmployeeID = service.GetEmpID(selectedUser);
+        if(shareddataService.EmployeeID > 0)
+        {
+            message = "EmployeeID: " + shareddataService.EmployeeID;
+            ShowAddNoteModal();
+        }
+        else
+        {
+            message = "You have not selected an employee to add a consultation";
+            ShowErrorModal();
+        }
+    }
+
+    //navigation-------------------------------------------------------------------
+    private void navToHRPage()
+    {
+        navManager.NavigateTo($"/Hr");
+    }
+    private void navToConsultationPage()
+    {
+        navManager.NavigateTo("/Consultation");
+    }
+    private void navToAllocateDiscipline()
+    {
+        shareddataService.EmployeeID = service.GetEmpID(selectedUser);
+        navManager.NavigateTo("/DisciplineResultsPage");
+    }
+
+    //selected row styling---------------------------------------------------------
+    private void OnRowStyling(Employee employee, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+    private void NavToAllDisciplinaries()
+    {
+        navManager.NavigateTo("AllDisciplines");
+    }
+}

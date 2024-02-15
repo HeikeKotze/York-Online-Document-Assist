@@ -1,0 +1,3804 @@
+﻿@page "/VIP/Add"
+@page "/VIP/Edit"
+
+<PageTitle>@Title</PageTitle>
+@using YODA.Pages.CapexComponents
+@using Services
+@using YODA.Repos.Models
+@inject NavigationManager navManager
+@inherits Microsoft.AspNetCore.Components.ComponentBase
+@inject IEmployeeService service
+@inject ICapexUserService userservice
+@inject ILegalEntityService LEservice
+@inject IAccessService accessservice
+@inject IWorkRecordService workRecService
+@using BlazorInputFile
+@inject IFileUpload fileUpload
+@inject IConfiguration config
+@inject IJSRuntime JSRuntime
+@inject SharedDataService shareddataService
+
+<button id="btnBack" class="avatar-btn" @onclick="ToggleScroll" style="position: fixed; z-index:2; background-color:#222222; color: white"><span class="oi oi-elevator small"></span></button>
+<WhiteContainer>
+    
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="ShowBackModal" style="width:90px; float: right;  padding:5px; height:40px">Back</button>               
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <center>
+                <img style="width:100px; height:100px" src="Images/SVGYork.png" alt="" />
+                <h1>@Title</h1>
+            </center>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Company & Employee Number</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-6" >
+                    <label for="CapexTitle">Company Number</label>
+                    <select class="form-select" @bind="employee.CompanyNumberID" disabled="@empcompany">
+                        <option value="">Select Company...</option>
+                            @foreach (var item in dllLegalEntities)
+                            {
+                                <option value="@item.LegalEntityId">@item.LegalEntityName</option>
+                            }
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label for="CapexTitle">Employee Number</label>
+                    <input type="text" class="form-control" @bind-value="employee.EmployeeNumber" disabled="@employeenum" />
+                </div>
+            </div>
+        </div>
+
+    <br />
+    <hr />
+    <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Personal Details</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    <label for="CapexTitle">Title </label> @if(employee.TitleID == null){<span style="color:red" class="oi oi-warning"></span>}
+                    <select class="form-select" @bind="employee.TitleID">
+                        <option value="">Select Title...</option>
+                    @foreach(var item in dllEmployeeTitles)
+                    {
+                        <option value="@item.Id">@item.TitleName</option>
+                    }
+                </select>
+                </div>
+                <div class="col-9">
+                    <label for="CapexTitle">Surname</label>
+                    <input type="text" class="form-control" @bind-value="employee.Surname" disabled="@employeesurname"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">First Name</label>
+                    <input type="text" class="form-control" @bind-value="employee.FirstName" disabled="@employeename"/>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Middle Names</label>
+                    <input type="text" class="form-control" @bind-value="employee.MiddleNames"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Prefered Names</label>
+                    <input type="text" class="form-control" @bind-value="employee.PreferedName" />
+                </div>
+            </div>
+        </div>
+
+    <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-10">
+                    <label for="CapexTitle">Residential Address</label>
+                    <input type="text" class="form-control" @bind-value="employee.ResidentialAddress" />
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Code</label>
+                    <input type="number" class="form-control" @bind-value="employee.ResidentialCode" placeholder="0000"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-10">
+                    <label for="CapexTitle">Postal Address</label>
+                    <input type="text" class="form-control" @bind-value="employee.PostalAddress" />
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Code</label>
+                    <input type="number" class="form-control" @bind-value="employee.PostalCode" placeholder="0000"/>
+                </div>
+            </div>
+        </div>
+
+    <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Home Phone Number</label>
+                    <InputMask @bind-Value="employee.HomePhoneNo" Mask="(999) 999-9999"></InputMask>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Cell Number</label>
+                    <InputMask @bind-Value="employee.CellNo" Mask="(+99) 999 999 9999"></InputMask>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Nationality</label>
+                    <select class="form-select" @bind="employee.NationalityID">
+                        <option value="">Select Nationality...</option>
+                    @foreach(var item in dllNationalities)
+                    {
+                        <option value="@item.Id">@item.NationalityName</option>
+                    }
+                </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Place of Birth</label>
+                    <input type="text" class="form-control" @bind-value="employee.PlaceOfBirth" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Home Language</label>
+                    <select class="form-select" @bind="employee.HomeLanguageID">
+                        <option value="">Select Home Language...</option>
+                    @foreach(var item in dllEmployeeLanguages)
+                    {
+                        <option value="@item.Id">@item.LanguageName</option>
+                    }
+                </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Accomodation</label>
+                    <input type="text" class="form-control" @bind-value="employee.Accomodation" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Add Language Proficiency</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-4">
+                    <label for="CapexTitle">Language Proficiency</label>
+                    <select class="form-select" @bind="newLanguageProficiency.LanguageID">
+                        <option value="">Select Language...</option>
+                        @foreach(var item in dllEmployeeLanguages)
+                        {
+                            <option value="@item.Id">@item.LanguageName</option>
+                        }
+                </select>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Speak</label>
+                        <select class="form-select" @bind="newLanguageProficiency.Speak">
+                            <option value="">Speak Proficiency...</option>
+                            <option>Native</option>
+                            <option>Fluent</option>
+                            <option>Intermediate</option>
+                            <option>Basic</option>
+                            <option>Limited</option>
+                            <option>Novice</option>
+                        </select>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Read</label>
+                        <select class="form-select" @bind="newLanguageProficiency.Read">
+                            <option value="">Read Proficiency...</option>
+                            <option>Native</option>
+                            <option>Fluent</option>
+                            <option>Intermediate</option>
+                            <option>Basic</option>
+                            <option>Limited</option>
+                            <option>Novice</option>
+                        </select>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Write</label>
+                        <select class="form-select" @bind="newLanguageProficiency.Write">
+                            <option value="">Write Proficiency...</option>
+                            <option>Native</option>
+                            <option>Fluent</option>
+                            <option>Intermediate</option>
+                            <option>Basic</option>
+                            <option>Limited</option>
+                            <option>Novice</option>
+                        </select>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Add Proficiency</label>
+                    <button class="btn btn-dark form-control" type="button" @onclick="AddLanguage">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                @if (languagesList != null && languagesList.Count > 0)
+                {
+                    <div class="container">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Language</th>
+                                    <th>Speak</th>
+                                    <th>Read</th>
+                                    <th>Write</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in languagesList)
+                                {
+                                    <tr>
+                                        <td>@item.LanguageName</td>
+                                        <td>@item.Speak</td>
+                                        <td>@item.Read</td>
+                                        <td>@item.Write</td>
+                                        <td><button type="button" @onclick="()=>DeleteRowLanguage(item)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p><em>No Language Proficiencies added yet...</em></p>
+                }
+            </WhiteContainer>
+            </div>            
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Identity Details</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                <label for="CapexTitle">Identity Number </label>@if (employee.IDNumber == null)
+                {
+                    <span style="color:red" class="oi oi-warning"></span>
+                }
+                <input type="text" class="form-control" @bind-value="employee.IDNumber" disabled="@identitynumbershow"/>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Passport Number</label>
+                    <input type="text" class="form-control" @bind-value="employee.PassportNumber" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Driving Licence Codes</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    <label for="CapexTitle">Driving Licence Codes</label>
+                    <select class="form-select" @bind="newLicenceCode.LicenceCodeID">
+                        <option value="">Select Licence Code...</option>
+                    @foreach(var item in dllDrivingCodes)
+                    {
+                        <option value="@item.Id">@item.LicenceCodeName</option>
+                    }
+                </select>
+                </div>
+                <div class="col-2">
+                    <label For="CapexTitle">Add Licence Code</label>
+                    <button class="btn btn-dark form-control" type="button" @onclick="AddDrivingCode">Add</button>
+                </div>
+            </div>
+        </div>
+
+    <br />
+
+    <div class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (licenceCodes != null && licenceCodes.Count > 0)
+                {
+                    <div class="container">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Driving Licence Code</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in licenceCodes)
+                                {
+                                    <tr>
+                                        <td>@item.LicenceCodeName</td>
+                                        <td><button type="button" @onclick="()=>DeleteRowDrivingCode(item)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p><em>No Driving Licence Codes added yet...</em></p>
+                }
+            </WhiteContainer>
+        </div>        
+    </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Company Details</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Date Engaged</label>
+                    <input type="date" class="form-control" @bind-value="employee.DateEngaged"/>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Date Joined Group</label>
+                    <input type="date" class="form-control" @bind-value="employee.DateJoinedGroup"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Date of Birth</label>
+                    <input type="date" class="form-control" @bind-value="employee.DateOfBirth"/>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Gender</label>
+                    <select class="form-select" @bind="employee.GenderID">
+                        <option value="">Select Gender...</option>
+                    @foreach(var item in dllEmployeeGenders)
+                    {
+                        <option value="@item.Id">@item.GenderName</option>
+                    }
+                </select>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Marital Status</label>
+                    <select class="form-select" @bind="employee.MaritalStatusID">
+                        <option value="">Select Marital Status...</option>
+                    @foreach(var item in dllMaritalStatusses)
+                    {
+                        <option value="@item.Id">@item.MaritalStatusName</option>
+                    }
+                </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Race</label>
+                <select class="form-select" @bind="employee.RaceID">
+                    <option value="">Select Race...</option>
+                    @foreach(var item in dllEmployeeRaces)
+                    {
+                        <option value="@item.Id">@item.RaceName</option>
+                    }
+                </select>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Tax Status</label>
+                    <input type="text" class="form-control" @bind-value="employee.TaxStatus" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Bread Winner</label>
+                    <Blazorise.RadioGroup TValue="string" Name="Bread Winner" Buttons Color="Blazorise.Color.Light" Class="form-control" @bind-CheckedValue="employee.BreadWinner">
+                         <Blazorise.Radio Value="@("Yes")">Yes</Blazorise.Radio>
+                         <Blazorise.Radio Value="@("No")">No</Blazorise.Radio>
+                     </Blazorise.RadioGroup>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Dependants</label>
+                    <input type="number" class="form-control" @bind-value="employee.Dependants" placeholder="Number of Dependants..."/>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Pension Scheme</label>
+                    <input type="text" class="form-control" @bind-value="employee.PensionScheme" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Medical Aid</label>
+                    <input type="text" class="form-control" @bind-value="employee.MedicalAid" placeholder="Medical Aid Name..."/>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Medical Aid Dependants</label>
+                    <input type="text" class="form-control" @bind-value="employee.MedicalAidDependants" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+         <div class="container">
+             <div class="row">
+                 <div class="col-sm">
+                     <label for="CapexTitle">Medical Aid Number</label>
+                     <input type="text" class="form-control" @bind-value="employee.MedicalAidNumber" />
+                 </div>
+             <div class="col-sm">
+                 <label for="CapexTitle">Company Email </label>@if (employee.EmailAddress == null)
+                {
+                    <span style="color:red" class="oi oi-warning"></span>
+                }
+                <input type="email" class="form-control" @bind-value="employee.EmailAddress" />
+             </div>
+             </div>
+         </div>
+
+        <br />
+        <hr />
+        <br />
+
+     @if (bankingdetailshow)
+    {
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Tax / Banking Details</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Pay Period</label>
+                    <select class="form-select" @bind="employee.PayPeriodID">
+                        <option value="">Select Pay Period...</option>
+                        @foreach (var item in dllPayPeriod)
+                        {
+                            <option value="@item.Id">@item.PayPeriodName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Cost Code</label>
+                    <input type="text" class="form-control" @bind-value="employee.CostCode" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Department</label>
+                    <select class="form-select" @bind="employee.DepartmentID" disabled="@empdepartment">
+                        <option value="">Select Department...</option>
+                        @foreach (var item in dllDepartments)
+                        {
+                            <option value="@item.Id">@item.DepartmentName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Pay Method</label>
+                    <select class="form-select" @bind="employee.PayMethodID">
+                        <option value="">Select Pay Method...</option>
+                        @foreach (var item in dllPayMethod)
+                        {
+                            <option value="@item.Id">@item.PayMethodName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Bank</label>
+                    <input type="text" class="form-control" @bind-value="employee.Bank" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Branch</label>
+                    <input type="text" class="form-control" @bind-value="employee.Branch" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Account Number</label>
+                    <input type="text" class="form-control" @bind-value="employee.AccountNumber" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Tax Reference Number</label>
+                    <input type="text" class="form-control" @bind-value="employee.TaxReferenceNumber" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-6">
+                    <label for="CapexTitle">Revenue Officer</label>
+                    <input type="text" class="form-control" @bind-value="employee.RevenueOfficer" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+    }
+    
+    @if (jobinfoshow)
+    {
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Job Information</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Job Grade</label>
+                    <select class="form-select" @bind="employee.JobGradeID">
+                        <option value="">Select Job Grade...</option>
+                        @foreach (var item in dllJobGrades)
+                        {
+                            <option value="@item.Id">@item.JobGradeName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Date to Job Grade</label>
+                    <input type="date" class="form-control" @bind-value="employee.DateToJobGrade" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Job Title</label>
+                    <input type="text" class="form-control" @bind-value="employee.JobTitle" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Job Category</label>
+                    <input type="text" class="form-control" @bind-value="employee.JobCategory" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-6">
+                    <label for="CapexTitle">Shift Employee</label>
+                    <Blazorise.RadioGroup TValue="string" Name="Shift Employee" Buttons Color="Blazorise.Color.Light" Class="form-control" @bind-CheckedValue="employee.ShiftEmployee">
+                         <Blazorise.Radio Value="@("Yes")">Yes</Blazorise.Radio>
+                         <Blazorise.Radio Value="@("No")">No</Blazorise.Radio>
+                     </Blazorise.RadioGroup>
+                 </div>
+             </div>
+         </div>
+    
+        <br />
+        <hr />
+        <br />
+    }
+            
+     @if (paymentdetailsshow)
+    {
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Salary Details</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Hourly Pay Rate (Wages Only)</label>
+                    <input type="number" class="form-control" placeholder="R" @bind-value="employee.HourlyPayRate" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Monthly Pay Rate (Staff Only)</label>
+                    <input type="number" class="form-control" placeholder="R" @bind-value="employee.MonthlyPayRate" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Bonus Amount</label>
+                    <input type="number" class="form-control" placeholder="R" @bind-value="employee.BonusAmount" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Normal Weekly Hours</label>
+                    <input type="number" class="form-control" @bind-value="employee.NormalWeeklyHours" placeholder="Number of Work Hours per week..." />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-6">
+                    <label for="CapexTitle">Days per Week</label>
+                    <input type="number" class="form-control" @bind-value="employee.DaysPerWeek" placeholder="Number of Work Days per week..." />
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+    }
+
+        
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Pension</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <strong>Cost to Company percentage</strong>
+                    <br />
+                    Represents the portion of your pre-retirement income that the company aims to replace with your pension savings.
+                </div>
+                <div class="col-sm">
+                    <strong>Retirement Objective Level percentage.</strong>
+                    <br />
+                    Represents the portion of your pre-retirement income that you aim to replace with your pension savings.
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CTC">% of CTC</label>
+                    <Blazorise.RadioGroup TValue="string" Name="CTC" Buttons Color="Blazorise.Color.Light" Class="form-control" @bind-CheckedValue="employee.PensionPercentageOfCTC">
+                        <Blazorise.Radio Value="@("60")">60%</Blazorise.Radio>
+                        <Blazorise.Radio Value="@("70")">70%</Blazorise.Radio>
+                        <Blazorise.Radio Value="@("80")">80%</Blazorise.Radio>
+                    </Blazorise.RadioGroup>
+                </div>
+                <div class="col-sm">
+                    <label for="ROL">% of ROL</label>
+                 <Blazorise.RadioGroup TValue="string" Name="ROL" Buttons Color="Blazorise.Color.Light" Class="form-control" @bind-CheckedValue="employee.PensionPercentageOfROL">
+                        <Blazorise.Radio Value="@("6,5")">6,5%</Blazorise.Radio>
+                        <Blazorise.Radio Value="@("7,5")">7,5%</Blazorise.Radio>  
+                    </Blazorise.RadioGroup>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+     @if (leaveallowanceshow)
+    {
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Standard Leave Allowance Details</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Annual Entitlement</label>
+                    <input type="number" class="form-control" @bind-value="employee.AnnualEntitlement" placeholder="Number of Annual Leave days..." />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Monthly Accrual</label>
+                    <input type="number" class="form-control" @bind-value="employee.MonthlyAccrual" placeholder="Number of Monthly Leave days..." />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Accumulative</label>
+                    <input type="number" class="form-control" @bind-value="employee.Accumalative" placeholder="Number of Accumalative Leave Days..." />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Non-Accumulative</label>
+                    <input type="number" class="form-control" @bind-value="employee.NonAccumalative" placeholder="Number of Non-Accumalative Leave Days..." />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Sick Leave Cycle (Years)</label>
+                    <input type="number" class="form-control" @bind-value="employee.SickLeaveCycle" placeholder="Number of Sick Leave days per cycle..." />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Monthly Accrual (Days per Month)</label>
+                    <input type="number" class="form-control" @bind-value="employee.MonthlyAccrual" placeholder="Number of Sick Leave days per month..." />
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+    }
+    
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Marital Details</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-6">
+                 <label for="CapexTitle">Date of Marriage</label>
+                 <input type="date" class="form-control" @bind-value="employee.DateOfMarriage" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Maiden Name</label>
+                    <input type="text" class="form-control" @bind-value="employee.MaidenName" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Spouse's Name</label>
+                    <input type="text" class="form-control" @bind-value="employee.SpouseName" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Emergency Contact Numbers</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <label for="CapexTitle">Name of Contact</label>
+                    <input type="text" class="form-control" @bind-value="employee.NameOfEmergencyContact" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Telephone Number (Home)</label>
+                    <InputMask @bind-Value="employee.HomeNumberEmergencyContact" Mask="(999) 999-9999"></InputMask>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Telephone Number (Work)</label>
+                    <InputMask @bind-Value="employee.WorkNumberEmergencyContact" Mask="(+99) 999 999 9999"></InputMask>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-10">
+                    <label for="CapexTitle">Address</label>
+                    <input type="text" class="form-control" @bind-value="employee.AddressEmergencyContact" />
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Code</label>
+                    <input type="number" class="form-control" @bind-value="employee.AddressCodeEmergencyContact" placeholder="0000"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Dependants</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-2">
+                    <label for="CapexTitle">Surname</label>
+                    <input type="text" class="form-control" @bind-value="newDependant.Surname"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Name</label>
+                    <input type="text" class="form-control" @bind-value="newDependant.Name"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Relationship</label>
+                    <input type="text" class="form-control" @bind-value="newDependant.Relationship"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Gender</label>
+                     <select class="form-select" @bind="newDependant.Gender">
+                         <option value="">Select Gender...</option>
+                         <option>Male</option>
+                         <option>Female</option>
+                         <option>Other</option>
+                         <option>Prefer Not to Say</option>
+                    </select>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Date of Birth</label>
+                    <input type="date" class="form-control" @bind-value="newDependant.DateOfBirth"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Add Dependant</label>
+                    <button class="btn btn-dark form-control" type="button" @onclick="AddDependant">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                @if (dependantList != null && dependantList.Count > 0)
+                {
+                    <Div class="container">
+                        <Table Class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Surname</th>
+                                    <th>Name</th>
+                                    <th>Relationship</th>
+                                    <th>Gender</th>
+                                    <th>Date of Birth</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in dependantList)
+                                {
+                                    <tr>
+                                        <td>@item.Surname</td>
+                                        <td>@item.Name</td>
+                                        <td>@item.Relationship</td>
+                                        <td>@item.Gender</td>
+                                        <td>@item.DateOfBirth</td>
+                                        <td><button type="button" @onclick="()=>DeleteRowDependants(item)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </Table>
+                    </Div>
+                }
+                else
+                {
+                    <p><em>No Dependants added yet...</em></p>
+                }
+            </WhiteContainer>
+            </div>           
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Beneficiaries</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-2">
+                    <label for="CapexTitle">Full Name</label>
+                    <input type="text" class="form-control" @bind-value="newBeneficiary.FullName" />
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Relationship</label>
+                    <input type="text" class="form-control" @bind-value="newBeneficiary.Relationship" />
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">ID Number</label>
+                    <input type="text" class="form-control" @bind-value="newBeneficiary.IDNumber"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">% of Benefit</label>
+                    <input type="number" class="form-control" @bind-value="newBeneficiary.PercentageOfBenefit" placeholder="100"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Date of Birth</label>
+                    <input type="date" class="form-control" @bind-value="newBeneficiary.DateOfBirth"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Add Beneficiary</label>
+                    <button class="btn btn-dark form-control" type="button" @onclick="AddBeneficiary">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                @if (beneficiariesList != null && beneficiariesList.Count > 0)
+                {
+                    <div class="container">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Relationship</th>
+                                    <th>ID Number</th>
+                                    <th>% of Benefit</th>
+                                    <th>Date of Birth</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in beneficiariesList)
+                                {
+                                    <tr>
+                                        <td>@item.FullName</td>
+                                        <td>@item.Relationship</td>
+                                        <td>@item.IDNumber</td>
+                                        <td>@item.PercentageOfBenefit</td>
+                                        <td>@item.DateOfBirth</td>
+                                        <td><button type="button" @onclick="()=>DeleteRowBeneficiaries(item)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p><em>No Beneficiaries added yet...</em></p>
+                }
+            </WhiteContainer>
+            </div>           
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Next of Kin</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Surname</label>
+                    <input type="text" class="form-control" @bind-value="employee.SurnameNextOfKin" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">First Name</label>
+                    <input type="text" class="form-control" @bind-value="employee.FirstNameNextOfKin" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Telephone Number (Home)</label>
+                    <InputMask @bind-Value="employee.HomeNumberNextOfKin" Mask="(999) 999-9999"></InputMask>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Telephone Number (Work)</label>
+                    <InputMask @bind-Value="employee.WorkNumberNextOfKin" Mask="(+99) 999 999 9999"></InputMask>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-10">
+                    <label for="CapexTitle">Address</label>
+                    <input type="text" class="form-control" @bind-value="employee.AddressNextOfKin"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Code</label>
+                    <input type="number" class="form-control" @bind-value="employee.AddressCodeNextOfKin" placeholder="0000"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Previous Employment</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    <label for="CapexTitle">Employer</label>
+                    <input type="text" class="form-control" @bind-value="newEmployment.Employer" />
+                </div>
+                <div class="col-3">
+                    <label for="CapexTitle">Date Start</label>
+                    <input type="date" class="form-control" @bind-value="newEmployment.DateStart"/>
+                </div>
+                <div class="col-3">
+                    <label for="CapexTitle">Date End</label>
+                    <input type="date" class="form-control" @bind-value="newEmployment.DateEnd"/>
+                </div>
+                <div class="col-3">
+                    <label for="CapexTitle">Job Title</label>
+                    <input type="text" class="form-control" @bind-value="newEmployment.JobTitle" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    <label for="CapexTitle">Salary</label>
+                    <input type="number" placeholder="R" class="form-control" @bind-value="newEmployment.Salary"/>
+                </div>
+                <div class="col-7">
+                    <label for="CapexTitle">Reason for Leaving</label>
+                    <input type="text" class="form-control" @bind-value="newEmployment.ReasonLeaving" />
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Add Employment</label>
+                    <button class="btn btn-dark form-control" type="button" @onclick="AddEmployment">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                @if (employmentsList != null && employmentsList.Count > 0)
+                {
+                    <div class="container">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Employer</th>
+                                    <th>Date Start</th>
+                                    <th>Date End</th>
+                                    <th>Job Title</th>
+                                    <th>Salary</th>
+                                    <th>Reason for Leaving</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in employmentsList)
+                                {
+                                    <tr>
+                                        <td>@item.Employer</td>
+                                        <td>@item.DateStart</td>
+                                        <td>@item.DateEnd</td>
+                                        <td>@item.JobTitle</td>
+                                        <td>@item.Salary</td>
+                                        <td>@item.ReasonLeaving</td>
+                                        <td><button type="button" @onclick="()=>DeleteRowEmployment(item)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p><em>No Previous Employments added yet...</em></p>
+                }
+            </WhiteContainer>
+            </div>           
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Educational History</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-4">
+                    <label for="CapexTitle">Place of Study</label>
+                    <input type="text" class="form-control" @bind-value="newEducation.PlaceOfStudy" />
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">From</label>
+                    <input type="date" class="form-control" @bind-value="newEducation.StartDate"/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">To</label>
+                    <input type="date" class="form-control" @bind-value="newEducation.EndDate"/>
+                </div>
+                <div class="col-4">
+                    <label for="CapexTitle">Qualification</label>
+                    <input type="text" class="form-control" @bind-value="newEducation.Qualification" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-10">
+                    <label for="CapexTitle">Subjects</label>
+                    <input type="text" class="form-control" @bind-value="newEducation.Subjects" placeholder="Subjects separated by a comma..."/>
+                </div>
+                <div class="col-2">
+                    <label for="CapexTitle">Add Qualification</label>
+                    <button class="btn btn-dark form-control" type="button" @onclick="AddEducation">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                @if (educationalHistoriesList != null && educationalHistoriesList.Count > 0)
+                {
+                    <div class="container">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Place of Study</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Subjects</th>
+                                    <th>Qualification</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in educationalHistoriesList)
+                                {
+                                    <tr>
+                                        <td>@item.PlaceOfStudy</td>
+                                        <td>@item.StartDate</td>
+                                        <td>@item.EndDate</td>
+                                        <td>@item.Subjects</td>
+                                        <td>@item.Qualification</td>
+                                        <td><button type="button" @onclick="()=>DeleteRowEducation(item)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p><em>No Qualifications added yet...</em></p>
+                }
+            </WhiteContainer>
+            </div>           
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Union Membership</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Union Name</label>
+                    <select class="form-select" @bind="employee.UnionID">
+                        <option value="">Select Union...</option>
+                        @foreach(var item in dllUnions)
+                        {
+                            <option value="@item.Id">@item.UnionName</option>
+                        }
+                </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Membership Number</label>
+                    <input type="text" class="form-control" @bind-value="employee.MembershipNumberUnion" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Date Joined</label>
+                    <input type="date" class="form-control" @bind-value="employee.DateJoinedUnion"/>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Monthly Subscriptions</label>
+                    <input type="number" class="form-control" placeholder="R" @bind-value="employee.MonthlySubscriptionUnion"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Sport, Hobbies & Interests</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                <label for="CapexTitle">Sport, Hobbies & Interests</label>
+                    <textarea class="form-control" @bind="employee.SportHobbiesInterests" placeholder="Sports, hobbies and interests separated by a comma..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                <h4><strong>Medical History</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <label for="CapexTitle">Allergies</label>
+                    <input type="text" class="form-control" @bind-value="employee.Allergies" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <label for="CapexTitle">Disabilities</label>
+                    <input type="text" class="form-control" @bind-value="employee.Disabilities" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-6">
+                    <label for="CapexTitle">Blood Group</label>
+                    <select class="form-select" @bind="employee.BloodGroup">
+                        <option value="">Blood Group...</option>
+                        <option>A+</option>
+                        <option>A-</option>
+                        <option>B+</option>
+                        <option>B-</option>
+                        <option>AB+</option>
+                        <option>AB-</option>
+                        <option>O+</option>
+                        <option>O-</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">Doctor's Name</label>
+                    <input type="text" class="form-control" @bind-value="employee.DoctorName" />
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Telephone Number</label>
+                    <InputMask @bind-Value="employee.DoctorTelephoneNumber" Mask="(999) 999-9999"></InputMask>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="CapexTitle">State of Health</label>
+                    <select class="form-select" @bind="employee.StateOfHealth">
+                        <option value="">State Of Health...</option>
+                        <option>Optimal</option>
+                        <option>Good</option>
+                        <option>Fair</option>
+                        <option>Poor</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="CapexTitle">Pre-Employment Examination</label>
+                    <input type="date" class="form-control" @bind-value="employee.PreEmploymentExamination" placeholder=""/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+    @if (submitdocumentsshow)
+    {
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Submit Documents</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-6">
+                    <label for="CapexTitle">Submit ID Copy</label>
+                    <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileIDSelected" multiple></Microsoft.AspNetCore.Components.Forms.InputFile>
+                </div>
+                <div class="col-6">
+                    <label for="CapexTitle">Submit Drivers Licence</label>
+                    <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileDriversSelected" multiple></Microsoft.AspNetCore.Components.Forms.InputFile>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-6">
+                    <label for="CapexTitle">Submit Contract</label>
+                    <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileContractSelected" multiple></Microsoft.AspNetCore.Components.Forms.InputFile>
+                </div>
+                <div class="col-6">
+                    <label for="CapexTitle">Submit Bank Information</label>
+                    <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileStatementsSelected" multiple></Microsoft.AspNetCore.Components.Forms.InputFile>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+    }
+    
+        <center>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <button type="button" style="width:200px" class="btn btn-dark" @onclick="ShowSubmitModal">Submit</button>
+                </div>                
+            </div>
+        </div>
+    </center>
+
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalBack" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Back To User Page</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Are you sure you want to go back to the User Page?
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            Your progress will not be saved.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                <div class="container" style="max-width:40%">
+                    <div class="row">
+                        <button @onclick="navToVIPUserPage" class="btn btn-dark">Go To User Page</button>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseBackModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalSubmit" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Save VIP</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div class="alert alert-success">
+                    Confirm & Sign Company Documents
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="ShowCoCModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Continue to Documents</button>
+            <button @onclick="CloseSubmitModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="ErrorModal">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="container">
+                <div class="row" style="text-align:center">
+                    @if (!string.IsNullOrWhiteSpace(validationErrorMessage))
+                    {
+                        <div class="alert alert-success">@validationErrorMessage</div>
+                    }
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalPOPI">
+    <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+        <ModalHeader>
+            <ModalTitle>Protection of Personal Information Act 4 of 2013 Consent Form </ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+                <div class="alert alert-success">
+                    <WhiteContainer>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12">
+                                     <h4><strong>Consent to the processing of personal information</strong></h4>
+                                    <br />
+                                    <p>The employee hereby voluntarily authorises the Company to process his/ her personal information in the course of his/ her employment. Processing shall include the receipt, recording, organising, collation, storage, updating or modification, retrieval, alteration, consultation, use; dissemination by means of transmission, distribution or making available in any other form; or merging, linking, as well as blocking, erasure or destruction of information.</p>
+                                    <br />
+                                    <p>The employee understands his/ her right to privacy and the right to have his/ her personal information processed in accordance with the conditions as set out in in the Protection of Personal Information Act 4 of 2013 (POPI) for the lawful processing of personal information and hereby give his/ her consent to the company to collect, process and distribute relevant personal information where the company is legally required to do so.</p>
+                                    <br />
+                                    <p>The employee understands that the company utilises third-party service providers and hereby voluntarily consents to the Company sharing his/ her personal information strictly for the purpose for which the third-party service providers requires.  Third party service providers include but are not limited to provident funds, SARS and UIF.</p>
+                                    <br />
+                                    <p>The employee understands that the Company has a right to protect its property and therefore have surveillance cameras installed.</p>
+                                    <br />
+                                    <h4><Strong>Definitions</Strong></h4>
+                                    <br />
+                                     <p>
+                                         <Strong><em>‘Personal information’</em></Strong> means information relating to an identifiable, living, natural person and,
+                                         where applicable, information relating to an identifiable, existing juristic person. Personal
+                                         information includes, but is not limited to, the following:
+                                     </p>
+                                     <br />
+                                     <ul>
+                                     <li>information relating to the race, gender, sex, pregnancy, marital status, nationality, ethnic or social origin, colour, sexual orientation, age, physical or mental health, well-being, disability, religion, conscience, belief, culture, language and birth of the person;</li>
+                                     <li>information relating to the education or the medical, financial, criminal or employment history of the person including performance appraisals;</li>
+                                     <li>any identifying number, symbol, email address, physical address, telephone number, location information, online identifier or other particular assignment to the person;</li>
+                                     <li>the biometric information of the person;</li>
+                                     <li>the personal opinions, views or preferences of the person;</li>
+                                     <li>correspondence sent by the person that is implicitly or explicitly private or confidential, and further correspondence that would reveal the contents of the original correspondence;</li>
+                                     <li>the views or opinions of another individual about the person;</li>
+                                     <li>the name of the person if it appears with other personal information relating to the person, or if the disclosure of the name itself would reveal information about the person.</li>
+                                     <li>the religious or philosophical beliefs, race or ethnic origin, trade union membership, political persuasion, health or sex life, or biometric information of a data subject;</li>
+                                     <li>the criminal behaviour of a data subject to the extent that the information relates to:</li>
+                                         <ul>
+                                            <li>an alleged offence committed by a data subject or</li>
+                                         <li>any proceedings related to an alleged offence committed by a data subject, or the disposal of proceedings.</li>
+                                         </ul>
+                                     </ul>
+                                     
+                                     <br />
+                                 <p><em><Strong>‘Conditions’</Strong></em> refer to the eight conditions set out in POPI: Accountability, Processing limitation, Purpose specific, Further processing limitation, Information quality, Openness, Security safeguards and Data subject participation.</p>
+                                 </div>
+                            </div>
+                        </div>
+                    </WhiteContainer>
+                </div>            
+        </ModalBody>
+        <ModalFooter>
+            <button  class="btn btn-dark" @onclick="ShowSignModal" style="height:30px; width:fit-content; font-size:12px; padding:5px">Give Consent</button>
+            <button class="btn btn-dark" @onclick="ClosePOPIModal" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalCodeOfEthics">
+     <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+        <ModalHeader>
+            <ModalTitle>Code of Ethics & Business Conduct</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="alert alert-success">
+                    <WhiteContainer>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12">
+                                <h4><strong>Code of Ethics & Business Conduct</strong></h4>
+                                <br />
+                                <p>York Timbers is committed to a policy of fair dealing and integrity in the conduct of its businesses.  The commitment, which is actively endorsed by the Board, is based on a fundamental belief that business should be conducted honestly, fairly and legally.</p>
+                                <br />
+                                <p>The Company expects all employees to share its commitment to high moral, ethical and legal standards, as set out hereunder:</p>
+                                <br />
+                                <ol>
+                                    <li>
+                                        <p>Employees must avoid situations, which create conflicts of interest and are expected to perform their duties conscientiously, honestly and in accordance with the best interests of the Company and shareholders.</p>
+                                        <p>To this end employees may not gain a personal advantage by virtue of their position in the Company, nor acquire any business interest, which diverts their energy or attention from, or is in conflict with, the Company or which in any way affects their independence.  Employees should not accept gifts, hospitality or other favours from suppliers of goods or service at a level, which places the recipient under obligation.  If any person has any doubt as to the acceptability of any such offer, they must consult with the person to whom they report.</p>
+                                        
+                                        <p>The Company remunerates employees based upon formal remuneration scales and rates for salaries, wages, fringe benefits, and other remuneration.  Employees may not receive commissions or other benefits arising from direct or indirect participation in any transaction made by or on behalf of the Company, except as provided specifically under their terms of employment.</p>
+                                        
+                                        <p>The Company will not condone any violation of the law or unethical business dealing by any employee, including any payment for, or other participation in, an illegal act such as bribery or money laundering activities.</p>
+                                    </li>
+                                    <li><p>The Company’s employment equity policy is one of opportunity for all, rather than preference for some.  We seek to identify, develop and reward appropriately, all employees who demonstrate the qualities of individual initiative, enterprise, hard work and loyalty.  All employees have the right to work in an environment, which is free from any form of harassment or unlawful discrimination.</p></li>
+                                    <li>
+                                        <p>The Company is committed to developing operating policies to address any adverse environmental impact of its business activities.</p>
+                                        
+                                        <p>It is committed to conserving all the resources used in its business operations.  At the same time, it will take every reasonable precaution to ensure a safe working environment for all employees.</p>
+                                    </li>
+                                    <li><p>The Company acknowledges the right of its employees to participate in the political process and respects their right to absolute privacy in this regard.</p></li>
+                                    <li><p>It is expected of all employees to ensure that Company funds and property are used only for legitimate business purposes.  Internal controls and procedures of the highest standards will be enforced to prevent fraud and dishonesty and to safeguard the assets of the Company.</p></li>
+                                    <li><p>Accurate and reliable records will be maintained to reflect all business transactions on a fair basis in terms of generally accepted accounting standards, in order for the Company to meet its legal and financial obligations and properly manage its affairs.</p></li>
+                                    <li><p>The Company strives to achieve complete, accurate, timely and courteous communications with all parties, both internal and external, with whom it conducts business, including government authorities, trade unions, shareholders and the public.</p></li>
+                                    <li><p>Information gained and collected in the course of the Company’s business will be safeguarded with full respect, privacy and confidentiality.</p></li>
+                                    <li><p>Any contravention of this code will be regarded as a serious matter and appropriate action will follow in respect of any breach.</p></li>
+                                    <li><p>The York Timbers auditors are charged with ensuring that the Code of Ethics is enforced and adhered to and will investigate confidentially any breach of the Code irrespective of the seniority of the offenders.  It is therefore obligatory and in an employee’s own interest to report, to a senior manager, all actual or suspected contravention of any section of this Code.  </p></li>
+                                </ol>
+                            </div>
+                            </div>
+                        </div>
+                    </WhiteContainer>
+                </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="ShowADModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseCoCModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalAnnualDeclaration">
+     <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+        <ModalHeader>
+            <ModalTitle>Employee Annual Declaration</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="alert alert-success">
+                <WhiteContainer>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                 <h4><strong>Employee Annual Declaration</strong></h4>
+                                 <br>
+                                 <p>I, @employee.FullName (@employee.EmployeeNumber) acknowledge that as an employee of York Timbers (Pty) Ltd (York/ Company), I am required to:</p>
+                                 <br />
+                                 <ul>
+                                     <li>perform my duties conscientiously, honestly and act in the best interests of the Company and its ultimate shareholders.</li>
+                                     <li>use my utmost endeavours to protect and promote the business and interests of York loyally and to preserve its reputation and goodwill.</li>
+                                     <li>maintain the highest level of integrity and trustworthiness while performing my functions and duties.</li>
+                                     <li>not engage in any other business or other outside interest which might conflict with or retard my ability to devote full and proper attention to my employment, <em>without first obtaining the written consent of the Company.</em> </li>
+                                     <li>not gain any personal advantage by virtue of my position in the Company.</li>
+                                     <li>not accept gifts, hospitality or other favours from customers or suppliers of the Company which could place me under any obligation or impact my impartiality.</li>
+                                     <li>adhere to all Company policies and procedures as well as relevant and applicable legislation at all times.</li>
+                                     <li>report all actual or suspected cases of fraud, theft or corruption to a senior manager or anonymously to the independent fraud hotline at <em><u>fraud@kpmg.co.za</u></em> or 0800 222 056.</li>
+                                     <li>disclose in writing to the Group Risk and Compliance Officer by submitting the “Declaration of interest” forms should I be involved in other businesses (directly or indirectly) that transact with York. This includes any dealings involving direct or indirect family members and relatives of mine that deal with York. If I fail to declare same, this can lead to an interpretation of dishonesty.</li>
+                                     <li>not abuse Company property including but not limited to vehicles, telephones, mobile devices or computers/ laptops for private purposes.</li>
+                                     <li>not disclose any information, business production or marketing secrets or procedures or formulas, customer details or any other sensitive information to any outsider, competitor or co-employee except where expressly authorised to do so.</li>
+                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+                </WhiteContainer>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="ShowOathModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="CloseADModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalOathOfSecrecy">
+     <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+         <ModalHeader>
+             <ModalTitle>Oath of Secrecy</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <div class="alert alert-success">
+                 <WhiteContainer>
+                     <div class="container">
+                         <div class="row">
+                             <div class="col-12">
+                                 <h4><strong>Employee Oath of Secrecy</strong></h4>
+                                 <br>
+                                 <p>I, @employee.FullName, ID Number @employee.IDNumber, an employee of York Timbers, employed in the capacity of @employee.RoleName, hereby acknowledge that I will be working with sensitive and confidential information and pledge herewith an Oath of Secrecy and understand fully the consequences that may follow if I break the oath. I am also fully aware that if a leakage is proven against me, that I may/will be dismissed with immediate effect.</p>
+                             </div>
+                         </div>
+                     </div>
+                 </WhiteContainer>
+             </div>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="ShowConfidentialityModal"  class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+             <button @onclick="CloseOathModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalConfidentiality">
+     <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+         <ModalHeader>
+             <ModalTitle>Confidentiality Agreement</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <div class="alert alert-success">
+                 <WhiteContainer>
+                     <div class="container">
+                         <div class="row">
+                             <div class="col-12">
+                                 <h4><strong>Definition of Confidential Information</strong></h4>
+                                 <br />
+                                 <p>As used herein, “Confidential Information” shall mean any and all technical and non-technical information related to York Timbers (Pty) Ltd, including but not limited to proprietary information, ideas, techniques, models, inventions, know-how, processes, apparatuses, equipment and including, without limitation, information concerning research, experimental work, development, design details and specifications, engineering, financial and human resources information, procurement requirements, purchasing manufacturing, customer lists, investors, employees, business and contractual relationship, business forecasts, sales and merchandising, marketing plans and information York Timbers provides. </p>
+                                 <br />
+                                 <h4><strong>Handling of Confidential Information</strong></h4>
+                                 <br />
+                                 <p>You hereby always agree that during your employment at York Timbers that you will hold in strict confidence and not disclose to any third-party confidential information, except as approved in writing by the other party to this Agreement. </p>
+                             </div>
+                         </div>
+                     </div>
+                 </WhiteContainer>
+             </div>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="ShowCommunicationModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+             <button @onclick="CloseConfidentialityModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalCommunicationSystems">
+     <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+         <ModalHeader>
+             <ModalTitle>Communication Systems</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <div class="alert alert-success">
+                 <WhiteContainer>
+                     <div class="container">
+                         <div class="row">
+                             <div class="col-12">
+                                 <h4><strong>Communication Systems</strong></h4>
+                                 <br />
+                                 <p>The reputation and integrity as well as the professionalism with which the company is viewed are dependent on the behaviour of its employees. Any conduct that damages the reputation of York will therefore be viewed in a serious light and may lead to dismissal. </p>
+                                 <br />
+                                 <p>Telephone, faxes, computer hardware and software are the property of York and are not intended for private use. York will be entitled at any time to review or monitor use and/or data content of any communication system including without limitation personal private communication transmitted from or to any of its communication systems. There is a severe penalty for the distribution of pornographic material using company systems and this may lead to dismissal. </p>
+                                 <br />
+                                 <p>You agree to keep private use of the telephone, faxes, e-mails, and the internet to a minimum and to always comply with all rules and instructions relating to the use of the Company’s network, computers, telephone, and other communication devices. </p>
+                                 <br />
+                                 <p>You will take care not to overload the network with personal material, and you understand that your access is restricted from internet sites or forwarding abusive, pornographic or colour material (including movie clips, JPEG files, etc. to any third party), the unauthorised loading of any software (including any games) onto York’s network or a workstation will be subject to disciplinary action. </p>
+                                 <br />
+                                 <p>You will not allow any third-party access to the computer’s communication systems or other equipment without the express authorization of York. </p>
+                                 <br />
+                                 <p>You will not disclose information about York or the activities of people or processes in the company and will have signed a confidentiality and Code of Ethics/ Business Conduct agreement when you received your offer letter. </p>
+                                 <br />
+                                 <p>All IT related Policies are available from the IT Department or can be printed directly from the Intranet. </p>
+                             </div>
+                         </div>
+                     </div>
+                 </WhiteContainer>
+             </div>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="ShowPOPIModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+             <button @onclick="CloseCommunicationModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalDisabilityDeclaration">
+     <Blazorise.ModalContent Centered Size="ModalSize.ExtraLarge">
+         <ModalHeader>
+             <ModalTitle>Disability Declaration</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+             <div class="alert alert-success">
+                 <WhiteContainer>
+                     <div class="container">
+                         <div class="row">
+                             <div class="col-12">
+                                 <h4><Strong>Department of Labour</Strong></h4>
+                                 <br />
+                                 <h4>Declaration by Employee</h4>
+                                 <br />
+                                 <p><em>(Confidential)</em></p>
+                                 <br />
+                                 <p><Strong>Purpose of this form</Strong></p>
+                                 <br />
+                                 <p>This form is used to obtain information from employees for the purpose of assisting employers with conducting an analysis on the workforce profile.  Employers should use this form to ascertain which employees are from designated groups in terms of the Employment Equity Act, 55 of 1998.</p>
+                                 <br/>
+                                 <p><Strong>Who fills in this form</Strong></p>
+                                 <br/>
+                                 <p>Employees should fill in this form</p>
+                                 <br />
+                                 <p><Strong>Instructions</Strong></p>
+                                 <br />
+                                 <p>Employers must ensure that the contents of this form remain confidential, and that it is only used to comply with the Employment Equity Act, 55 of 1998.</p>
+                                 <br/>
+                                 <p>‘People with disabilities’ are defined in the Act as people who have long-term or recurring physical or mental impairments, which substantially limits their prospects of entering into, or advancement in employment.</p>
+                                 <br />
+                                 <p>Please note that people have the right to disclose or not to disclose their disability.</p>
+                                 <br />
+                                 <p><Strong>Employee Information</Strong></p>
+                                 <br />
+                                 <p>1.  Name of employee:  @employee.FullName</p>
+                                 <br/>
+                                 <p>2.  Employee workplace No:   @employee.EmployeeNumber</p>
+                                 <br />
+                                 <p>3.  Employee Gender:   @employee.GenderName</p>
+                                 <br />
+                                 <p>4.  Employee Race:   @employee.RaceName</p>
+                                 <br />
+                                 <p>5.  Foreign National:   @employee.NationalityName</p>
+                                 <br />
+                                 <p>6.  Disability:     @employee.Disabilities</p>
+                                 <br />
+                                 <p><strong>Employee Electronic Signature:   </strong>@DateTime.Now.ToString("yyyy-MM-dd")</p>
+                             </div>
+                         </div>
+                     </div>
+                 </WhiteContainer>
+             </div>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="ShowPOPIModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+             <button @onclick="CloseDisabilityModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+ <Blazorise.Modal @ref="modalSign" Closing="@OnModalClosing">
+     <Blazorise.ModalContent Centered>
+         <ModalHeader>
+             <ModalTitle>Give Consent & Sign Documents</ModalTitle>
+         </ModalHeader>
+         <ModalBody>
+            <div class="alert alert-success" role="alert">
+                Are you sure you want to Sign the Protection of Personal Information Act, Code of Conduct & Annual Declaration forms?
+            </div>
+            <br />
+            <Blazorise.Field>
+                <FieldLabel>UserName</FieldLabel>
+                <input type="text" @bind-value="username" class="form-control" />
+            </Blazorise.Field>
+            <br />
+            <Blazorise.Field>
+                <FieldLabel>Password</FieldLabel>
+                <input type="password" @bind-value="password" class="form-control" />
+            </Blazorise.Field>
+            <br />
+            @if(outputmessage != string.Empty)
+            {
+                <div class="alert alert-success">
+                    @outputmessage
+                </div>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="SignPOPI" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Give Consent</button>
+            <button @onclick="CloseSignModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+     </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    public int EmployeeID { get; set; }
+
+
+    private string message = string.Empty;
+    private string validationErrorMessage = string.Empty;
+
+    private string Title = "Add Employee Form";
+    private Employee employee = new();
+    private CapexUser user = new();
+    private Blazorise.Modal ErrorModal = new();
+    private string username = string.Empty;
+    private string password = string.Empty;
+
+    //Disabled controls
+    private bool employeeid = true;
+    private bool employeenum = true;
+    private bool employeename = true;
+    private bool employeesurname = true;
+    private bool empdepartment = true;
+    private bool empcompany = true;
+    private bool paymentdetailsshow = false;
+    private bool bankingdetailshow = false;
+    private bool jobinfoshow = false;
+    private bool leaveallowanceshow = false;
+    private bool submitdocumentsshow = false;
+    private bool identitynumbershow = false;
+
+
+    //Lists--------------------------------------------------------------
+    private List<Dependants> dependantList = new();
+    private List<Dependants> finalDependantList = new();
+    private List<LanguageProficiency> languagesList = new();
+    private List<LanguageProficiency> finalLanguagesList = new();
+    private List<Beneficiaries> beneficiariesList = new();
+    private List<Beneficiaries> finalBeneficiariesList = new();
+    private List<PreviousEmployment> employmentsList = new();
+    private List<PreviousEmployment> finalEmploymentList = new();
+    private List<EducationalHistory> educationalHistoriesList = new();
+    private List<EducationalHistory> finalEducationalHistoryList = new();
+    private List<LicenceCodes> licenceCodes = new();
+    private List<LicenceCodes> finalLicenceCodes = new();
+
+    //ItemsToAdd---------------------------------------------------------
+    private Dependants newDependant = new();
+    private LanguageProficiency newLanguageProficiency = new();
+    private Beneficiaries newBeneficiary = new();
+    private PreviousEmployment newEmployment = new();
+    private EducationalHistory newEducation = new();
+    private LicenceCodes newLicenceCode = new();
+
+    //Dropdown Lists-----------------------------------------------------
+    private List<EmployeeTitle> dllEmployeeTitles = new();
+    private List<EmployeeGender> dllEmployeeGenders = new();
+    private List<EmployeeLanguage> dllEmployeeLanguages = new();
+    private List<EmployeeRace> dllEmployeeRaces = new();
+    private List<EmployeeMaritalStatus> dllMaritalStatusses = new();
+    private List<EmployeePayPeriod> dllPayPeriod = new();
+    private List<EmployeePayMethod> dllPayMethod = new();
+    private List<LegalEntity> dllLegalEntities = new();
+    private List<EmployeeUnion> dllUnions = new();
+    private List<EmployeeDepartment> dllDepartments = new();
+    private List<EmployeeJobGrade> dllJobGrades = new();
+    private List<DrivingCodes> dllDrivingCodes = new();
+    private List<EmployeeNationality> dllNationalities = new();
+
+    UserAccess newAccess = new();
+    BusinessUnitDeptRoleLinking newLinking = new();
+
+    //Initialize---------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        try
+        {
+            EmployeeID = shareddataService.EmployeeID;
+        }
+        catch
+        {
+            EmployeeID = 0;
+        }
+
+        if(EmployeeID > 0)
+        {
+            languagesList = service.GetLanguages(EmployeeID);
+            dependantList = service.GetDependants(EmployeeID);
+            beneficiariesList = service.GetBeneficiaries(EmployeeID);
+            employmentsList = service.GetPreviousEmployments(EmployeeID);
+            educationalHistoriesList = service.GetEducationalHistory(EmployeeID);
+            licenceCodes = service.GetLicenceCodes(EmployeeID);
+            foreach(var item in licenceCodes)
+            {
+                item.LicenceCodeName = service.GetCorrespondingLicenceCode(item.LicenceCodeID);
+            }
+            foreach(var item in languagesList)
+            {
+                item.LanguageName = service.GetCorrespondingLanguage(item.LanguageID);
+            }
+
+            Title = "Update Employee";
+            employee = service.GetById(EmployeeID);
+        }
+        base.OnInitialized();
+
+        //set visibility according to user access
+        if (shareddataService.newUser == 0)
+        {
+            bankingdetailshow = true;
+            submitdocumentsshow = true;
+            identitynumbershow = false;
+        }
+        else
+        {
+            bankingdetailshow = false;
+            submitdocumentsshow = false;
+            identitynumbershow = true;
+        }
+        if(shareddataService.accessLinkings.FirstOrDefault(x=>x.ModuleID == 2).AccessTypeID == 1)
+        {
+            bankingdetailshow = true;
+            submitdocumentsshow = true;
+            paymentdetailsshow = true;
+            jobinfoshow = true;
+            leaveallowanceshow = true;
+            submitdocumentsshow = true;
+        }
+
+
+        //dropdowns
+        dllEmployeeTitles = service.GetEmployeeTitles();
+        dllEmployeeGenders = service.GetEmployeeGenders();
+        dllEmployeeLanguages = service.GetEmployeeLanguages();
+        dllEmployeeRaces = service.GetEmployeeRaces();
+        dllMaritalStatusses = service.GetEmployeeMaritalStatuses();
+        dllPayPeriod = service.GetEmployeePayPeriods();
+        dllPayMethod = service.GetEmployeePayMethods();
+        dllLegalEntities = LEservice.GetLegalEntities();
+        dllUnions = service.GetEmployeeUnions();
+        dllDepartments = service.GetEmployeeDepartments();
+        dllJobGrades = service.GetEmployeeJobGrades();
+        dllDrivingCodes = service.GetDrivingCodes();
+        dllNationalities = service.GetEmployeeNationalities();
+    }
+
+    //Save Employee------------------------------------------------------
+    private async void saveEmployee()
+    {
+        //Check that at least some information is entered
+        if(employee.TitleID == null || employee.EmailAddress == null || employee.IDNumber == null)
+        {
+            validationErrorMessage = "Additional information required, including the title, identification number, and company email address. Your prompt assistance in providing these details would be greatly appreciated.";
+            await ShowErrorModal();
+            await ClosePOPIModal();
+            return;
+        }
+        if (employee.POPISignature != 1)
+        {
+            validationErrorMessage = "You must give consent to Work for York Timbers.";
+            await ShowErrorModal();
+            return;
+        }
+        else
+        {
+            if (employee.MiddleNames != null)
+            {
+                employee.FullName = employee.FirstName + " " + employee.MiddleNames + " " + employee.Surname;
+            }
+
+            SaveLanguages();
+            SaveDependants();
+            SaveBeneficiaries();
+            SaveEmployment();
+            SaveEducation();
+            SaveLicenceCodes();
+
+            employee.IDCopyName = filenameID;
+            employee.IDCopyPath = $@"\\172.16.28.51\YorkInfo\Hr\IDCopies\{relativePathID}";
+            employee.DriversCopyName = filenameDrivers;
+            employee.DriversCopyPath = $@"\\172.16.28.51\YorkInfo\Hr\DriversCopies\{relativePathDrivers}";
+            employee.BankStatementsName = filenameStatements;
+            employee.BankStatementsPath = $@"\\172.16.28.51\YorkInfo\Hr\EmployeeBankStatements\{relativePathStatements}";
+            employee.ContractName = filenameContract;
+            employee.ContractPath = $@"\\172.16.28.51\YorkInfo\Hr\EmployeeContracts\{relativePathContract}";
+
+            message = "VIP successfully saved";
+            service.AddUpdateEmployee(employee);
+
+            //Update new user variable to 1
+            userservice.updateNewUser(shareddataService.UserID);
+            shareddataService.newUser = 1;
+
+            await ShowSubmitModal();
+            employee = new();
+        }
+
+    }
+
+    private string outputmessage = string.Empty;
+
+
+    //Employee POPI signature
+    public async Task SignPOPI()
+    {
+        CapexUser capexemployee = new();
+        capexemployee = service.GetCapexUser(employee.EmployeeNumber);
+
+        if(username == capexemployee.UserName && password == capexemployee.UserPassword)
+        {
+            if(employee.AnnualDeclarationSignature == 1 && employee.OtherDocsSignature == 1)
+            {
+                employee.POPISignature = 1;
+                employee.POPISignDate = DateTime.Now;
+                await RunTemplatePopi();
+                saveEmployee();
+                await CloseSignModal();
+                navManager.NavigateTo("VIPUserPage");
+            }
+            else
+            {
+                employee.POPISignature = 1;
+                employee.POPISignDate = DateTime.Now;
+                employee.AnnualDeclarationSignature = 1;
+                employee.AnnualDeclarationSignDate = DateTime.Now;
+                employee.OtherDocsSignature = 1;
+                employee.OtherDocsSignDate = DateTime.Now;
+                await RunTemplatePopi();
+                await RunTemplateAnnualDeclaration();
+                await RunTemplateCoC();
+                await RunTemplateOath();
+                await RunTemplateConfidentiality();
+                await RunTemplateCommunicationSystems();
+                            
+                saveEmployee();
+                await CloseSignModal();
+                navManager.NavigateTo("VIPUserPage");
+            }
+        }
+        else
+        {
+            outputmessage = "You have entered the wrong credentials.";
+            username = string.Empty;
+            password = string.Empty;
+        }
+
+    }
+
+    public void DeclinePOPI()
+    {
+        employee.POPISignature = 0;
+        employee.POPISignDate = null;
+        saveEmployee();
+    }
+
+    //AddToLists---------------------------------------------------------
+    public void AddDependant()
+    {
+        if(newDependant.Surname != null && newDependant.Name != null && newDependant.Relationship != null && newDependant.Gender != null && newDependant.DateOfBirth != null)
+        {
+            dependantList.Add(new Dependants
+                {
+                    Surname = newDependant.Surname,
+                    Name = newDependant.Name,
+                    Relationship = newDependant.Relationship,
+                    Gender = newDependant.Gender,
+                    DateOfBirth = newDependant.DateOfBirth
+                });
+            newDependant = new();
+        }
+        else
+        {
+            validationErrorMessage = "Information needed for Dependant.";
+            ShowErrorModal();
+        }
+
+    }
+
+    public void AddDrivingCode()
+    {
+        if(newLicenceCode.LicenceCodeID != null)
+        {
+            licenceCodes.Add(new LicenceCodes
+                {
+                    LicenceCodeID = newLicenceCode.LicenceCodeID,
+                    LicenceCodeName = service.GetCorrespondingLicenceCode(newLicenceCode.LicenceCodeID)
+                });
+            newLicenceCode = new();
+        }
+        else
+        {
+            validationErrorMessage = "Information needed for Licence Code.";
+            ShowErrorModal();
+        }
+
+    }
+
+    public void AddLanguage()
+    {
+        if(newLanguageProficiency.LanguageID != null && newLanguageProficiency.Speak != null && newLanguageProficiency.Read != null && newLanguageProficiency.Write != null)
+        {
+            languagesList.Add(new LanguageProficiency
+                {
+                    LanguageID = newLanguageProficiency.LanguageID,
+                    Speak = newLanguageProficiency.Speak,
+                    Read = newLanguageProficiency.Read,
+                    Write = newLanguageProficiency.Write,
+                    LanguageName = service.GetCorrespondingLanguage(newLanguageProficiency.LanguageID)
+                });
+            newLanguageProficiency = new();
+        }
+        else
+        {
+            validationErrorMessage = "Information needed for Language Proficiency.";
+            ShowErrorModal();
+        }
+
+    }
+
+    public void AddBeneficiary()
+    {
+        if(newBeneficiary.FullName != null && newBeneficiary.Relationship != null && newBeneficiary.IDNumber != null && newBeneficiary.PercentageOfBenefit != null && newBeneficiary.DateOfBirth != null)
+        {
+            beneficiariesList.Add(new Beneficiaries
+            {
+                FullName = newBeneficiary.FullName,
+                Relationship = newBeneficiary.Relationship,
+                IDNumber = newBeneficiary.IDNumber,
+                PercentageOfBenefit = newBeneficiary.PercentageOfBenefit,
+                DateOfBirth = newBeneficiary.DateOfBirth
+            });
+            newBeneficiary = new();
+        }
+        else
+        {
+            validationErrorMessage = "Information needed for Beneficiary.";
+            ShowErrorModal();
+        }
+
+    }
+
+    public void AddEmployment()
+    {
+        if(newEmployment.Employer != null && newEmployment.JobTitle != null && newEmployment.Salary != null && newEmployment.ReasonLeaving != null)
+        {
+            employmentsList.Add(new PreviousEmployment
+                {
+                    Employer = newEmployment.Employer,
+                    DateStart = newEmployment.DateStart,
+                    DateEnd = newEmployment.DateEnd,
+                    JobTitle = newEmployment.JobTitle,
+                    Salary = newEmployment.Salary,
+                    ReasonLeaving = newEmployment.ReasonLeaving
+                });
+            newEmployment = new();
+        }
+        else
+        {
+            validationErrorMessage = "Information needed for Previous Employment.";
+            ShowErrorModal();
+        }
+
+    }
+
+    public void AddEducation()
+    {
+        if(newEducation.PlaceOfStudy != null && newEducation.StartDate != null && newEducation.EndDate != null && newEducation.Qualification != null)
+        {
+            educationalHistoriesList.Add(new EducationalHistory
+                {
+                    PlaceOfStudy = newEducation.PlaceOfStudy,
+                    StartDate = newEducation.StartDate,
+                    EndDate = newEducation.EndDate,
+                    Subjects = newEducation.Subjects,
+                    Qualification = newEducation.Qualification
+                });
+            newEducation = new();
+        }
+        else
+        {
+            validationErrorMessage = "Information needed for Qualification.";
+            ShowErrorModal();
+        }
+
+    }
+
+    //Navigation---------------------------------------------------------
+    private void navToVIPUserPage()
+    {
+        navManager.NavigateTo($"/VIPUserPage");
+    }
+
+
+    //Save Languages-----------------------------------------------------
+    private void SaveLanguages()
+    {
+        service.DeleteLanguageProficiency(EmployeeID);
+
+        if(EmployeeID == 0)
+        {
+            foreach(var item in languagesList)
+            {
+                LanguageProficiency lp = new LanguageProficiency
+                    {
+                        EmployeeID = employee.EmployeeID,
+                        LanguageID = item.LanguageID,
+                        Read = item.Read,
+                        Speak = item.Speak,
+                        Write = item.Write
+                    };
+                finalLanguagesList.Add(lp);
+            }
+            service.SaveLanguageProficiency(finalLanguagesList);
+        }
+        else
+        {
+            foreach (var item in languagesList)
+            {
+                LanguageProficiency lp = new LanguageProficiency
+                    {
+                        EmployeeID = EmployeeID,
+                        LanguageID = item.LanguageID,
+                        Read = item.Read,
+                        Speak = item.Speak,
+                        Write = item.Write
+                    };
+                finalLanguagesList.Add(lp);
+            }
+
+            service.SaveLanguageProficiency(finalLanguagesList);
+        }
+
+    }
+
+    //Save LicenceCodes-----------------------------------------------------
+    private void SaveLicenceCodes()
+    {
+        service.DeleteLicenceCodes(EmployeeID);
+        if(EmployeeID == 0)
+        {
+            foreach(var item in licenceCodes)
+            {
+                LicenceCodes lc = new LicenceCodes
+                {
+                    LicenceCodeID = item.LicenceCodeID,
+                    EmployeeID = item.EmployeeID
+                };
+                finalLicenceCodes.Add(lc);
+            }
+            service.SaveLicenceCodes(finalLicenceCodes);
+        }
+        else
+        {
+            foreach(var item in licenceCodes)
+            {
+                LicenceCodes lc = new LicenceCodes
+                {
+                    LicenceCodeID = item.LicenceCodeID,
+                    EmployeeID = EmployeeID
+                };
+                finalLicenceCodes.Add(lc);
+            }
+            service.SaveLicenceCodes(finalLicenceCodes);
+        }
+    }
+
+    //Save Dependants----------------------------------------------------
+    private void SaveDependants()
+    {
+        service.DeleteDependants(EmployeeID);
+
+        if(EmployeeID == 0)
+        {
+            foreach(var item in dependantList)
+            {
+                Dependants dp = new Dependants
+                {
+                    Surname = item.Surname,
+                    Name = item.Name,
+                    Relationship = item.Relationship,
+                    Gender = item.Gender,
+                    DateOfBirth = item.DateOfBirth,
+                    EmployeeID = employee.EmployeeID
+                };
+                finalDependantList.Add(dp);
+
+            }
+            service.SaveDependants(finalDependantList);
+        }
+        else
+        {
+            foreach (var item in dependantList)
+            {
+                Dependants dp = new Dependants
+                    {
+                        Surname = item.Surname,
+                        Name = item.Name,
+                        Relationship = item.Relationship,
+                        Gender = item.Gender,
+                        DateOfBirth = item.DateOfBirth,
+                        EmployeeID = EmployeeID
+                    };
+                finalDependantList.Add(dp);
+            }
+            service.SaveDependants(finalDependantList);
+        }
+
+    }
+
+    //Save Beneficiaries-------------------------------------------------
+    private void SaveBeneficiaries()
+    {
+        service.DeleteBeneficiaries(EmployeeID);
+
+        if(EmployeeID == 0)
+        {
+            foreach(var item in beneficiariesList)
+            {
+                Beneficiaries ben = new Beneficiaries
+                    {
+                        EmployeeID = employee.EmployeeID,
+                        FullName = item.FullName,
+                        Relationship = item.Relationship,
+                        IDNumber = item.IDNumber,
+                        PercentageOfBenefit = item.PercentageOfBenefit,
+                        DateOfBirth = item.DateOfBirth
+                    };
+                finalBeneficiariesList.Add(ben);
+
+            }
+            service.SaveBeneficiaries(finalBeneficiariesList);
+        }
+        else
+        {
+            foreach (var item in beneficiariesList)
+            {
+                Beneficiaries ben = new Beneficiaries
+                    {
+                        EmployeeID = EmployeeID,
+                        FullName = item.FullName,
+                        Relationship = item.Relationship,
+                        IDNumber = item.IDNumber,
+                        PercentageOfBenefit = item.PercentageOfBenefit,
+                        DateOfBirth = item.DateOfBirth
+                    };
+                finalBeneficiariesList.Add(ben);
+            }
+
+            service.SaveBeneficiaries(finalBeneficiariesList);
+        }
+
+    }
+
+    //Save Previous Employment-------------------------------------------
+    private void SaveEmployment()
+    {
+        service.DeletePreviousEmployment(EmployeeID);
+
+        if(EmployeeID == 0)
+        {
+            foreach(var item in employmentsList)
+            {
+                PreviousEmployment pe = new PreviousEmployment
+                {
+                    EmployeeID = employee.EmployeeID,
+                    Employer = item.Employer,
+                    DateStart = item.DateStart,
+                    DateEnd = item.DateEnd,
+                    JobTitle = item.JobTitle,
+                    Salary = item.Salary,
+                    ReasonLeaving = item.ReasonLeaving
+                };
+                finalEmploymentList.Add(pe);
+
+            }
+            service.SavePreviousEmployment(finalEmploymentList);
+        }
+        else
+        {
+            foreach(var item in employmentsList)
+            {
+                PreviousEmployment pe = new PreviousEmployment
+                    {
+                        EmployeeID = EmployeeID,
+                        Employer = item.Employer,
+                        DateStart = item.DateStart,
+                        DateEnd = item.DateEnd,
+                        JobTitle = item.JobTitle,
+                        Salary = item.Salary,
+                        ReasonLeaving = item.ReasonLeaving
+                    };
+                finalEmploymentList.Add(pe);
+            }
+
+            service.SavePreviousEmployment(finalEmploymentList);
+        }
+
+    }
+
+    //Save Educational History-------------------------------------------
+    private void SaveEducation()
+    {
+        service.DeleteEducationalHistory(EmployeeID);
+
+        if(EmployeeID == 0)
+        {
+            foreach(var item in educationalHistoriesList)
+            {
+                EducationalHistory eh = new EducationalHistory
+                {
+                    EmployeeID = employee.EmployeeID,
+                    PlaceOfStudy = item.PlaceOfStudy,
+                    StartDate = item.StartDate,
+                    EndDate = item.EndDate,
+                    Subjects = item.Subjects,
+                    Qualification = item.Qualification
+                };
+                finalEducationalHistoryList.Add(eh);
+            }
+            service.SaveEducationalHistory(finalEducationalHistoryList);
+        }
+        else
+        {
+            foreach(var item in educationalHistoriesList)
+            {
+                EducationalHistory eh = new EducationalHistory
+                    {
+                        EmployeeID = EmployeeID,
+                        PlaceOfStudy = item.PlaceOfStudy,
+                        StartDate = item.StartDate,
+                        EndDate = item.EndDate,
+                        Subjects = item.Subjects,
+                        Qualification = item.Qualification
+                    };
+                finalEducationalHistoryList.Add(eh);
+            }
+
+            service.SaveEducationalHistory(finalEducationalHistoryList);
+        }
+
+    }
+
+
+    //Delete row grids----------------------------------------------------
+    private void DeleteRowBeneficiaries(Beneficiaries value)
+    {
+        beneficiariesList.Remove(value);
+        StateHasChanged();
+
+    }
+    private void DeleteRowDependants(Dependants value)
+    {
+        dependantList.Remove(value);
+        StateHasChanged();
+    }
+    private void DeleteRowLanguage(LanguageProficiency value)
+    {
+        languagesList.Remove(value);
+        StateHasChanged();
+    }
+    private void DeleteRowEmployment(PreviousEmployment value)
+    {
+        employmentsList.Remove(value);
+        StateHasChanged();
+    }
+    private void DeleteRowEducation(EducationalHistory value)
+    {
+        educationalHistoriesList.Remove(value);
+        StateHasChanged();
+    }
+    private void DeleteRowDrivingCode(LicenceCodes value)
+    {
+        licenceCodes.Remove(value);
+        StateHasChanged();
+    }
+
+    //Modals-------------------------------------------------------------
+    private Blazorise.Modal modalBack = new();
+    private Blazorise.Modal modalSubmit = new();
+    private Blazorise.Modal modalPOPI = new();
+    private Blazorise.Modal modalCodeOfEthics = new();
+    private Blazorise.Modal modalAnnualDeclaration = new();
+    private Blazorise.Modal modalSign = new();
+    private Blazorise.Modal modalConfidentiality = new();
+    private Blazorise.Modal modalOathOfSecrecy = new();
+    private Blazorise.Modal modalCommunicationSystems = new();
+    private Blazorise.Modal modalDisabilityDeclaration = new();
+
+    private bool cancelClose;
+
+    private Task ShowConfidentialityModal()
+    {
+        CloseOathModal();
+        return modalConfidentiality.Show();
+    }
+    private Task CloseConfidentialityModal()
+    {
+        cancelClose = false;
+        return modalConfidentiality.Hide();
+    }
+    private Task ShowOathModal()
+    {
+        CloseADModal();
+        return modalOathOfSecrecy.Show();
+    }
+    private Task CloseOathModal()
+    {
+        cancelClose = false;
+        return modalOathOfSecrecy.Hide();
+    }
+    private Task ShowCommunicationModal()
+    {
+        CloseConfidentialityModal();       
+        return modalCommunicationSystems.Show();     
+    }
+    private Task CloseCommunicationModal()
+    {
+        cancelClose = false;
+        return modalCommunicationSystems.Hide();
+    }
+    private Task ShowDisabilityModal()
+    {
+        CloseCommunicationModal();
+        if(employee.Disabilities != null)
+        {
+            return modalDisabilityDeclaration.Show();
+        }
+        else
+        {
+            return modalPOPI.Show();
+        }
+
+    }
+    private Task CloseDisabilityModal()
+    {
+        cancelClose = false;
+        return modalDisabilityDeclaration.Hide();
+    }
+
+    private Task ShowSignModal()
+    {
+        ClosePOPIModal();
+        return modalSign.Show();
+    }
+    private Task CloseSignModal()
+    {
+        //cancelClose = false;
+        return modalSign.Hide();
+    }
+    private Task ShowCoCModal()
+    {
+        CloseSubmitModal();
+        if(employee.AnnualDeclarationSignature == 1 && employee.OtherDocsSignature == 1)
+        {
+            return modalPOPI.Show();
+        }
+        else
+        {
+            return modalCodeOfEthics.Show();
+        }        
+    }
+    private Task CloseCoCModal()
+    {
+        cancelClose = false;
+        return modalCodeOfEthics.Hide();
+    }
+    private Task ShowADModal()
+    {
+        CloseCoCModal();
+        return modalAnnualDeclaration.Show();
+    }
+    private Task CloseADModal()
+    {
+        cancelClose = false;
+        return modalAnnualDeclaration.Hide();
+    }
+    private Task ShowBackModal()
+    {
+        return modalBack.Show();
+    }
+
+    private Task CloseBackModal()
+    {
+        cancelClose = false;
+
+        return modalBack.Hide();
+    }
+
+    private Task ShowPOPIModal()
+    {
+        CloseConfidentialityModal();
+        CloseCommunicationModal();
+        return modalPOPI.Show();
+    }
+    private Task ClosePOPIModal()
+    {
+        cancelClose = false;
+        return modalPOPI.Hide();
+    }
+
+    private Task ShowSubmitModal()
+    {
+        return modalSubmit.Show();
+    }
+
+    private Task CloseSubmitModal()
+    {
+        return modalSubmit.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return ErrorModal.Show();
+    }
+
+    private Task CloseErrorModal()
+    {
+        cancelClose = false;
+
+        return ErrorModal.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //File handling for different documents------------------------------------------------
+    private long maxFileSize = 1024 * 1024 * 5; //represents 5MB
+    private int maxAllowedFiles = 1;
+    private IBrowserFile? fileID;
+    private string? relativePathID;
+
+    private async Task HandleFileIDSelected(InputFileChangeEventArgs e)
+    {
+        fileID = e.File;
+        relativePathID = await captureFileID(employee.EmployeeID);
+
+    }
+
+    private async Task<string> captureFileID(int id)
+    {
+        if (fileID is null || fileID.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            string relativePath = string.Empty;
+
+            string originalFileName = Path.GetFileName(fileID.Name);
+
+            string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\IDCopy\\{originalFileName}";
+            string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\IDCopy";
+
+            relativePath = Path.Combine($"{id}", originalFileName);
+
+            if (Directory.Exists(ftpdirectory))
+            {
+                using(FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileID.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(ftpdirectory);
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileID.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+
+            filenameID = originalFileName;
+            return relativePath;
+
+
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    private IBrowserFile? fileDrivers;
+    private string? relativePathDrivers = string.Empty;
+
+    private async Task HandleFileDriversSelected(InputFileChangeEventArgs e)
+    {
+        fileDrivers = e.File;
+        relativePathDrivers = await captureFileDrivers(employee.EmployeeID);
+    }
+
+    private async Task<string> captureFileDrivers(int id)
+    {
+        if (fileDrivers is null || fileDrivers.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            string? relativePath;
+
+            string originalFileName = Path.GetFileName(fileDrivers.Name);
+
+            string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\DriversLicence\\{originalFileName}";
+            string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\DriversLicence";
+
+            relativePath = Path.Combine($"{id}", originalFileName);
+
+            if (Directory.Exists(ftpdirectory))
+            {
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileDrivers.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(ftpdirectory);
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileDrivers.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+
+            filenameDrivers = originalFileName;
+            return relativePath;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    private IBrowserFile? fileStatements;
+    private string? relativePathStatements = string.Empty;
+    private string? filenameStatements = string.Empty;
+
+    private async Task HandleFileStatementsSelected(InputFileChangeEventArgs e)
+    {
+        fileStatements = e.File;
+        relativePathStatements = await captureFileStatements(employee.EmployeeID);
+    }
+
+    private async Task<string> captureFileStatements(int id)
+    {
+        if (fileStatements is null || fileStatements.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            string? relativePath;
+
+            string originalFileName = Path.GetFileName(fileStatements.Name);
+
+            string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\BankingInfo\\{originalFileName}";
+            string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\BankingInfo";
+
+            relativePath = Path.Combine($"{id}", originalFileName);
+
+            if (Directory.Exists(ftpdirectory))
+            {
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileStatements.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(ftpdirectory);
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileStatements.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+
+            filenameStatements = originalFileName;
+            return relativePath;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    private IBrowserFile? fileContract;
+    private string? relativePathContract = string.Empty;
+    private string? filenameContract = string.Empty;
+
+    private async Task HandleFileContractSelected(InputFileChangeEventArgs e)
+    {
+        fileContract = e.File;
+        relativePathContract = await captureFileContract(employee.EmployeeID);
+    }
+
+    private async Task<string> captureFileContract(int id)
+    {
+        if (fileContract is null || fileContract.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            string? relativePath;
+
+            string originalFileName = Path.GetFileName(fileContract.Name);
+
+            string path = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\Contract\\{originalFileName}";
+            string ftpdirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{id}\\Contract";
+
+            relativePath = Path.Combine($"{id}", originalFileName);
+
+            if (Directory.Exists(ftpdirectory))
+            {
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileContract.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(ftpdirectory);
+                using (FileStream fs = new(path, FileMode.Create))
+                {
+                    await fileContract.OpenReadStream(maxFileSize).CopyToAsync(fs);
+                }
+            }
+
+            filenameContract = originalFileName;
+            return relativePath;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    //Scroll button for page---------------------------------------------------
+    private bool scrollToTop = true;
+
+    private void ToggleScroll()
+    {
+        scrollToTop = !scrollToTop;
+        JSRuntime.InvokeVoidAsync("scrollToTopOrBottom", scrollToTop);
+    }
+
+    #region update directory?
+    private string? filenameID;
+    private string? filenameDrivers;
+
+    private void UpdateFileDirectoryPaths(int id)
+    {
+        string userDirectory = Path.Combine(
+               config.GetValue<string>("EmployeeIDStorage")!, $"{employee.EmployeeID + "-" + employee.FullName}");
+
+        string hrDirectory = Path.Combine(
+            config.GetValue<string>("EmployeeIDStorage")!, $"{id}");
+
+        try
+        {
+            if (!Directory.Exists(hrDirectory))
+            {
+                Directory.CreateDirectory(hrDirectory);
+            }
+
+
+            if (Directory.Exists(userDirectory))
+            {
+                foreach (string file in Directory.GetFiles(userDirectory))
+                {
+                    string fileName = Path.GetFileName(file);
+                    string newPath = Path.Combine(hrDirectory, fileName);
+                    File.Move(file, newPath);
+                }
+
+                Directory.Delete(userDirectory);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle any errors that may occur during the update
+            // You can log or throw an exception as needed
+        }
+    }
+    #endregion
+
+
+    //Save POPI document to Server----------------------------------------------------------------------
+
+    string localPath = "C:\\\\YODA";
+    string newPath = "C:\\\\YODA\\popidoc.docx";
+    string template = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\PopiTemplate.docx";
+
+    public void PopulateWordTemplatePopi(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(template, newPath);
+        }
+
+        using(WordprocessingDocument doc = WordprocessingDocument.Open(newPath, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualData(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+
+        }
+    }
+
+    private async Task RunTemplatePopi()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments\\POPIDoc.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplatePopi(template);
+
+
+        File.Copy(newPath, ftpLocation);
+
+        if (File.Exists(newPath))
+        {
+            File.Delete(newPath);
+        }
+    }
+
+    //Save Code of Conduct document to Server----------------------------------------------------------------------
+
+    string newPathCoC = "C:\\\\YODA\\cocdoc.docx";
+    string templateCoC = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\CodeOfEthicsBusinessConduct.docx";
+
+    public void PopulateWordTemplateCoC(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(templateCoC, newPathCoC);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPathCoC, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualData(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+
+        }
+    }
+
+    private async Task RunTemplateCoC()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments\\CodeOfConduct.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplateCoC(templateCoC);
+
+
+        File.Copy(newPathCoC, ftpLocation);
+
+        if (File.Exists(newPathCoC))
+        {
+            File.Delete(newPathCoC);
+        }
+    }
+
+    //Save Annual Declaration document to Server-------------------------------------------------------------------
+
+    string newPathAnnualDeclaration = "C:\\\\YODA\\annualdoc.docx";
+    string templateAnnualDeclaration = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\EmployeeAnnualDeclaration.docx";
+
+    public void PopulateWordTemplateAnnualDeclaration(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(templateAnnualDeclaration, newPathAnnualDeclaration);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPathAnnualDeclaration, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualData(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+
+        }
+    }
+
+    private async Task RunTemplateAnnualDeclaration()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments\\AnnualDeclaration.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplateAnnualDeclaration(templateAnnualDeclaration);
+
+
+        File.Copy(newPathAnnualDeclaration, ftpLocation);
+
+        if (File.Exists(newPathAnnualDeclaration))
+        {
+            File.Delete(newPathAnnualDeclaration);
+        }
+    }
+
+    private void ReplaceTextWithActualData(Body body)
+    {
+        foreach(var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+        {
+            if (text.Text.Contains("empdetails"))
+            {
+                text.Text = text.Text.Replace("empdetails", employee.FullName);
+            }
+            if (text.Text.Contains("empnumber"))
+            {
+                text.Text = text.Text.Replace("empnumber", employee.EmployeeNumber);
+            }
+            if (text.Text.Contains("signdate"))
+            {
+                text.Text = text.Text.Replace("signdate", employee.POPISignDate.ToString());
+            }
+
+        }
+    }
+
+    private void ReplaceTextWithActualDataOath(Body body)
+    {
+        foreach (var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+        {
+            if (text.Text.Contains("empdetails"))
+            {
+                text.Text = text.Text.Replace("empdetails", employee.FullName);
+            }
+            if (text.Text.Contains("empnumber"))
+            {
+                text.Text = text.Text.Replace("empnumber", employee.EmployeeNumber);
+            }
+            if (text.Text.Contains("signdate"))
+            {
+                text.Text = text.Text.Replace("signdate", employee.POPISignDate.ToString());
+            }
+            if (text.Text.Contains("empidnumber"))
+            {
+                text.Text = text.Text.Replace("empidnumber", employee.IDNumber.ToString());
+            }
+            if (text.Text.Contains("emprolename"))
+            {
+                text.Text = text.Text.Replace("emprolename", employee.RoleName);
+            }
+
+        }
+    }
+
+    private void ReplaceTextWithActualDataDisability(Body body)
+    {
+        foreach (var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+        {
+            if (text.Text.Contains("empdetails"))
+            {
+                text.Text = text.Text.Replace("empdetails", employee.FullName);
+            }
+            if (text.Text.Contains("empnumber"))
+            {
+                text.Text = text.Text.Replace("empnumber", employee.EmployeeNumber);
+            }
+            if (text.Text.Contains("signdate"))
+            {
+                text.Text = text.Text.Replace("signdate", employee.POPISignDate.ToString());
+            }
+            if (text.Text.Contains("empgender"))
+            {
+                text.Text = text.Text.Replace("empgender", employee.GenderName);
+            }
+            if (text.Text.Contains("emprace"))
+            {
+                text.Text = text.Text.Replace("emprace", employee.RaceName);
+            }
+            if (text.Text.Contains("empdisability"))
+            {
+                text.Text = text.Text.Replace("empdisability", employee.Disabilities);
+            }
+
+        }
+    }
+
+    //Oath of Secrecy
+    string newPathOath = "C:\\\\YODA\\OathOfSecrecy.docx";
+    string templateOath = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\SecrecyOath.docx";
+
+    public void PopulateWordTemplateOath(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(templateOath, newPathOath);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPathOath, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualDataOath(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+
+        }
+    }
+
+    private async Task RunTemplateOath()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments\\OathOfSecrecy.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplateOath(templateOath);
+
+
+        File.Copy(newPathOath, ftpLocation);
+
+        if (File.Exists(newPathOath))
+        {
+            File.Delete(newPathOath);
+        }
+    }
+
+    //Confidentiality Agreement
+    string newPathConfidentiality = "C:\\\\YODA\\ConfidentialityAgreement.docx";
+    string templateConfidentiality = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\ConfidentialityAgreementYork.docx";
+
+    public void PopulateWordTemplateConfidentiality(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(templateConfidentiality, newPathConfidentiality);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPathConfidentiality, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualData(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+
+        }
+    }
+
+    private async Task RunTemplateConfidentiality()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments\\ConfidentialityAgreement.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplateConfidentiality(templateConfidentiality);
+
+
+        File.Copy(newPathConfidentiality, ftpLocation);
+
+        if (File.Exists(newPathConfidentiality))
+        {
+            File.Delete(newPathConfidentiality);
+        }
+    }
+
+    //CommunicationSystems
+    string newPathCommunicationSystems = "C:\\\\YODA\\CommunicationSystems.docx";
+    string templateCommunicationSystems = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\ITCommunicationSystems.docx";
+
+    public void PopulateWordTemplateCommunicationSystems(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(templateCommunicationSystems, newPathCommunicationSystems);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPathCommunicationSystems, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualData(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+
+        }
+    }
+
+    private async Task RunTemplateCommunicationSystems()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments\\CommunicationSystems.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplateCommunicationSystems(templateCommunicationSystems);
+
+
+        File.Copy(newPathCommunicationSystems, ftpLocation);
+
+        if (File.Exists(newPathCommunicationSystems))
+        {
+            File.Delete(newPathCommunicationSystems);
+        }
+    }
+
+    //CommunicationSystems
+    string newPathDisability = "C:\\\\YODA\\DisabilityDoc.docx";
+    string templateDisability = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\DisabilityDeclaration.docx";
+
+    public void PopulateWordTemplateDisability(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(templateDisability, newPathDisability);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPathDisability, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualDataDisability(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+
+        }
+    }
+
+    private async Task RunTemplateDisability()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments\\DisabilityDeclaration.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{shareddataService.EmployeeID}\\SignDocuments";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplateDisability(templateDisability);
+
+
+        File.Copy(newPathDisability, ftpLocation);
+
+        if (File.Exists(newPathDisability))
+        {
+            File.Delete(newPathDisability);
+        }
+    }
+}

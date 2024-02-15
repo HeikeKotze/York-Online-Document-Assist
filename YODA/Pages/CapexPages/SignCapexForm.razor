@@ -1,0 +1,1542 @@
+﻿@page "/SignCapexForm"
+
+@inject NavigationManager navManager
+@using YODA.Repos.Models
+@using YODA.Services
+@using YODA.Pages.CapexComponents
+@inject ICapexFormService service
+@inject IKPIService kpiService
+@inject IRiskService riskService
+@inject IAttachmentService attachmentService
+@inject ISignatoryService signatoryService
+@inject IAttachmentService attachmentService
+@inject ISignatoryService signatoryService
+@inject ICommentService commentService
+@inject IEmailService emailservice
+@inject IEmployeeService empservice
+@inject ICapexUserService cuservice
+@inject SharedDataService shareddataService
+@inject IJSRuntime JSRuntime
+
+
+<button id="btnBack" class="avatar-btn" @onclick="ToggleScroll" style="position: fixed; z-index:2; background-color:#222222; color: white"><span class="oi oi-elevator small"></span></button>
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="TopBackButtonClick" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <button id="btnSaveExit" class="btn btn-dark" style="width:90px; float:right;  padding:5px; margin-top:3px; height:40px" @onclick="ShowCommentModal">Comment</button>
+            </div>
+        </div>
+    </div>
+
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Sign Capex Form</h1>
+        <br />
+    </center>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Main Information</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong><label for="capexTitle">Capex Title</label></Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.CapexTitle
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                    <label for="projectNumber">Project Number</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.ProjectNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                    <label for="capexTitle">Initiator</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.Initiator
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                    <label for="projectNumber">Project Manager</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.ProjectManager
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Form Allocation</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                    <label for="capexTitle">Company</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @company
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                    <label for="capexTitle">Site</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @site
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                    <label for="capexTitle">Location Cost Code</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @llc
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <Strong>
+                    <label for="capexTitle">Balance Sheet Code</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @bsc
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <Strong>
+                    <label for="capexTitle">Department</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @dept
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Identification</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                    <label for="capexTitle">Asset Category</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @ac
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <Strong>
+                    <label for="capexTitle">Project Category</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @pc
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                    <label for="startup">Project Startup Date</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @capex.ProjectStartupDate
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                    <label for="projectNumber">Total Cost</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.TotalCost
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg">
+                <Strong>
+                    <label for="startup">Short Description</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.ShortDescription))
+                    {
+                        <div>@(new MarkupString(capex.ShortDescription))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Financials</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                    <label for="startup">Amount This Request</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.AmountThisRequest
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                    <label for="projectNumber">Previously Authorized</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.PreviouslyAuthorized
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <Strong>
+                    <label for="startup">Amount In Budget</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.AmountInBudget
+                </div>
+            </div>
+            <div class="col-sm">
+                <Strong>
+                    <label for="projectNumber">Write Off Amount</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    R  @capex.WriteOffAmount
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Amount Including and Motivation</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg">
+                <Strong>
+                    <label for="startup">Amount Includes</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.AmountIncludes))
+                    {
+                        <div>@(new MarkupString(capex.AmountIncludes))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-lg">
+                <Strong>
+                    <label for="projectNumber">Motivation</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.Motivation))
+                    {
+                        <div>@(new MarkupString(capex.Motivation))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Scope</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg">
+                <Strong>
+                    <label for="startup">Project Scope</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.ProjectScope))
+                    {
+                        <div>@(new MarkupString(capex.ProjectScope))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-lg">
+                <Strong>
+                    <label for="projectNumber">Out of Scope</label>
+                </Strong>
+                <div class="alert alert-success" role="alert">
+                    @if (!string.IsNullOrWhiteSpace(capex.OutOfScope))
+                    {
+                        <div>@(new MarkupString(capex.OutOfScope))</div>
+                    }
+                    else
+                    {
+                        <p>No content available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <!--..................KPI..........................-->
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Key Measurements of Success</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (kpilist != null && kpilist.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>KPI Type</th>
+                                <th>KPI Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in kpilist)
+                            {
+                                <tr>
+                                    <td>@list.Kpiname</td>
+                                    <td>@list.KpiDescription</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no KPI's for this Capex Form...</em></p>
+                }
+
+            </WhiteContainer>
+        </div>       
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <!--..................Risks..........................-->
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Risks</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (risksList != null && risksList.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Risk Description</th>
+                                <th>Impact On</th>
+                                <th>Consequence Class</th>
+                                <th>Likelihood Class</th>
+                                <th>Mitigating Strategy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in risksList)
+                            {
+                                <tr>
+                                    <td>@list.RiskDescription</td>
+                                    <td>@list.ImpactOn</td>
+                                    <td>@list.ConsequenceClassification</td>
+                                    <td>@list.LikelihoodClassification</td>
+                                    <td>@list.MitigatingStrategy</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no Risks for this Capex Form...</em></p>
+                }
+            </WhiteContainer>
+        </div>
+        
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <!--..................Attachments..........................-->
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Attachments</strong></h4>
+            </div>
+        </div>
+        <div class="row">
+        </div>
+    </div>
+
+    <br />
+
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (attachmentList != null && attachmentList.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Attachment Type</th>
+                                <th>File</th>
+                                <th>View</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in attachmentList)
+                            {
+                                <tr>
+                                    <td>@list.AttachmentName</td>
+                                    <td>@list.File</td>
+                                    @* <td><a href="@list.Path" download="@list.File" class="btn btn-dark" style="height:30px; font-size:12px; padding:5px">Download</a></td> *@
+                                    <td><button class="btn btn-dark" style="height:30px; font-size:12px; padding:5px" @onclick="()=>DownloadFile(list.Path,list.File)">Download</button></td>
+                                    @* <td><button id="btnViewSearch" type="button" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">View</button></td> *@
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no Attachments for this Capex Form...</em></p>
+                }
+
+            </WhiteContainer>
+        </div>       
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <!--..................Signatories..........................-->
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-8">
+                <h4><strong>Signatories</strong></h4>
+            </div>
+            <div class="col-4">
+                <div class="alert alert-success">
+                    @if (capex.PaymentDate != null)
+                    {
+                        <strong>Current Release Date: @capex.PaymentDate.Value.ToString("yyyy-MM-dd")</strong>
+                    }
+                    else
+                    {
+                        <Strong>No Release Date</Strong>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row">
+        </div>
+    </div>
+
+    <br />
+
+    <div Class="container">
+        <div class="alert alert-success">
+            <WhiteContainer>
+                @if (sigList != null && sigList.Any())
+                {
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Signatory</th>
+                                <th>Role</th>
+                                <th>Date Signed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in sigList)
+                            {
+                                <tr>
+                                    <td>@list.FullName</td>
+                                    <td>@list.RoleName</td>
+                                    <td>@list.SignDateString</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p><em>There are no Signatories for this Capex Form...</em></p>
+                }
+            </WhiteContainer>
+        </div>
+        
+    </div>
+
+    <br />
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-5">
+                <button class="btn btn-dark" @onclick="ShowSendCommentsModal" style="width: 200px" id="btnBack">Send Comments</button>
+            </div>
+            <div class="col-7 d-flex justify-content-end">
+                <!-- "Sign," "On Hold," and "Decline" buttons with right alignment -->
+                <button type="button" @onclick="ShowSignModal" class="btn btn-dark" style="margin-right: 20px; width: 90px">Sign</button>
+                <button type="button" @onclick="ShowOnHoldModal" class="btn btn-dark" style="margin-right: 20px; width: 90px">On Hold</button>
+                <button type="button" @onclick="ShowDeclineModal" class="btn btn-dark" style="width: 90px">Decline</button>
+            </div>
+        </div>
+    </div>
+
+
+    <Blazorise.Modal @ref="DeclineModal" Closing="@OnModalClosing">
+        <Blazorise.ModalContent Centered >
+            <ModalHeader>
+                <ModalTitle>Decline Capex Form</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                <div class="alert alert-success" role="alert">
+                    Are you sure you want to Decline this Capex Form?
+                </div>
+                <br />
+                <Div>
+                    <p>Please provide a reason.</p>
+                </Div>
+                <RichTextEdit @ref="richTextEditSD"
+                              Theme="RichTextEditTheme.Snow"
+                              ContentChanged="@OnSDChanged"
+                              PlaceHolder="Provide a reason..."
+                              ReadOnly="false"
+                              SubmitOnEnter="false"
+                              ToolbarPosition="Placement.Top">
+                                <Toolbar>
+                                    <RichTextEditToolbarGroup>
+                                        <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                        <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                                        <RichTextEditToolbarSelect Action="RichTextEditAction.Size">
+                                            <RichTextEditToolbarSelectItem Value="small" />
+                                            <RichTextEditToolbarSelectItem Selected />
+                                             <RichTextEditToolbarSelectItem Value="large" />
+                                             <RichTextEditToolbarSelectItem Value="huge">Very Big</RichTextEditToolbarSelectItem>
+                                         </RichTextEditToolbarSelect>
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                                     </RichTextEditToolbarGroup>
+                                 </Toolbar>
+                 </RichTextEdit>
+                 <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                     <div class="container" style="max-width:40%">
+                         <div class="row">
+                             <button class="btn btn-dark" @onclick="declineClick" >Decline</button>
+                         </div>
+                     </div>
+                 </div>
+            </ModalBody>
+            <ModalFooter>
+                 <button @onclick="CloseDeclineModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+            </ModalFooter>
+        </Blazorise.ModalContent>
+    </Blazorise.Modal>
+
+     <Blazorise.Modal @ref="OnHoldModal" Closing="@OnModalClosing">
+         <Blazorise.ModalContent Centered >
+            <ModalHeader>
+                <ModalTitle>Put Capex Form On Hold</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                <div class="alert alert-success" role="alert">
+                    Are you sure you want to put this Capex Form On Hold?
+                </div>
+                <br />
+                <Div>
+                    <p>Please provide a reason.</p>
+                </Div>
+                <RichTextEdit @ref="richTextEditOnHold"
+                              Theme="RichTextEditTheme.Snow"
+                              ContentChanged="@OnOnHoldChanged"
+                              PlaceHolder="Provide a reason..."
+                              ReadOnly="false"
+                              SubmitOnEnter="false"
+                              ToolbarPosition="Placement.Top">
+                                <Toolbar>
+                                    <RichTextEditToolbarGroup>
+                                        <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                        <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                                        <RichTextEditToolbarSelect Action="RichTextEditAction.Size">
+                                            <RichTextEditToolbarSelectItem Value="small" />
+                                            <RichTextEditToolbarSelectItem Selected />
+                                             <RichTextEditToolbarSelectItem Value="large" />
+                                             <RichTextEditToolbarSelectItem Value="huge">Very Big</RichTextEditToolbarSelectItem>
+                                         </RichTextEditToolbarSelect>
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                                     </RichTextEditToolbarGroup>
+                                 </Toolbar>
+                 </RichTextEdit>
+                 <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                     <div class="container" style="max-width:40%">
+                         <div class="row">
+                             <button @onclick="onHoldClick" class="btn btn-dark">On Hold</button>
+                         </div>
+                     </div>
+                 </div>
+            </ModalBody>
+            <ModalFooter>
+                 <button @onclick="CloseOnHoldModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+            </ModalFooter>
+        </Blazorise.ModalContent>
+    </Blazorise.Modal>
+
+    <Blazorise.Modal @ref="SignModal" Closing="@OnModalClosing">
+         <Blazorise.ModalContent Centered >
+            <ModalHeader>
+                <ModalTitle>Sign Capex Form</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                <div class="alert alert-success" role="alert">
+                    Are you sure you want to Sign this Capex Form?
+                </div>
+                <br />
+                <Blazorise.Field>
+                    <FieldLabel>UserName</FieldLabel>
+                    <input type="text"  @bind-value="username" class="form-control" />
+                </Blazorise.Field>
+                <br />
+                <Blazorise.Field>
+                    <FieldLabel>Password</FieldLabel>
+                    <input type="password"  @bind-value="password" class="form-control" />
+                </Blazorise.Field>
+                <br />
+                 <Div>
+                     <p>Please provide a reason.</p>
+                 </Div>
+                 <br />
+                 <RichTextEdit @ref="richTextEditInstructions"
+                               Theme="RichTextEditTheme.Snow"
+                               ContentChanged="@OnInstructionsChanged"
+                               PlaceHolder="Provide a reason..."
+                               ReadOnly="false"
+                               SubmitOnEnter="false"
+                               ToolbarPosition="Placement.Top">
+                                 <Toolbar>
+                                     <RichTextEditToolbarGroup>
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                                         <RichTextEditToolbarSelect Action="RichTextEditAction.Size">
+                                             <RichTextEditToolbarSelectItem Value="small" />
+                                             <RichTextEditToolbarSelectItem Selected />
+                                             <RichTextEditToolbarSelectItem Value="large" />
+                                             <RichTextEditToolbarSelectItem Value="huge">Very Big</RichTextEditToolbarSelectItem>
+                                         </RichTextEditToolbarSelect>
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                         <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                                     </RichTextEditToolbarGroup>
+                                 </Toolbar>
+                 </RichTextEdit>
+                 <br />
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-success">
+                                <Label>Current Capex Release Date is: @capex.PaymentDate.Value.ToString("yyyy-MM-dd")</Label>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="row">
+                             <div class="col-12">
+                                 <div class="alert alert-success">
+                                     <label>Provide the Capex Release allocation date if it differs from the current date.</label>
+                                     <input class="form-control" type="date" @bind-value="paymentdate" />
+                                 </div>
+                             </div>
+                         </div>
+                    </div>
+                    <br />
+                
+                @if (dateerror)
+                {
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-success">
+                                    @datemessage
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                     <div class="container" style="max-width:40%">
+                         <div class="row">
+                             <button @onclick="signformClick" class="btn btn-dark">Sign</button>
+                         </div>
+                     </div>
+                 </div>
+            </ModalBody>
+            <ModalFooter>
+                 <button @onclick="HideSignModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+            </ModalFooter>
+        </Blazorise.ModalContent>
+    </Blazorise.Modal>
+
+     <Blazorise.Modal @ref="CommentModal" Closing="@OnModalClosing">
+         <Blazorise.ModalContent Centered>
+             <ModalHeader>
+                 <ModalTitle>Add a Comment for this Capex Form</ModalTitle>
+             </ModalHeader>
+             <ModalBody>
+                 <div class="alert alert-success" role="alert" style="text-align:center">
+                     Choose the form area where you would like to leave a comment.
+                 </div>
+                 <br />
+                 <Blazorise.Field>
+                     <select id="dll" class="form-select" @onchange="handleSelection">
+                         <option>Select a Form area...</option>
+                         @foreach (var item in pageSectionsList)
+                        {
+                            <option>@item</option>
+                        }
+                    </select>
+                 </Blazorise.Field>
+                 <br />
+                 <Blazorise.Field>
+                     <label for="capexTitle">Comment</label>
+                     <InputText id="projectNumber" class="form-control" @bind-Value="newComment.Comments"></InputText>
+                 </Blazorise.Field>
+                 <br/>
+                 <Blazorise.Field>
+                     <button type="button" @onclick="AddComment" class="btn btn-dark" style="padding:5px; height:40px; width:60px">Add</button>
+                 </Blazorise.Field>
+                 <br />
+                 <Blazorise.Field>
+                     <div Class="container">
+                         @if (commentsList is null)
+                        {
+                            <p><em>No Comments yet...'</em></p>
+                        }
+                        else
+                        {
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Form Section</th>
+                                        <th>Consentee</th>
+                                        <th>Comment</th>
+                                        @* <th>Remove</th> *@
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var list in commentsList)
+                                    {
+                                        <tr>
+                                            <td>@list.FormSection</td>
+                                            <td>@list.Consentee</td>
+                                            <td>@list.Comments</td>
+                                            @* <td><button type="button" id="btnViewSearch" @onclick="()=>DeleteRowComments(list)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td> *@
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+
+                    </div>
+                 </Blazorise.Field>
+             </ModalBody>
+             <ModalFooter>
+                <button @onclick="CloseCommentModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+             </ModalFooter>
+         </Blazorise.ModalContent>
+     </Blazorise.Modal>
+
+    <Blazorise.Modal @ref="modalBack" Closing="@OnModalClosing">
+        <Blazorise.ModalContent Centered>
+            <ModalHeader>
+                <ModalTitle>Back To User Page</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                    <div>
+                        Are you sure you want to go back to the User Page?
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                Your comments will not be saved.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                    <div class="container" style="max-width:40%">
+                        <div class="row">
+                            <button @onclick="navToUserPage" class="btn btn-dark">Go To User Page</button>
+                        </div>
+                    </div>
+                </div>
+            </ModalBody>
+            <ModalFooter>
+                <button @onclick="CloseBackModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+            </ModalFooter>
+        </Blazorise.ModalContent>
+    </Blazorise.Modal>
+
+    <Blazorise.Modal @ref="modalSendComments" Closing="@OnModalClosing">
+        <Blazorise.ModalContent Centered>
+            <ModalHeader>
+                <ModalTitle>Save Comments</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                    <div>
+                        Are you sure you want to send the comments back to the initiator?
+                    </div>
+                </div>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                    <div class="container" style="max-width:40%">
+                        <div class="row">
+                            <button @onclick="sendCommentsClick" class="btn btn-dark">Send Comments</button>
+                        </div>
+                    </div>
+                </div>
+            </ModalBody>
+            <ModalFooter>
+                <button @onclick="CloseSendCommentsModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+            </ModalFooter>
+        </Blazorise.ModalContent>
+    </Blazorise.Modal>
+
+    <Blazorise.Modal @ref="errorModal" Closing="@OnModalClosing">
+        <Blazorise.ModalContent Centered>
+            <ModalHeader>
+                <ModalTitle>Error</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                    <div>
+                        The next signatory does not have an email address on the system. Please contact IT admin or send a reminder to the next signatory.
+                    </div>
+                </div>
+                <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                    <div class="container" style="max-width:40%">
+                        <div class="row">
+                            <button @onclick="navToUserPage" class="btn btn-dark">Back to User Page</button>
+                        </div>
+                    </div>
+                </div>
+            </ModalBody>
+            <ModalFooter>
+                <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+            </ModalFooter>
+        </Blazorise.ModalContent>
+    </Blazorise.Modal>
+
+
+</WhiteContainer>
+
+@code {
+    //Variables------------------------------------------------------------------
+    //variables for corresponding
+    public int id = 0;
+    public string? company = string.Empty;
+    public string? site = string.Empty;
+    public string? llc = string.Empty;
+    public string? bsc = string.Empty;
+    public string? ac = string.Empty;
+    public string? pc = string.Empty;
+    public string? date = string.Empty;
+    public string? dept = string.Empty;
+    public DateTime? setdate;
+
+    //username and password when signing
+    public string username = string.Empty;
+    public string password = string.Empty;
+
+    //lists and capex signatory variables
+    private CapexUser signatory = new CapexUser();
+    public List<Kpi> kpilist = new List<Kpi>();
+    public List<Risk> risksList = new List<Risk>();
+    public List<AttachmentType> attachmentList = new List<AttachmentType>();
+    public List<CapexUser> signatoriesList = new List<CapexUser>();
+    public List<Employee> sigList = new();
+    public List<FkKpicapex> finalKPIlist = new();
+    public List<FkAttachmentsCapex> finalAttachmentsList = new();
+    public List<FkSignatoriesCapex> finalSignatoriesList = new();
+    private List<string> pageSectionsList = new List<string>()
+    {
+        "Main Information",
+        "Office Use",
+        "Identification",
+        "Financials",
+        "Amount Incl. & Motivation",
+        "Scope",
+        "KPI's",
+        "Risks",
+        "Attachments",
+        "Signatories"
+    };
+
+    //Comments list to add to capex
+    public List<YODA.Repos.Models.Comment> commentsList = new List<YODA.Repos.Models.Comment>();
+    public string? comment = string.Empty;
+    public string? user = string.Empty;
+    public Employee useremp = new();
+    private List<Employee> employees = new();
+
+    //capex form to view
+    private CapexForm capex = new();
+
+    //payment date
+    private DateTime paymentdate = DateTime.Now;
+    private bool dateerror = false;
+    private string datemessage = string.Empty;
+
+    //view payment date when cfo or ceo
+    private bool showpaymentdate = false;
+
+
+
+    //Initialization-------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        GetRecord();
+        GetKPIs();
+        GetRisks();
+        GetComments();
+        GetAttachments();
+        GetSignatories();
+        setLists();
+
+        employees = empservice.GetAll();
+
+        currentEmployee = empservice.GetSingleEmployee(shareddataService.UserName);
+        fromaddress = currentEmployee.EmailAddress;
+    }
+
+    //get record of capex form and populate the corresponding values--------------------
+    private void GetRecord()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            capex = service.FindCapexById(outint);
+        }
+
+        company = service.GetCorrespondingComanyName(capex.CompanyId);
+        site = service.GetCorrespondingSitename(capex.SiteId);
+        llc = service.GetCorrespondingLLCName(capex.LocationCostCodeId);
+        bsc = service.GetCorrespondingBSCName(capex.BalanceSheetCodeId);
+        ac = service.GetCorrespondingACName(capex.AssetCategoryId);
+        pc = service.GetCorrespondingPCName(capex.ProjectCategoryId);
+        dept = service.GetCorrespondingDeptName(capex.DepartmentID);
+        useremp = empservice.GetSingleEmployee(shareddataService.UserName);
+    }
+
+    //get kpi's for capex----------------------------------------------------------------
+    private void GetKPIs()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            finalKPIlist = kpiService.findKPIsByCapex(outint);
+        }
+
+    }
+    //get risks for capex----------------------------------------------------------------
+    private void GetRisks()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            risksList = riskService.findRisksByCapex(outint);
+        }
+    }
+    //get attachments for capex----------------------------------------------------------
+    private void GetAttachments()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            finalAttachmentsList = attachmentService.findAttachmentsByCapex(outint);
+        }
+    }
+    //get signatories for capex---------------------------------------------------------
+    private void GetSignatories()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            finalSignatoriesList = signatoryService.findSignatoriesByCapex(outint);
+        }
+    }
+
+    //Back button and navigation
+    private void TopBackButtonClick()
+    {
+        ShowBackModal();
+    }
+
+    //Button to scroll down and up--------------------------------------------
+    private bool scrollToTop = true;
+
+    private void ToggleScroll()
+    {
+        scrollToTop = !scrollToTop;
+        JSRuntime.InvokeVoidAsync("scrollToTopOrBottom", scrollToTop);
+    }
+
+    //Navigation------------------------------------------------------------------------
+    private void navToUserPage()
+    {
+        navManager.NavigateTo($"/CapexUserPage");
+    }
+
+
+    //set lists with corresponding values----------------------------------------------
+    private void setLists()
+    {
+        foreach (var item in finalKPIlist)
+        {
+            Kpi kpi = new Kpi
+                {
+                    Kpiname = kpiService.getKPItype(item.FkKcKpi),
+                    KpiDescription = item.FkKcDescription,
+                };
+            kpilist.Add(kpi);
+        }
+
+        foreach (var item in finalAttachmentsList)
+        {
+            AttachmentType attach = new AttachmentType
+                {
+                    AttachmentName = attachmentService.GetAttachmentName(item.FkAcAttachmentTypes),
+                    File = item.FkAcFile,
+                    Path = item.FkAcPath
+                };
+            attachmentList.Add(attach);
+        }
+
+        foreach (var item in finalSignatoriesList)
+        {
+            Employee emp = new Employee
+                {
+                    FullName = signatoryService.RetrieveEmpName(item.FkScSignatoryId),
+                    RoleName = signatoryService.GetRoleName(item.FkScSignatoryRoleId),
+                    SignDate = item.FkScSignatoryDate,
+
+        };
+            sigList.Add(emp);
+        }
+
+        foreach(var item in sigList)
+        {
+            if(item.SignDate == null)
+            {
+                item.SignDateString = "Not signed yet.";
+            }
+            else
+            {
+                item.SignDateString = item.SignDate.Value.ToString("yyyy-MM-dd");
+            }
+        }
+
+    }
+
+    //Get comments for capexform---------------------------------------------------
+    private void GetComments()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            commentsList = commentService.GetComments(outint);
+        }
+    }
+
+    //capex string id sent over convert to int------------------------------------
+    private int IDint;
+
+    private void capextoint()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            IDint = outint;
+        }
+    }
+
+    //Add comment-----------------------------------------------------------------
+    YODA.Repos.Models.Comment newComment = new YODA.Repos.Models.Comment();
+    void AddComment()
+    {
+        commentsList.Add(new YODA.Repos.Models.Comment
+             {
+                FormSection = selected,
+                 Consentee = useremp.FullName,
+                 Comments = newComment.Comments
+             });
+    }
+
+    //Selection of dropdown in blazorize modal-----------------------------------
+    private string? selected;
+
+    private void handleSelection(ChangeEventArgs e)
+    {
+        selected = e.Value.ToString();
+    }
+
+    //Modal instantiation-------------------------------------------------------
+    private Blazorise.Modal DeclineModal = new();
+    private Blazorise.Modal OnHoldModal = new();
+    private Blazorise.Modal SignModal = new();
+    private Blazorise.Modal CommentModal = new(); 
+    private Blazorise.Modal modalBack = new();
+    private Blazorise.Modal modalSendComments = new();
+    private Blazorise.Modal errorModal = new();
+
+    private bool cancelClose;
+
+    private Task ShowErrorModal()
+    {
+        return errorModal.Show();
+    }
+    private Task CloseErrorModal()
+    {
+        cancelClose = false;
+
+        return errorModal.Hide();
+    }
+
+    private Task ShowDeclineModal()
+    {
+        return DeclineModal.Show();
+    }
+
+    private Task CloseDeclineModal()
+    {
+        cancelClose = false;
+
+        return DeclineModal.Hide();
+    }
+
+    private Task ShowCommentModal()
+    {
+        return CommentModal.Show();
+    }
+
+    private Task CloseCommentModal()
+    {
+        cancelClose = false;
+
+        return CommentModal.Hide();
+    }
+
+    private Task ShowOnHoldModal()
+    {
+        return OnHoldModal.Show();
+    }
+
+    private Task CloseOnHoldModal()
+    {
+        cancelClose = false;
+
+        return OnHoldModal.Hide();
+    }
+
+    private Task ShowBackModal()
+    {
+        return modalBack.Show();
+    }
+
+    private Task CloseBackModal()
+    {
+        cancelClose = false;
+
+        return modalBack.Hide();
+    }
+
+    private Task ShowSendCommentsModal()
+    {
+        return modalSendComments.Show();
+    }
+
+    private Task CloseSendCommentsModal()
+    {
+        cancelClose = false;
+
+        return modalSendComments.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    private Task ShowSignModal()
+    {
+        if (shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).RoleID == 5 || shareddataService.accessLinkings.FirstOrDefault(x => x.ModuleID == 1).RoleID == 6 || shareddataService.UserID == 1)
+        {
+            showpaymentdate = true;
+        }
+        return SignModal.Show();
+    }
+
+    private Task HideSignModal()
+    {
+        return SignModal.Hide();
+    }
+
+
+    //get rich text edit values--------------------------------------------------------
+    protected RichTextEdit richTextEditSD = new();
+    protected RichTextEdit richTextEditOnHold = new();
+    protected RichTextEdit richTextEditInstructions = new();
+    protected string SDAsHtml = string.Empty;
+    protected string OnHoldAsHtml = string.Empty;
+    protected string InstructionsAsHtml = string.Empty;
+
+    public async Task OnSDChanged()
+    {
+        SDAsHtml = await richTextEditSD.GetHtmlAsync();
+    }
+
+    public async Task OnOnHoldChanged()
+    {
+        OnHoldAsHtml = await richTextEditOnHold.GetHtmlAsync();
+    }
+
+    public async Task OnInstructionsChanged()
+    {
+        InstructionsAsHtml = await richTextEditInstructions.GetHtmlAsync();
+    }
+
+    private void DeleteRowComments(YODA.Repos.Models.Comment value)
+    {
+        commentsList.Remove(value);
+        StateHasChanged();
+
+    }
+
+
+    //Sign form click----------------------------------------------------------------------------
+    public int c = 0;
+    public void signformClick()
+    {
+
+        signatory.UserName = username;
+        signatory.UserPassword = password;
+
+        if(int.TryParse(shareddataService.capexid, out int outint))
+        {
+            c = outint;
+        }
+
+        if (paymentdate < DateTime.Now)
+        {
+            dateerror = true;
+            datemessage = "Ensure that the selected payment date is not in the past.";
+            return;
+        }
+        //update payment date
+        if (paymentdate != DateTime.Now)
+        {
+            service.UpdateDateOfPaymentForCapex(c, paymentdate);
+        }
+        else
+        {
+            service.UpdateDateOfPaymentForCapex(c, DateTime.Now);
+        }
+
+        service.SignForm(c, username, password, InstructionsAsHtml, shareddataService.UserID);
+
+        CheckSigListForEmail();
+
+        HideSignModal();
+        //navToUserPage();
+    }
+
+    //on hold click-------------------------------------------------------------------
+    public void onHoldClick()
+    {
+        string message = $"Hi,\r\n\r\nThe following Capex has been put on Hold:\r\n\r\nCapex ID : {capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nPlease visit YODA for more information.\r\n\r\nRegards\r\nYork Online Document Assist";
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            c = outint;
+        }
+        service.PutFormOnHold(c, OnHoldAsHtml, shareddataService.UserID);
+        empnumber = signatoryService.RetrieveEmpNum(capex.Initiator);
+        formInitiator = empservice.GetSingleEmployee(empnumber);
+        emailservice.SendMail(formInitiator.EmailAddress, message, c);
+        navToUserPage();
+        // service.DeleteComments(c, commentsList);
+        // service.SaveComments(c, commentsList);
+    }
+
+    //decline click-------------------------------------------------------------------
+    public void declineClick()
+    {
+        string message = $"Hi,\r\n\r\nThe following Capex has been Declined:\r\n\r\nCapex ID : {capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nPlease visit YODA for more information.\r\n\r\nRegards\r\nYork Online Document Assist";
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            c = outint;
+        }
+        service.DeclineForm(c, SDAsHtml, shareddataService.UserID);
+        empnumber = signatoryService.RetrieveEmpNum(capex.Initiator);
+        formInitiator = empservice.GetSingleEmployee(empnumber);
+        emailservice.SendMail(formInitiator.EmailAddress, message, c);
+        // service.DeleteComments(c, commentsList);
+        // service.SaveComments(c, commentsList);
+        CloseOnHoldModal();
+        navToUserPage();
+    }
+
+    //send comments only click-------------------------------------------------------
+    public void sendCommentsClick()
+    {
+        if (int.TryParse(shareddataService.capexid, out int outint))
+        {
+            c = outint;
+        }
+        service.DeleteComments(c, commentsList);
+        service.SaveComments(c, commentsList);
+        navToUserPage();
+    }
+
+    Employee currentEmployee = new();
+    Employee nextEmployee = new();
+    Employee formInitiator = new();
+
+    CapexUser nextSign = new();
+    FkSignatoriesCapex test = new();
+    string fromaddress = string.Empty;
+    string toaddress = string.Empty;
+    string empnumber = string.Empty;
+    int currentindex = 0;
+    string name = string.Empty;
+
+
+    //Check signatories list for email-----------------------------------------------
+    private void CheckSigListForEmail()
+    {
+        string message = $"Hi,\r\n\r\nYou are on next in line of the signatory list for the following Capex Form:\r\n\r\nCapex ID : YRK_Capex_{capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nUse the following link to sign: http://www.yoda.york.co.za.\r\n\r\nRegards\r\nYork Online Document Assist";
+        string confirmmessage = $"Hi,\r\n\r\nYou just signed the following Capex Form:\r\n\r\nCapex ID : YRK_Capex_{capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nAn email has been sent to the next signatory.\r\n\r\nRegards\r\nYork Online Document Assist";
+        string completeemail = $"Hi,\r\n\r\nThe following Capex has been fully signed:\r\n\r\nCapex ID : YRK_Capex_{capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nRegards\r\nYork Online Document Assist";
+        string emailforprojectnumber = $"Hi,\r\n\r\nThe following Capex has been fully signed.\r\n\r\nPlease provide a Project Number, Location Cost Code & Balance Sheet Code.\r\n\r\nCapex ID : YRK_Capex_{capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nRegards\r\nYork Online Document Assist";
+
+        var currentitem = finalSignatoriesList.Where(x => x.FkScSignatoryDate == null).FirstOrDefault();        
+        currentindex = finalSignatoriesList.IndexOf(currentitem);
+        currentindex++;
+
+        if(currentindex >= finalSignatoriesList.Count)
+        {          
+            empnumber = signatoryService.RetrieveEmpNum(capex.Initiator);
+            formInitiator = empservice.GetSingleEmployee(empnumber);
+            if (formInitiator.EmailAddress != null)
+            {
+                emailservice.FullySignedEmail(formInitiator.EmailAddress, completeemail, c);
+                //send email to asset manager
+                if(employees.FirstOrDefault(x=>x.RoleID == 11).EmailAddress != null)
+                {
+                    emailservice.SendEmailToRequestProjectNumber(employees.FirstOrDefault(x => x.RoleID == 11).EmailAddress, formInitiator.EmailAddress, emailforprojectnumber, c);
+                }
+            }            
+            navToUserPage();
+        }
+        else
+        {
+            test = finalSignatoriesList[currentindex];
+            nextSign = cuservice.GetCapexUser(test.FkScSignatoryId);
+            nextEmployee = empservice.GetSingleEmployee(nextSign.UserName);
+            toaddress = nextEmployee.EmailAddress;
+
+            if (toaddress == null)
+            {
+                HideSignModal();
+                ShowErrorModal();
+            }
+            else
+            {
+                string signedform = $"Hi,\r\n\r\nThe following Capex has been signed by {currentEmployee.FullName}:\r\n\r\nCapex ID : YRK_Capex_{capex.CapexId}\r\nInitiator : {capex.Initiator}\r\nCapex Title: {capex.CapexTitle}\r\n\r\nAn email has been sent to the next signatory.\r\n\r\nRegards\r\nYork Online Document Assist";
+                empnumber = signatoryService.RetrieveEmpNum(capex.Initiator);
+                formInitiator = empservice.GetSingleEmployee(empnumber);
+
+                emailservice.SendMailToSignatory(fromaddress, toaddress, message, c);
+                emailservice.SignConfirmationEmail(fromaddress, confirmmessage, c);
+                emailservice.SendMailToSignatory(fromaddress,formInitiator.EmailAddress, signedform, c);
+                navToUserPage();
+            }
+        }
+    }
+
+    private async Task DownloadFile(string path, string filename)
+    {
+        string fullpath = path + "\\" + filename;
+        if (File.Exists(fullpath))
+        {
+            byte[] fileBytes = File.ReadAllBytes(fullpath);
+            await JSRuntime.InvokeAsync<object>("saveAsFile", filename, fileBytes);
+        }
+    }
+
+}

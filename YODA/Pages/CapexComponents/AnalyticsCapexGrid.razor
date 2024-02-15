@@ -1,0 +1,175 @@
+﻿@using YODA.Repos
+@using YODA.Repos.Models;
+@using YODA.Services
+@using System.Globalization;
+
+@inject ICapexFormService capexService
+@inject NavigationManager navManager
+
+<div class="container">
+    <Div Class="row">
+        <Div Class="alert alert-success">
+        <WhiteContainer>
+        @if (capexforms is null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <DataGrid TItem="CapexForm" Data="@capexforms" Filterable Responsive ShowPager 
+                PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }" 
+            SelectedRowStyling="@OnRowStyling">
+                <DataGridColumns>
+                    <DataGridColumn Field="@nameof(CapexForm.CapexId)" Caption="Capex ID" Editable="false"></DataGridColumn>
+                    <DataGridColumn Field="@nameof(CapexForm.CapexTitle)" Caption="Capex Title" Editable="false"></DataGridColumn>
+                    <DataGridColumn Field="@nameof(CapexForm.OutcomeString)" Caption="Outcome" Editable="false"></DataGridColumn>
+                    <DataGridColumn Width="200px" Field="@nameof(CapexForm.TotalCost)" Caption="Total Cost" Filterable="false" DisplayFormat="{0:C}" DisplayFormatProvider="@System.Globalization.CultureInfo.GetCultureInfo("en-ZA")" Editable="false"></DataGridColumn>                           
+                </DataGridColumns>
+                <PageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.PageNumber
+                             </Span>
+                         </PageButtonTemplate>
+                         <NextPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Next
+                             </Span>
+                         </NextPageButtonTemplate>
+                         <PreviousPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Previous
+                             </Span>
+                         </PreviousPageButtonTemplate>
+                         <LastPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 Last
+                             </Span>
+                         </LastPageButtonTemplate>
+                         <FirstPageButtonTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 First
+                             </Span>
+                         </FirstPageButtonTemplate>
+                         <TotalItemsTemplate>
+                             <Span TextColor="TextColor.Success">
+                                 @context.TotalItems
+                             </Span>
+                         </TotalItemsTemplate>
+            </DataGrid>
+        }
+        </WhiteContainer>
+        </Div>
+    </Div>
+</div>
+
+<br />
+<hr />
+<br />
+
+    <div class="row">
+        <WhiteContainer>
+            <div class="container" style="max-width:stretch">
+                <div class="row">
+                    <div class="col-md alert alert-primary " style="margin-right:10px; margin-top:10px">
+                        @totalAmountString
+                    </div>
+                    <div class="col-md alert alert-success " style="margin-right:10px; margin-top:10px">
+                        @approvedAmountString
+                    </div>
+                    <div class="col-md alert alert-warning " style="margin-right:10px; margin-top:10px">
+                        @onholdAmountString
+                    </div>
+                    <div class="col-md alert alert-danger" style="margin-top:10px">
+                        @declinedAmountString
+                    </div>
+                </div>
+            </div>
+        </WhiteContainer>
+    </div>
+
+
+
+
+@code {
+    //Variables-------------------------------------------------------------------
+    private List<CapexForm> capexforms = new();
+
+    private string outcome = string.Empty;
+
+    private decimal? totalAmount = 0;
+    private decimal? approvedAmount = 0;
+    private decimal? onholdAmount = 0;
+    private decimal? declinedAmount = 0;
+
+    CultureInfo southAfricanCulture = CultureInfo.GetCultureInfo("en-ZA");
+    private string? totalAmountString = string.Empty;
+    private string? approvedAmountString = string.Empty;
+    private string? onholdAmountString = string.Empty;
+    private string? declinedAmountString = string.Empty;
+
+    //Initialize page-------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        capexforms = capexService.GetCapexForAnalytics();
+        setAmounts();
+        setOutcomes();
+    }
+
+    //Set Outcome string----------------------------------------------------------
+    private void setOutcomes()
+    {
+        foreach (var item in capexforms)
+        {
+            if (item.CapexOutcome == 0)
+            {
+                item.OutcomeString = "Declined";
+            }
+            if (item.CapexOutcome == 1)
+            {
+                item.OutcomeString = "On Hold";
+            }
+            if (item.CapexOutcome == 2)
+            {
+                item.OutcomeString = "Approved";
+            }
+        }
+    }
+
+
+    //Set amount format--------------------------------------------------------
+    private void setAmounts()
+    {
+        foreach(var item in capexforms)
+        {
+            if(item.CapexOutcome == 0)
+            {
+                totalAmount += item.TotalCost;
+                declinedAmount += item.TotalCost;
+            }
+            if (item.CapexOutcome == 1)
+            {
+                totalAmount += item.TotalCost;
+                onholdAmount += item.TotalCost;
+            }
+            if (item.CapexOutcome == 2)
+            {
+                totalAmount += item.TotalCost;
+                approvedAmount += item.TotalCost;
+            }
+        }
+        totalAmountString = string.Format(southAfricanCulture, "{0:C}", totalAmount);
+        approvedAmountString = string.Format(southAfricanCulture, "{0:C}", approvedAmount);
+        onholdAmountString = string.Format(southAfricanCulture, "{0:C}", onholdAmount);
+        declinedAmountString = string.Format(southAfricanCulture, "{0:C}", declinedAmount);
+
+    }
+
+    //Selected row styling--------------------------------------------------------------
+    private void OnRowStyling(CapexForm cf, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+
+
+}

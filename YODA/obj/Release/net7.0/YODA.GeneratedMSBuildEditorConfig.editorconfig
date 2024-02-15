@@ -1,0 +1,179 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = YODA
+build_property.RootNamespace = YODA
+build_property.ProjectDir = C:\Users\HKotze\Desktop\Blazor\YODA\YODA\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\HKotze\Desktop\Blazor\YODA\YODA
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/AdminMessagesBoard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5NZXNzYWdlc0JvYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/AnalyticsCapexGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXEFuYWx5dGljc0NhcGV4R3JpZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/ApprovedCapexGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXEFwcHJvdmVkQ2FwZXhHcmlkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/AwaitingApprovalCapexGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXEF3YWl0aW5nQXBwcm92YWxDYXBleEdyaWQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/CompletedCapexGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXENvbXBsZXRlZENhcGV4R3JpZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/DeclinedCapexGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXERlY2xpbmVkQ2FwZXhHcmlkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/GreenContainer.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXEdyZWVuQ29udGFpbmVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/NotSubmittedCapexGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXE5vdFN1Ym1pdHRlZENhcGV4R3JpZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/OnHoldCapexGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXE9uSG9sZENhcGV4R3JpZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/SmallerContainer.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXFNtYWxsZXJDb250YWluZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexComponents/WhiteContainer.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhDb21wb25lbnRzXFdoaXRlQ29udGFpbmVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexPages/AddCapexNumberPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhQYWdlc1xBZGRDYXBleE51bWJlclBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexPages/AddUpdateCapex.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhQYWdlc1xBZGRVcGRhdGVDYXBleC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexPages/CapexAnalytics.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhQYWdlc1xDYXBleEFuYWx5dGljcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexPages/CapexUserPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhQYWdlc1xDYXBleFVzZXJQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexPages/SignCapexForm.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhQYWdlc1xTaWduQ2FwZXhGb3JtLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/CapexPages/ViewCapexForm.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FwZXhQYWdlc1xWaWV3Q2FwZXhGb3JtLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/DisciplinePages/AddConsultationPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlzY2lwbGluZVBhZ2VzXEFkZENvbnN1bHRhdGlvblBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/DisciplinePages/AddDiscipline.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlzY2lwbGluZVBhZ2VzXEFkZERpc2NpcGxpbmUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/DisciplinePages/AllDisciplinesPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlzY2lwbGluZVBhZ2VzXEFsbERpc2NpcGxpbmVzUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/DisciplinePages/DisciplineResultsUserPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlzY2lwbGluZVBhZ2VzXERpc2NpcGxpbmVSZXN1bHRzVXNlclBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/DisciplinePages/DisciplineUserPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlzY2lwbGluZVBhZ2VzXERpc2NpcGxpbmVVc2VyUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/DisciplinePages/ViewDisciplinePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlzY2lwbGluZVBhZ2VzXFZpZXdEaXNjaXBsaW5lUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/FinancePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmluYW5jZVBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/HRPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSFJQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/LoginYorkOnline.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW5Zb3JrT25saW5lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/MainOnlinePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTWFpbk9ubGluZVBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/VIPTakeOnPages/AddUpdateVIP.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVklQVGFrZU9uUGFnZXNcQWRkVXBkYXRlVklQLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/VIPTakeOnPages/NewEmployee.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVklQVGFrZU9uUGFnZXNcTmV3RW1wbG95ZWUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/VIPTakeOnPages/PromoteDelegateEmployee.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVklQVGFrZU9uUGFnZXNcUHJvbW90ZURlbGVnYXRlRW1wbG95ZWUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/VIPTakeOnPages/ViewVIPFormPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVklQVGFrZU9uUGFnZXNcVmlld1ZJUEZvcm1QYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/VIPTakeOnPages/VIPUserPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVklQVGFrZU9uUGFnZXNcVklQVXNlclBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Shared/CapexFormLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENhcGV4Rm9ybUxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Shared/LoginLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-edykbt8bqd
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-k0a6whw69f
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/HKotze/Desktop/Blazor/YODA/YODA/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 

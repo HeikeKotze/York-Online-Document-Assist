@@ -1,0 +1,1774 @@
+﻿@page "/Capex/Add"
+@page "/Capex/Edit"
+
+@using Services
+@using Repos.Models
+@using YODA.Pages
+@using BlazorInputFile
+@using YODA.Pages.CapexComponents 
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager navManager
+@inject IFileUpload fileUpload
+@inject ICapexFormService capexService
+@inject IProjectManagerService projectmanagerService
+@inject ILegalEntityService legalentityService
+@inject ISiteService siteService
+@inject IKPIService kpiService
+@inject ILocationCostCodeService llcService
+@inject IBalanceSheetCodeService bscService
+@inject IAssetCategoryService assetCatService
+@inject IProjectCategoryService projectCatService
+@inject IRiskService riskSerice
+@inject IRoleService roleService
+@inject IAttachmentService attachService
+@inject ISignatoryService signatoryService
+@inject IServerPathConfigService serverService
+@inject IConfiguration config
+@inject IJSRuntime JSRuntime
+@inject IEmployeeService eservice
+@inject IEmailService emailservice
+@inject SharedDataService shareddataService
+@inject IEmployeeService empService
+
+<button id="btnBack" class="avatar-btn" @onclick="ToggleScroll" style="position: fixed; z-index:2; background-color:#222222; color: white"><span class="oi oi-elevator small"></span></button>
+<YODA.Pages.CapexComponents.WhiteContainer>
+<PageTitle>@Title</PageTitle>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="ShowBackModal" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">      
+            <center>
+                <img style="width:100px; height:100px" src="Images/SVGYork.png" alt="" />
+                <h1>@Title</h1>
+            </center>        
+        </div>
+    </div>
+
+
+<EditForm Model="@capexForm" OnValidSubmit="saveCapex">
+    <DataAnnotationsValidator/>
+    <br />
+    <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Main Information</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <label for="CapexTitle">Capex Title</label>
+                        <InputText class="form-control" @bind-Value="capexForm.CapexTitle" />
+                    </div>
+                    <div class="col-sm">
+                        <label for="Initiator">Initiator</label>
+                    <InputText class="form-control" @bind-Value="init" disabled="@isInputDisabled" />
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="ProjectNumber">Project Number</label>
+                    <InputText class="form-control" disabled="@isInputDisabled" @bind-Value="capexForm.ProjectNumber" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ProjectManager">Project Manager</label>
+                        <select class="form-select" @bind="capexForm.ProjectManager">
+                            <option value="">Select a project manager...</option>
+                            @foreach(var item in dllEmployees)
+                            {
+                                <option value="@item.FullName">@item.FullName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Form Allocation</strong></h4>
+                </div>
+            </div>
+        </div>
+
+            <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="LegalEntity">Legal Entity</label>
+                    <select class="form-select" @bind="capexForm.CompanyId">
+                        <option value="">Select a legal entity...</option>
+                        @foreach (var item in dllLegalEntity)
+                        {
+                            <option value="@item.LegalEntityId">@item.LegalEntityName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="Site">Site</label>
+                    <select class="form-select" @bind="capexForm.SiteId">
+                        <option value="">Select a site...</option>
+                        @foreach (var item in dllSite)
+                        {
+                            <option value="@item.SiteId">@item.SiteName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+         <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="LegalEntity">Department</label>
+                    <select class="form-select" @bind="capexForm.DepartmentID">
+                        <option value="">Select a Department...</option>
+                        @foreach (var item in dllemployeeDepartments)
+                        {
+                            <option value="@item.Id">@item.DepartmentName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+            <br />
+            <hr />
+            <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Identification</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="AssetCategory">Asset Category</label>
+                        <select class="form-select" @bind="capexForm.AssetCategoryId">
+                            <option value="">Select an asset category...</option>
+                        @foreach(var item in dllAssetCategory)
+                        {
+                            <option value="@item.AssetCategoryId">@item.AssetCategoryName</option>
+                        }
+                    </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="BalanceSheetCode">Project Category</label>
+                        <select class="form-select" @bind="capexForm.ProjectCategoryId">
+                            <option value="">Select a project category...</option>
+                        @foreach(var item in dllProjectCategory)
+                        {
+                            <option value="@item.ProjectCategoryId">@item.ProjectCategoryName</option>
+                        }
+                    </select>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="TotalCost">Total Cost</label>
+                        <Tooltip Text="Example: 3 000.00" Placement="TooltipPlacement.Top">
+                            <input type="number" class="form-control" placeholder="R" @bind-value="capexForm.TotalCost"/>
+                        </Tooltip>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="StartupDate">Project Startup Date</label>
+                        <input class="form-control" type="date" @bind-value="capexForm.ProjectStartupDate" />
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg">
+                    <label for="startup">Short Description</label>
+                    <RichTextEdit @ref="rteShortDescription"
+                                  Theme="RichTextEditTheme.Snow"
+                                  ContentChanged="OnSDChanged"
+                                  PlaceHolder="Short Description..."
+                                  ReadOnly="false"
+                                  SubmitOnEnter="false"
+                                  ToolbarPosition="Placement.Top"
+                                    Editor="GetShortDescription()">
+                        <Toolbar>
+                            <RichTextEditToolbarGroup>
+                                <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />    
+                                <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                             </RichTextEditToolbarGroup>
+                         </Toolbar>
+                     </RichTextEdit>
+                 </div>
+             </div>
+         </div>           
+
+            <br />
+            <hr />
+            <br />
+
+         <div class="container" style="">
+             <div class="row">
+                 <div class="col-sm">
+                    <h4><strong>Financials</strong></h4>
+                 </div>
+             </div>
+         </div>
+
+         <br />
+
+         <div class="container">
+             <div class="row">
+                 <div class="col-sm">
+                     <label for="AmountThisRequest">Amount This Request</label>
+                     <Tooltip Text="Example: 3 000.00" Placement="TooltipPlacement.Top">
+                     <input type="number" id="amountThisRequest" placeholder="R" @bind-value="capexForm.AmountThisRequest" class="form-control" />
+                     </Tooltip>
+                 </div>
+                 <div class="col-sm">
+                     <label for="PreviouslyAuthorized">Previously Authorized</label>
+                     <Tooltip Text="Example: 3 000.00" Placement="TooltipPlacement.Top">
+                     <input type="number" id="previouslyAuthorized" placeholder="R" @bind-value="capexForm.PreviouslyAuthorized" class="form-control" />
+                     </Tooltip>
+                 </div>
+             </div>
+         </div>
+
+         <br />
+
+         <div class="container">
+             <div class="row">
+                 <div class="col-sm">
+                     <label for="AmountInBudget">Amount In Budget</label>
+                     <Tooltip Text="Example: 3 000.00" Placement="TooltipPlacement.Top">
+                     <input type="number" id="amountInBudget" placeholder="R" @bind-value="capexForm.AmountInBudget" class="form-control" />
+                     </Tooltip>
+                 </div>
+                 <div class="col-sm">
+                     <label for="WriteOfAmount">Write Off Amount</label>
+                     <Tooltip Text="Example: 3 000.00" Placement="TooltipPlacement.Top">
+                     <input type="number" id="writeOfAmount" placeholder="R" @bind-value="capexForm.WriteOffAmount" class="form-control" />
+                     </Tooltip>
+                 </div>
+             </div>
+         </div>
+
+         <br />
+         <hr />
+         <br />
+
+         <div class="container" style="">
+             <div class="row">
+                 <div class="col-sm">
+                    <h4><strong>Amount Including and Motivation</strong></h4>
+                 </div>
+             </div>
+         </div>
+
+         <br />
+
+         <div class="container">
+             <div class="row">
+                 <div class="col-lg">
+                     <label for="startup">Amount Includes</label>
+                     <RichTextEdit @ref="rteAmountIncludes"
+                                   Theme="RichTextEditTheme.Snow"
+                                   ContentChanged="@OnAIChanged"
+                                   PlaceHolder="Amount includes..."
+                                   ReadOnly="false"
+                                   SubmitOnEnter="false"
+                                   ToolbarPosition="Placement.Top"
+                                    Editor="GetAmountIncludes()">
+                         <Toolbar>
+                             <RichTextEditToolbarGroup>
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Underline"/>
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                             </RichTextEditToolbarGroup>
+                         </Toolbar>
+                     </RichTextEdit>
+                 </div>
+             </div>
+
+             <br />
+
+             <div class="row">
+                 <div class="col-lg">
+                     <label for="projectNumber">Motivation</label>
+                     <RichTextEdit @ref="rteMotivation"
+                                   Theme="RichTextEditTheme.Snow"
+                                   ContentChanged="@OnMChanged"
+                                   PlaceHolder="Motivation..."
+                                   ReadOnly="false"
+                                   SubmitOnEnter="false"
+                                   ToolbarPosition="Placement.Top"
+                                    Editor="GetMotivationContent()">
+                         <Toolbar>
+                             <RichTextEditToolbarGroup>
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                                <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                             </RichTextEditToolbarGroup>
+                         </Toolbar>
+                     </RichTextEdit>
+                 </div>
+             </div>
+         </div>
+
+         <br />
+         <hr />
+         <br />
+
+         <div class="container" style="">
+             <div class="row">
+                 <div class="col-sm">
+                    <h4><strong>Scope</strong></h4>
+                 </div>
+             </div>
+         </div>
+
+         <br />
+
+         <div class="container">
+             <div class="row">
+                 <div class="col-lg">
+                     <label for="startup">Project Scope</label>
+                     <RichTextEdit @ref="rteProjectScope"
+                                   Theme="RichTextEditTheme.Snow"
+                                   ContentChanged="@OnPSChanged"
+                                   PlaceHolder="Project Scope..."
+                                   ReadOnly="false"
+                                   SubmitOnEnter="false"
+                                   ToolbarPosition="Placement.Top"
+                                    Editor="GetProjectScopeContent()">
+                         <Toolbar>
+                             <RichTextEditToolbarGroup>
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                                <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                             </RichTextEditToolbarGroup>
+                         </Toolbar>
+                     </RichTextEdit>
+                 </div>
+             </div>
+
+             <br />
+
+             <div class="row">
+                 <div class="col-lg">
+                     <label for="projectNumber">Out of Scope</label>
+                     <RichTextEdit @ref="rteOutOfScope"
+                                   Theme="RichTextEditTheme.Snow"
+                                   ContentChanged="@OnOOSChanged"
+                                   PlaceHolder="Out of Scope..."
+                                   ReadOnly="false"
+                                   SubmitOnEnter="false"
+                                   ToolbarPosition="Placement.Top"
+                                    Editor="GetOutOfScopeContent()">
+                         <Toolbar>
+                             <RichTextEditToolbarGroup>
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                                <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                                 <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                             </RichTextEditToolbarGroup>
+                         </Toolbar>
+                     </RichTextEdit>
+                 </div>
+             </div>
+         </div>
+
+         <br>
+         <hr />
+         <br />
+
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Key Measurements of Success</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm">
+                        <label for="capexTitle">KPI Type</label>
+                        <select id="dll" class="form-select" @bind="newShortKPI.Kpiname">
+                            <option>Select a KPI Type...</option>
+                            @foreach (var item in dllKPI)
+                            {
+                                <option value="@item.Kpiname">@item.Kpiname</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm">
+                        <label for="projectNumber">KPI Description</label>
+                        <InputText id="projectNumber" @bind-Value="newShortKPI.KpiDescription" class="form-control"></InputText>
+                    </div>
+                </div>
+            </div>
+
+        <br />
+
+        <div Class="container">
+            <div class="row">
+                <div Class="col-sm">
+                    <button id="btnAddKPI" type="button" @onclick="AddKPI" class="btn btn-dark" style="height:35px; width:180px">Add KPI</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div Class="container">
+            <div class="alert alert-success">
+                <WhiteContainer>
+                    @if (kpiList != null && kpiList.Any())
+                    {
+                        <table class="table table-striped">
+                            <!-- Table headers here -->
+                            <thead>
+                                <tr>
+                                    <th>KPI Type</th>
+                                    <th>KPI Description</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var list in kpiList)
+                                {
+                                    <tr>
+                                        <td>@list.Kpiname</td>
+                                        <td>@list.KpiDescription</td>
+                                        <td><button type="button" id="btnViewSearch" @onclick="()=>DeleteRowKPI(list)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p><em>No KPI's added yet...</em></p>
+                    }
+                </WhiteContainer>
+            </div>           
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Risks</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="RiskDescription">Risk Description</label>
+                    <input type="text" class="form-control" @bind-value="newRisk.RiskDescription"/>
+                </div>
+                <div class="col-sm">
+                    <label for="ConsequenceClassiication">Consequence Classification</label>
+                    <select id="dllCC" class="form-select" @bind="newRisk.ConsequenceClassification">
+                        <option>Select a Consequence Class...</option>
+                        <option>High</option>
+                        <option>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="projectNumber">Impacts On</label>
+                    <input type="text" class="form-control" @bind-value="newRisk.ImpactOn"/>
+                </div>
+                <div class="col-sm">
+                    <label for="capexTitle">Likelihood Classification</label>
+                    <select id="dll" class="form-select" @bind="newRisk.LikelihoodClassification">
+                        <option>Select a Likelihood Class...</option>
+                        <option>High</option>
+                        <option>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <label for="projectNumber">Mitigating Strategy</label>
+                    <input type="text" class="form-control" @bind-value="newRisk.MitigatingStrategy"/>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div Class="container">
+            <div class="row">
+                <div Class="col-sm">
+                    <button id="btnAddRisk" type="button" @onclick="AddRisk" class="btn btn-dark" style="height:35px; width:180px">Add Risk</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <Div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                @if (risksList != null && risksList.Count > 0)
+                {
+                    <div class="container">
+                        <table class="table table-striped">
+                            <!-- Table headers here -->
+                            <thead>
+                                <tr>
+                                    <th>Risk Description</th>
+                                    <th>Impact On</th>
+                                    <th>Consequence Class</th>
+                                    <th>Likelihood Class</th>
+                                    <th>Mitigating Strategy</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var list in risksList)
+                                {
+                                    <tr>
+                                        <td>@list.RiskDescription</td>
+                                        <td>@list.ImpactOn</td>
+                                        <td>@list.ConsequenceClassification</td>
+                                        <td>@list.LikelihoodClassification</td>
+                                        <td>@list.MitigatingStrategy</td>
+                                            <td><button type="button" @onclick="()=>DeleteRowRisks(list)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p><em>No Risks added yet...</em></p>
+                }
+            </WhiteContainer>
+            </div>
+        </Div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Attachments</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="AttachmentType">Attachment Type</label>
+                    <select id="dll" class="form-select" @bind="newShortAttachment.AttachmentName" >
+                        <option>Select an Attachment Type...</option>
+                        @foreach (var item in dllAttachmentType)
+                        {
+                            <option value="@item.AttachmentName">@item.AttachmentName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <label for="projectNumber">File Upload</label>
+                    <Microsoft.AspNetCore.Components.Forms.InputFile class="form-control" OnChange="@HandleFileSelected" @bind-value="newShortAttachment.File" multiple></Microsoft.AspNetCore.Components.Forms.InputFile>
+                    @* <input type="file" class="form-control" @bind-value="newShortAttachment.File"/> *@
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div Class="container">
+            <div class="row">
+                <div Class="col-sm">
+                    <button id="btnAddAttachment" type="button" @onclick="AddAttachments" class="btn btn-dark" style="height:35px; width:180px; ">Add Attachment</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+            @if (attachmentsList != null && attachmentsList.Count > 0)
+            {
+                <div class="container">
+                    <table class="table table-striped">
+                        <!-- Table headers here -->
+                        <thead>
+                            <tr>
+                                <th>Attachment Type</th>
+                                <th>File</th>
+                                <th>Path</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in attachmentsList)
+                            {
+                                <tr>
+                                    <td>@list.AttachmentName</td>
+                                    <td>@list.File</td>
+                                    <td>@list.Path</td>
+                                    <td><button type="button" @onclick="()=>DeleteRowAttachment(list)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p><em>No Attachments added yet...</em></p>
+            }
+            </WhiteContainer>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Signatories</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <label for="capexTitle">Signatories</label>
+                    <select id="dll" class="form-select" @bind="newEmployee.FullName">
+                        <option>Select a Signatory...</option>
+                        @foreach (var item in dllEmployees)
+                        {
+                            <option value="@item.FullName">@item.FullName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm"></div>
+            </div>
+        </div>
+
+        <br />
+
+        <div Class="container">
+            <div class="row">
+                <div Class="col-sm">
+                    <button id="btnAddSignatory" type="button" @onclick="AddSignatories" class="btn btn-dark" style="height:35px; width:180px">Add Signatory</button>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="alert alert-success">
+            <WhiteContainer>
+                @if (sigList != null && sigList.Count > 0)
+            {
+                <div class="container">
+                    <table class="table table-striped">
+                        <!-- Table headers here -->
+                        <thead>
+                            <tr>
+                                <th>Signatory</th>
+                                <th>Role</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var list in sigList)
+                            {
+                                <tr>
+                                    <td>@list.FullName</td>
+                                    <td>@list.RoleName</td> 
+                                    <td><button type="button" @onclick="()=>DeleteRowSignatory(list)" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Remove</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p><em>No Signatories added yet...</em></p>
+            }
+            </WhiteContainer>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-6">
+                    <button id="btnSaveExit" @onclick="SaveAndExit" class="btn btn-dark w-100">Save & Exit</button>
+                </div>
+                <div class="col-6">
+                    <button type="button" @onclick="saveCapex" class="btn btn-dark w-100">Save Capex</button>
+                </div>
+            </div>
+        </div>
+
+        </EditForm>
+
+</YODA.Pages.CapexComponents.WhiteContainer>
+
+<Blazorise.Modal @ref="modalSubmit" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Save Capex</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Save Capex Form Confirmation
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>                      
+                    </div>
+                </div>
+                @if(emailconfirm != null)
+                {
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-success">
+                                @emailconfirm
+                            </div>
+                        </div>
+                    </div>
+                }                
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="navToUserPage" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back to User Page</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalBack" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Back To User Page</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Are you sure you want to go back to the User Page?
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            Your progress will not be saved.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                <div class="container" style="max-width:40%">
+                    <div class="row">
+                        <button @onclick="navToUserPage" class="btn btn-dark">Go To User Page</button>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseBackModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="ErrorModal">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+             @if (!string.IsNullOrWhiteSpace(validationErrorMessageCapexTitle))
+            {
+                <center>
+                    <div class="alert alert-success">@validationErrorMessageCapexTitle</div>
+                </center>                
+            }
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+
+@code {
+    //Start variables-----------------------------------------------------------------
+    [Parameter]
+    public int CapexID { get; set; }
+
+    private string message = string.Empty;
+    Repos.Models.CapexForm capexForm = new();
+    private string Title = "Add Capex Form";
+    private bool isInputDisabled = true;
+    Task OnChange(FileChangedEventArgs e) => Task.CompletedTask;
+    private short capexAuthConfirmSubmit = 1;
+    private short capexAuthConfirmSaveAndExit = 0;
+    private short capexOutcome = -1;
+    private short recStatus = 1;
+    private bool isRichTextEditModified = false;
+    private bool isRichTextEditModified2 = false;
+    private bool isRichTextEditModified3 = false;
+    private bool isRichTextEditModified4 = false;
+    private bool isRichTextEditModified5 = false;
+
+    //Dropdown lists-----------------------------------------------------------------
+    private List<CapexUser> dllProjectManager = new();
+    private List<Employee> dllEmployees = new();
+    private List<LegalEntity> dllLegalEntity = new();
+    private List<Site> dllSite = new();
+    private List<Kpi> dllKPI = new();
+    private List<LocationCostCode> dllLocationCostCode = new();
+    private List<BalanceSheetCode> dllBalanceSheetCode = new();
+    private List<AssetCategory> dllAssetCategory = new();
+    private List<ProjectCategory> dllProjectCategory = new();
+    private List<AttachmentType> dllAttachmentType = new();
+    private List<EmployeeDepartment> dllemployeeDepartments = new();
+
+    //RichTextEdits
+    protected RichTextEdit rteShortDescription = new();
+    protected RichTextEdit rteAmountIncludes = new();
+    protected RichTextEdit rteMotivation = new();
+    protected RichTextEdit rteProjectScope = new();
+    protected RichTextEdit rteOutOfScope = new();
+    protected string? ShortDescriptionAsHTML = string.Empty;
+    protected string? AmountIncludesAsHTML = string.Empty;
+    protected string? MotivationAsHTML = string.Empty;
+    protected string? ProjectScopeAsHTML = string.Empty;
+    protected string? OutOfScopeAsHTML =  string.Empty;
+
+    //Grids--------------------------------------------------------------------------
+    //KPI
+    private FkKpicapex newKPI = new();
+    private Kpi newShortKPI = new();
+    private List<Kpi> kpiList = new();
+    private List<FkKpicapex> finalKPIList = new();
+    //Risks
+    private Risk newRisk = new();
+    private List<Risk> risksList = new();
+    //Attachments
+    private FkAttachmentsCapex newAttachment = new();
+    private AttachmentType newShortAttachment = new();
+    private List<AttachmentType> attachmentsList = new();
+    private List<FkAttachmentsCapex> finalattachmentsList = new();
+    //Signatories
+    private FkSignatoriesCapex newSignatory = new();
+    private CapexUser newCapexUser = new();
+    private Employee newEmployee = new();
+    private List<CapexUser> signatoryList = new();
+    private List<Employee> sigList = new();
+    private List<FkSignatoriesCapex> finalSignatoryList = new();
+
+    //Currency inputs----------------------------------------------------------------
+    private string stringtotalCost = string.Empty;
+    private decimal totalCost { get; set; } = 0.0m;
+
+    //Currency change to decimal-----------------------------------------------------
+    public void changeCurrencyValuesToDecimal()
+    {
+        //TotalCost
+        if (decimal.TryParse(stringtotalCost, out decimal result))
+        {
+            totalCost = result;
+        }
+
+        //AmountThisRequest
+    }
+
+    //RichTextEdit changed values----------------------------------------------------
+    public async Task OnSDChanged()
+    {
+        ShortDescriptionAsHTML = await rteShortDescription.GetHtmlAsync();
+        isRichTextEditModified = true;
+    }
+    public async Task OnAIChanged()
+    {
+        AmountIncludesAsHTML = await rteAmountIncludes.GetHtmlAsync();
+        isRichTextEditModified2 = true;
+    }
+    public async Task OnMChanged()
+    {
+        MotivationAsHTML = await rteMotivation.GetHtmlAsync();
+        isRichTextEditModified3 = true;
+    }
+    public async Task OnPSChanged()
+    {
+        ProjectScopeAsHTML = await rteProjectScope.GetHtmlAsync();
+        isRichTextEditModified4 = true;
+    }
+    public async Task OnOOSChanged()
+    {
+        OutOfScopeAsHTML = await rteOutOfScope.GetHtmlAsync();
+        isRichTextEditModified5 = true;
+    }
+
+    //Add to grids-------------------------------------------------------------------
+    //KPI
+    public void AddKPI()
+    {
+        if(newShortKPI.Kpiname != null)
+        {
+            kpiList.Add(new Kpi
+                {
+                    Kpiname = newShortKPI.Kpiname,
+                    KpiDescription = newShortKPI.KpiDescription,
+                    Kpiid = dllKPI.FirstOrDefault(k => k.Kpiname == newShortKPI.Kpiname).Kpiid
+                });
+            newShortKPI = new();
+        }
+        else
+        {
+            validationErrorMessageCapexTitle = "You haven't selected a Key Performance Indicator (KPI) to include.";
+            ShowErrorModal();
+
+        }
+
+    }
+    //Risks
+    public void AddRisk()
+    {
+        if(newRisk.RiskDescription != null)
+        {
+            risksList.Add(new Risk
+                {
+                    RiskDescription = newRisk.RiskDescription,
+                    ImpactOn = newRisk.ImpactOn,
+                    ConsequenceClassification = newRisk.ConsequenceClassification,
+                    LikelihoodClassification = newRisk.LikelihoodClassification,
+                    MitigatingStrategy = newRisk.MitigatingStrategy
+                });
+            newRisk = new();
+        }
+        else
+        {
+            validationErrorMessageCapexTitle = "You have not added Risk Information to include.";
+            ShowErrorModal();
+        }
+
+    }
+    //Attachments
+    public async void AddAttachments()
+    {
+        string relativepath = await captureFile();
+        if(relativepath != "")
+        {
+            attachmentsList.Add(new AttachmentType
+            {
+                AttachmentName = newShortAttachment.AttachmentName,
+                AttachmentId = dllAttachmentType.FirstOrDefault(a => a.AttachmentName == newShortAttachment.AttachmentName).AttachmentId,
+                File = Path.GetFileName(file.Name),
+                Path = relativepath
+            });
+            newShortAttachment = new();
+            StateHasChanged();
+        }
+        else
+        {
+            validationErrorMessageCapexTitle = "You haven't selected an attachment to include.";
+            await ShowErrorModal();
+        }
+
+    }
+    //Signatories
+    public void AddSignatories()
+    {
+        int initiatorid = 1;
+        if(sigList.Count == 0)
+        {
+            sigList.Add(new Employee
+                {
+                    FullName = init,
+                    EmployeeID = signatoryService.RetrieveEmpID(init),
+                    RoleID = initiatorid,
+                    RoleName = roleService.GetRoleById(initiatorid)
+                });
+
+        }
+        if(newEmployee.FullName != null)
+        {
+            sigList.Add(new Employee
+                {
+                    FullName = newEmployee.FullName,
+                    EmployeeID = signatoryService.RetrieveEmpID(newEmployee.FullName),
+                    RoleID = signatoryService.RetrieveRoleID(newEmployee.FullName),
+                    RoleName = signatoryService.RetrieveRoleName(newEmployee.FullName)
+            });
+            newEmployee = new();
+        }
+        else
+        {
+            validationErrorMessageCapexTitle = "You haven't selected a signatory to include.";
+            ShowErrorModal();
+        }
+
+    }
+
+    //File upload--------------------------------------------------------------------
+
+    //IFileListEntry file;
+    private long maxFileSize = 1024 * 1024 * 5; //represents 5MB
+    private int maxAllowedFiles = 1;
+    private IBrowserFile? file;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        file = e.File;
+
+    }
+
+    private async Task<string> captureFile()
+    {
+        if (file is null || file.Size == 0)
+        {
+            return "";
+        }
+        try
+        {
+            string? relativePath;
+
+            string originalFileName = Path.GetFileName(file.Name);
+
+            string path = Path.Combine(
+                config.GetValue<string>("FileStorage")!, $"{shareddataService.UserName}", originalFileName);
+
+            relativePath = Path.Combine($"{shareddataService.UserName}", originalFileName);
+
+            Directory.CreateDirectory(Path.Combine(config.GetValue<string>("FileStorage")!, $"{shareddataService.UserName}"));
+
+            using (FileStream fs = new(path, FileMode.Create))
+            {
+                await file.OpenReadStream(maxFileSize).CopyToAsync(fs);
+            }
+
+            return relativePath;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    private string validationErrorMessageCapexTitle = string.Empty;
+
+    //Save---------------------------------------------------------------------------
+    private void saveCapex()
+    {
+        if (string.IsNullOrWhiteSpace(capexForm.CapexTitle) || capexForm.CompanyId == null || capexForm.SiteId == null || capexForm.DepartmentID == null)
+        {
+            validationErrorMessageCapexTitle = "You have not entered enough information to save or submit this Capex Form. The Capex Title, Legal Entity, Site and Department should be selected.";
+            ShowErrorModal();
+            return;
+        }
+        if (capexForm.ProjectStartupDate < DateTime.Now)
+        {
+            validationErrorMessageCapexTitle = "The commencement date of the project should be set to a date that occurs in the future.";
+            ShowErrorModal();
+            return;
+        }
+        validationErrorMessageCapexTitle = string.Empty;
+
+        if (capexService.AddUpdateCapex(capexForm))
+        {
+
+            validationErrorMessageCapexTitle = string.Empty;
+
+            if (isRichTextEditModified)
+            {
+                capexForm.ShortDescription = ShortDescriptionAsHTML;
+            }
+            if (isRichTextEditModified2)
+            {
+                capexForm.AmountIncludes = AmountIncludesAsHTML;
+            }
+            if (isRichTextEditModified3)
+            {
+                capexForm.Motivation = MotivationAsHTML;
+            }
+            if (isRichTextEditModified4)
+            {
+                capexForm.ProjectScope = ProjectScopeAsHTML;
+            }
+            if (isRichTextEditModified5)
+            {
+                capexForm.OutOfScope = OutOfScopeAsHTML;
+            }
+
+            capexForm.CapexAuthorizationConfirm = capexAuthConfirmSubmit;
+            capexForm.CapexOutcome = capexOutcome;
+            capexForm.RecStatus = recStatus;
+            capexForm.Initiator = init;
+
+
+
+            //add CEO
+            sigList.Add(new Employee
+                {
+                    EmployeeID = signatoryService.returnCEOCFOEmployeeID(6),
+                    RoleID = 6,
+                    RoleName = roleService.GetRoleById(6)
+                });
+
+            //add CFO
+            sigList.Add(new Employee
+                {
+                    EmployeeID = signatoryService.returnCEOCFOEmployeeID(5),
+                    RoleID = 5,
+                    RoleName = roleService.GetRoleById(5)
+                });
+
+            //Board approval
+            if(capexForm.TotalCost > 1000000)
+            {
+                 sigList.Add(new Employee
+                 {
+                     EmployeeID = signatoryService.returnCEOCFOEmployeeID(11),
+                     RoleID = 19,
+                     RoleName = roleService.GetRoleById(19)
+                 });
+            }
+            
+            // if(capexForm.TotalCost > 5000000)
+            // {
+            //     user.UserName = "Board";
+            //     user.UserId = 5;
+            //     user.RoleName = signatoryService.GetCorrespondingRoleName(user.UserName);
+            //     user.RoleId = signatoryService.GetCorrespondingRoleId(user.UserName);
+            //     signatoryList.Add(user);
+            // }
+
+            SaveKPI();
+            SaveRisks();
+            SaveAttachments();
+            SaveSignatories();
+
+            message = "Added final Capex Form";
+            UpdateFileDirectoryPaths(capexForm.CapexId);
+
+            ShowSaveModal();
+            sendEmail();
+            capexForm = new();
+        }
+        else
+        {
+            validationErrorMessageCapexTitle = "Could not save Capex Form";
+            ShowErrorModal();
+        }
+    }
+
+    ServerPathConfig serverPath = new();
+    string emailmessage = string.Empty;
+    private string init = string.Empty;
+
+    //Initialize---------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        int placeholder = 0;
+        if (int.TryParse(shareddataService.capexid, out placeholder))
+        {
+            CapexID = placeholder;
+        }
+        else
+        {
+            CapexID = 0;
+        }
+        if (CapexID > 0)
+        {          
+            finalKPIList = kpiService.findKPIsByCapex(CapexID);
+            risksList = riskSerice.findRisksByCapex(CapexID);
+            finalattachmentsList = attachService.findAttachmentsByCapex(CapexID);
+            finalSignatoryList = signatoryService.findSignatoriesByCapex(CapexID);
+            toNormalList();
+
+            Title = "Update Capex Form";           
+            capexForm = capexService.FindCapexById(CapexID);
+            if(capexForm.Initiator != null)
+            {
+                init = capexForm.Initiator;
+            }
+            else
+            {
+                init = "";
+            }
+
+        }
+        base.OnInitialized();
+
+        //Get server path in DB
+        serverPath = serverService.GetServerPathConfig(4);
+
+        //GetMailMessage
+
+
+        //dropdowns
+        dllProjectManager = projectmanagerService.GetUsers();
+        dllEmployees = eservice.GetAll();
+        if(shareddataService.UserID != 1)
+        {
+             dllEmployees.RemoveAt(0);
+        }      
+        dllLegalEntity = legalentityService.GetLegalEntities();
+        dllSite = siteService.GetSites();
+        dllKPI = kpiService.GetAllKPIs();
+        dllLocationCostCode = llcService.GetLocationCostCodes();
+        dllBalanceSheetCode = bscService.GetBalanceSheetCodes();
+        dllAssetCategory = assetCatService.GetCategories();
+        dllProjectCategory = projectCatService.GetProjectCategories();
+        dllAttachmentType = attachService.GetAttachments();
+        dllemployeeDepartments = empService.GetEmployeeDepartments();
+        isRichTextEditModified = false;
+        isRichTextEditModified2 = false;
+        isRichTextEditModified3 = false;
+        isRichTextEditModified4 = false;
+        isRichTextEditModified5 = false;
+        init = eservice.GetEmployeeName(shareddataService.UserName);
+    }
+
+    //Save and Exit-------------------------------------------------------------------
+    private void SaveAndExit()
+    {
+        if (string.IsNullOrWhiteSpace(capexForm.CapexTitle) || capexForm.CompanyId == null || capexForm.SiteId == null || capexForm.DepartmentID == null)
+        {
+            validationErrorMessageCapexTitle = "You have not entered enough information to save or submit this Capex Form. The Capex Title, Legal Entity, Site and Department should be selected.";
+            ShowErrorModal();
+            return;
+        }
+        if(capexForm.ProjectStartupDate < DateTime.Now)
+        {
+            validationErrorMessageCapexTitle = "The commencement date of the project should be set to a date that occurs in the future.";
+            ShowErrorModal();
+            return;
+        }
+        validationErrorMessageCapexTitle = string.Empty;
+
+        if (capexService.AddUpdateCapex(capexForm))
+        {
+            if (isRichTextEditModified)
+            {
+                capexForm.ShortDescription = ShortDescriptionAsHTML;
+            }
+            if (isRichTextEditModified2)
+            {
+                capexForm.AmountIncludes = AmountIncludesAsHTML;
+            }
+            if (isRichTextEditModified3)
+            {
+                capexForm.Motivation = MotivationAsHTML;
+            }
+            if (isRichTextEditModified4)
+            {
+                capexForm.ProjectScope = ProjectScopeAsHTML;
+            }
+            if (isRichTextEditModified5)
+            {
+                capexForm.OutOfScope = OutOfScopeAsHTML;
+            }
+            capexForm.CapexAuthorizationConfirm = capexAuthConfirmSaveAndExit;
+            capexForm.CapexOutcome = capexOutcome;
+            capexForm.RecStatus = recStatus;
+            capexForm.Initiator = init;
+
+            SaveKPI();
+            SaveRisks();
+            SaveAttachments();
+            SaveSignatories();
+
+            message = "Added Capex Form for later submission.";
+            UpdateFileDirectoryPaths(capexForm.CapexId);
+
+            ShowSaveModal();
+            capexForm = new();
+        }
+        else
+        {
+            message = "Could not save Capex Form";
+        }
+    }
+
+    //Check Input
+    private void CheckInput()
+    {
+        if (string.IsNullOrWhiteSpace(capexForm.CapexTitle) || capexForm.CompanyId == null || capexForm.SiteId == null || capexForm.DepartmentID == null)
+        {
+            validationErrorMessageCapexTitle = "You have not entered enough information to save or submit this Capex Form. The Capex Title, Legal Entity, Site and Department should be selected.";
+            ShowErrorModal();
+            return;
+        }
+        validationErrorMessageCapexTitle = string.Empty;
+    }
+
+    //Save Grids----------------------------------------------------------------------
+    //KPI
+    public void SaveKPI()
+    {
+        finalKPIList.Clear();
+        kpiService.deleteKPIsByCapex(CapexID);
+
+        if(CapexID == 0)
+        {
+            foreach (var item in kpiList)
+            {
+                FkKpicapex kpi = new FkKpicapex
+                    {
+                        FkKcKpi = item.Kpiid,
+                        FkKcCapexForm = capexForm.CapexId,
+                        FkKcDescription = item.KpiDescription
+                    };
+                finalKPIList.Add(kpi);
+            }
+        }
+        else
+        {
+            foreach (var item in kpiList)
+            {
+                FkKpicapex kpi = new FkKpicapex
+                    {
+                        FkKcKpi = item.Kpiid,
+                        FkKcCapexForm = CapexID,
+                        FkKcDescription = item.KpiDescription
+                    };
+                finalKPIList.Add(kpi);
+            }
+        }
+
+
+        kpiService.saveKPI(finalKPIList);
+    }
+    //Risks
+    public void SaveRisks()
+    {
+        riskSerice.deleteRisksByCapex(CapexID);
+
+        if(CapexID == 0)
+        {
+            foreach (var item in risksList)
+            {
+                item.FkCapexId = capexForm.CapexId;
+            }
+        }
+        else
+        {
+            foreach (var item in risksList)
+            {
+                item.FkCapexId = CapexID;
+            }
+        }
+
+
+        riskSerice.saveRisks(risksList);
+    }
+    //Attachments
+    public void SaveAttachments()
+    {
+        finalattachmentsList.Clear();
+        attachService.deleteAttachmentsByCapex(CapexID);
+
+        if(CapexID == 0)
+        {
+            foreach (var item in attachmentsList)
+            {
+                FkAttachmentsCapex attach = new FkAttachmentsCapex
+                    {
+                        FkAcAttachmentTypes = item.AttachmentId,
+                        FkAcCapexForm = capexForm.CapexId,
+                        FkAcFile = item.File,
+                        FkAcPath = $@"{serverPath.PathValue}{capexForm.CapexId}"
+                    };
+                finalattachmentsList.Add(attach);
+            }
+        }
+        else
+        {
+            foreach (var item in attachmentsList)
+            {
+                FkAttachmentsCapex attach = new FkAttachmentsCapex
+                    {
+                        FkAcAttachmentTypes = item.AttachmentId,
+                        FkAcCapexForm = CapexID,
+                        FkAcFile = item.File,
+                        FkAcPath = $@"{serverPath.PathValue}{CapexID}"
+                    };
+                finalattachmentsList.Add(attach);
+            }
+        }
+
+        attachService.saveAttachments(finalattachmentsList);
+    }
+    //Signatories
+    public void SaveSignatories()
+    {
+        finalSignatoryList.Clear();
+
+        signatoryService.deleteSignatoriesByCapex(CapexID);
+
+        if(CapexID == 0)
+        {
+            foreach (var item in sigList)
+            {
+                FkSignatoriesCapex sig = new FkSignatoriesCapex
+                    {
+                        FkScCapexForm = capexForm.CapexId,
+                        FkScSignatoryId = item.EmployeeID,
+                        FkScSignatoryRoleId = item.RoleID
+                    };
+                finalSignatoryList.Add(sig);
+            }
+        }
+        else
+        {
+            foreach (var item in sigList)
+            {
+                FkSignatoriesCapex sig = new FkSignatoriesCapex
+                    {
+                        FkScCapexForm = CapexID,
+                        FkScSignatoryId = item.EmployeeID,
+                        FkScSignatoryRoleId = item.RoleID
+                    };
+                finalSignatoryList.Add(sig);
+            }
+        }
+
+        signatoryService.saveSignatories(finalSignatoryList);
+    }
+
+    //Delete row in grids-------------------------------------------------------------
+    private void DeleteRowKPI(Kpi value)
+    {
+        kpiList.Remove(value);
+        StateHasChanged();
+
+    }
+    private void DeleteRowRisks(Risk value)
+    {
+        risksList.Remove(value);
+        StateHasChanged();
+    }
+    private void DeleteRowAttachment(AttachmentType value)
+    {
+        attachmentsList.Remove(value);
+        if(value.Path != null)
+        {
+            DeleteFileFromServer($"\\\\172.16.28.51\\YorkInfo\\Fin\\Capex\\{shareddataService.UserName}\\{value.File}");
+        }
+        StateHasChanged();
+    }
+    private void DeleteFileFromServer(string filepath)
+    {
+        if (File.Exists(filepath))
+        {
+            File.Delete(filepath);
+        }
+    }
+    private void DeleteRowSignatory(Employee value)
+    {
+        sigList.Remove(value);
+        StateHasChanged();
+    }
+
+    //Add to list for editing purposes
+    private void toNormalList()
+    {
+        //kpi
+        foreach (var item in finalKPIList)
+        {
+            Kpi kpi = new Kpi
+                {
+                    Kpiname = kpiService.getKPItype(item.FkKcKpi),
+                    KpiDescription = item.FkKcDescription,
+                    Kpiid = item.FkKcKpi
+                };
+            kpiList.Add(kpi);
+        }
+        //attachment
+        foreach(var item in finalattachmentsList)
+        {
+            AttachmentType attach = new AttachmentType
+                {
+                    AttachmentName = attachService.GetAttachmentName(item.FkAcAttachmentTypes),
+                    AttachmentId = item.FkAcAttachmentTypes,
+                    File = item.FkAcFile,
+                    Path = item.FkAcPath
+                };
+            attachmentsList.Add(attach);
+        }
+        //signatory
+        foreach(var item in finalSignatoryList)
+        {
+            Employee sig = new Employee
+            {
+                FullName = signatoryService.RetrieveEmpName(item.FkScSignatoryId),
+                RoleName = signatoryService.GetRoleName(item.FkScSignatoryRoleId),
+                RoleID = item.FkScSignatoryRoleId,
+                EmployeeID = item.FkScSignatoryId,
+
+            };
+            sigList.Add(sig);
+        }
+    }
+
+    //Render HTML in richtext edit-------------------------------------------
+    private RenderFragment GetOutOfScopeContent()
+    {
+        return builder =>
+    {
+        builder.AddMarkupContent(0, capexForm.OutOfScope);
+    };
+    }
+
+    private RenderFragment GetProjectScopeContent()
+    {
+        return builder =>
+    {
+        builder.AddMarkupContent(0, capexForm.ProjectScope);
+    };
+    }
+
+    private RenderFragment GetMotivationContent()
+    {
+        return builder =>
+    {
+        builder.AddMarkupContent(0, capexForm.Motivation);
+    };
+    }
+
+    private RenderFragment GetAmountIncludes()
+    {
+        return builder =>
+    {
+        builder.AddMarkupContent(0, capexForm.AmountIncludes);
+    };
+    }
+
+    private RenderFragment GetShortDescription()
+    {
+        return builder =>
+    {
+        builder.AddMarkupContent(0, capexForm.ShortDescription);
+    };
+    }
+
+    //Modal----------------------------------------------------------
+    private Blazorise.Modal modalSubmit = new();
+    private Blazorise.Modal modalBack = new();
+    private Blazorise.Modal ErrorModal = new ();
+
+    private bool cancelClose;
+
+    private Task ShowSaveModal()
+    {
+        return modalSubmit.Show();
+    }
+
+    private Task CloseSaveModal()
+    {
+        cancelClose = false;
+
+        return modalSubmit.Hide();
+    }
+
+    private Task ShowBackModal()
+    {
+        return modalBack.Show();
+    }
+
+    private Task CloseBackModal()
+    {
+        cancelClose = false;
+
+        return modalBack.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return ErrorModal.Show();
+    }
+
+    private Task CloseErrorModal()
+    {
+        cancelClose = false;
+
+        return ErrorModal.Hide();
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    //Navigation-------------------------------------------------------
+    private void navToUserPage()
+    {
+        navManager.NavigateTo("/CapexUserPage");
+    }
+
+    private void BackClickModal()
+    {
+        ShowBackModal();
+    }
+
+    private string newPath = string.Empty;
+    //Update path directory on server-----------------------------------
+    private void UpdateFileDirectoryPaths(int capexId)
+    {
+        string userDirectory = Path.Combine(
+               config.GetValue<string>("FileStorage")!, $"{shareddataService.UserName}");
+
+        string capexDirectory = Path.Combine(
+           config.GetValue<string>("FileStorage")!, $"{capexId}");
+
+        try
+        {
+            if (!Directory.Exists(capexDirectory))
+            {
+                Directory.CreateDirectory(capexDirectory);
+            }
+
+
+            if (Directory.Exists(userDirectory))
+            {
+                foreach (string file in Directory.GetFiles(userDirectory))
+                {
+                    string fileName = Path.GetFileName(file);
+                    newPath = Path.Combine(capexDirectory, fileName);
+                    File.Move(file, newPath);
+                }
+
+                Directory.Delete(userDirectory);
+            }
+        }
+        catch(Exception ex)
+        {
+            
+        }
+    }
+
+    //Button to scroll down and up--------------------------------------------
+    private bool scrollToTop = true;
+
+    private void ToggleScroll()
+    {
+        scrollToTop = !scrollToTop;
+        JSRuntime.InvokeVoidAsync("scrollToTopOrBottom", scrollToTop);
+    }
+
+    Employee user = new();
+    private string emailconfirm = string.Empty;
+
+    //Send email to the initiator of the capex form----------------------------
+    private void sendEmail()
+    {
+        user = eservice.GetSingleEmployee(shareddataService.UserName);
+        string text = $"Hi,\r\n\r\nThe following Capex was created:\r\n\r\nCapex ID : {capexForm.CapexId}\r\nInitiator : {init}\r\nCapex Title: {capexForm.CapexTitle}\r\n\r\n Please go to http://www.yoda.york.co.za to sign.\r\n\r\nRegards\r\nYork Online Document Assist";
+        //string text = $"{emailmessage.}";
+        try
+        {
+            emailservice.SendMail(user.EmailAddress, text, capexForm.CapexId);
+            emailconfirm = "Email sent";
+        }
+        catch
+        {
+            emailconfirm = "Email not sent";
+        }
+
+    }
+    
+}

@@ -1,0 +1,183 @@
+﻿@page "/AllDisciplines"
+
+<PageTitle>All Disciplinaries</PageTitle>
+
+@inject NavigationManager navManager
+@using Blazorise.Extensions;
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@inject IDisciplineService dservice
+@inject IEmployeeService eservice
+@inject IRoleService rservice
+@inject IFileUpload fileUpload
+@inject IServerPathConfigService serverservice
+@inject IFileHandlingService fhservice
+@inject IConfiguration config
+@inject SharedDataService shareddataService
+@inject ISiteService siteService
+@inject IJSRuntime jsRuntime
+@inject IExcelExportService xservice
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" @onclick="NavToDisciplineUserPage" class="btn btn-dark" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>All Disciplinaries</h1>
+        <p>View all disciplinaries & extract reports.</p>
+    </center>
+</WhiteContainer>
+<WhiteContainer>
+    <br />
+
+    <center>
+        <div class="container d-flex justify-content-center align-items-center">
+            <div class="row">
+                <div class="col-12" style="width:1200px">
+                    <div class="alert alert-success">
+                        <WhiteContainer>
+                            <DataGrid TItem="OffenceBreach" Data="@disciplinaries" Responsive Filterable ShowPager
+                                       PagerPosition="DataGridPagerPosition.Bottom" PagerOptions="new(){ ButtonSize=Size.Small }"
+                             @bind-SelectedRow="@selectedDicipline" SelectedRowStyling="@OnRowStyling" FilteredDataChanged="OnFilteredItemsChanged">
+                                 <DataGridColumns>
+                                     <DataGridCommandColumn />
+                                     <DataGridColumn Width="15%" Field="@nameof(OffenceBreach.EmployeeNumber)" Caption="Employee Number" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Width="15%" Field="@nameof(OffenceBreach.EmployeeName)" Caption="Full Name" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Width="15%" Field="@nameof(OffenceBreach.DateString)" Caption="Date" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Width="10%" Field="@nameof(OffenceBreach.EmployeeGender)" Caption="Gender" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Width="10%" Field="@nameof(OffenceBreach.EmployeeRace)" Caption="Race" Editable="false"></DataGridColumn>
+                                     <DataGridColumn Width="50%" Field="@nameof(OffenceBreach.OffenceName)" Caption="Offence" Editable="false"></DataGridColumn>
+                                 </DataGridColumns>
+                                 <PageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         @context.PageNumber
+                                     </Span>
+                                 </PageButtonTemplate>
+                                 <NextPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Next
+                                     </Span>
+                                 </NextPageButtonTemplate>
+                                 <PreviousPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Previous
+                                     </Span>
+                                 </PreviousPageButtonTemplate>
+                                 <LastPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         Last
+                                     </Span>
+                                 </LastPageButtonTemplate>
+                                 <FirstPageButtonTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         First
+                                     </Span>
+                                 </FirstPageButtonTemplate>
+                                 <TotalItemsTemplate>
+                                     <Span TextColor="TextColor.Success">
+                                         @context.TotalItems
+                                     </Span>
+                                 </TotalItemsTemplate>
+                             </DataGrid>
+                         </WhiteContainer>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </center>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <center>
+                 <button @onclick="ExportToExcel" class="btn btn-dark">Export Filtered Disciplinaries</button>
+                 </center>
+            </div>
+        </div>
+    </div>
+
+    
+</WhiteContainer>
+
+ @code {
+    private List<OffenceBreach> disciplinaries = new();
+    private List<Employee> employees = new();
+    private List<Offence> offences = new();
+    private List<EmployeeGender> genders = new();
+    private List<EmployeeRace> races = new();
+
+    OffenceBreach selectedDicipline = new();
+
+    //selected row styling---------------------------------------------------------
+    private void OnRowStyling(OffenceBreach discipline, DataGridRowStyling styling)
+    {
+        styling.Color = Blazorise.Color.Success;
+    }
+
+    protected override void OnInitialized()
+    {
+        disciplinaries = dservice.GetAllDisciplinaries();
+        employees = eservice.GetAll();
+        offences = dservice.GetOffenceList();
+        genders = eservice.GetEmployeeGenders();
+        races = eservice.GetEmployeeRaces();
+        foreach(var item in disciplinaries)
+        {
+            item.EmployeeName = employees.FirstOrDefault(x => x.EmployeeID == item.EmployeeID).FullName;
+            item.DateString = item.Date.Value.ToString("yyyy-MM-dd");
+            item.OffenceName = offences.FirstOrDefault(x => x.Id == item.OffenceID).OffenceName;
+            item.EmployeeNumber = employees.FirstOrDefault(x => x.EmployeeID == item.EmployeeID).EmployeeNumber;
+
+            if(item.EmployeeID != null)
+            {
+                Employee emp = eservice.GetById(item.EmployeeID);
+                if(emp.RaceID != null)
+                {
+                    item.EmployeeRace = races.FirstOrDefault(x => x.Id == emp.RaceID).RaceName;
+                }
+                else
+                {
+                    item.EmployeeRace = "No race recorded.";
+                }
+                if(emp.GenderID != null)
+                {
+                    item.EmployeeGender = genders.FirstOrDefault(x => x.Id == emp.GenderID).GenderName;
+                }
+                else
+                {
+                    item.EmployeeGender = "No gender recorded.";
+                }
+            }
+        }
+    }
+
+    private void NavToDisciplineUserPage()
+    {
+        navManager.NavigateTo("Discipline");
+    }
+
+    private async Task ExportToExcel()
+    {
+        var excelData = xservice.ConvertDataToExcelFormat(filteredData);
+        var fileBytes = xservice.ExportToExcel(excelData, "Disciplinaries.xlsx");
+        await jsRuntime.InvokeAsync<object>("saveAsFile", "Disciplinaries.xlsx", fileBytes);
+    }
+
+    List<OffenceBreach> filteredData = new();
+
+    // This event handler is triggered when the filter is applied or removed
+    void OnFilteredItemsChanged(DataGridFilteredDataEventArgs<OffenceBreach> eventArgs)
+    {
+        filteredData = eventArgs.Data.ToList();
+        // You can perform any additional actions with the filtered data here
+    }
+
+}

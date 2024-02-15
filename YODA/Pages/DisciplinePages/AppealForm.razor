@@ -1,0 +1,463 @@
+﻿@page "/AppealPage"
+
+<PageTitle>All Disciplinaries</PageTitle>
+
+@inject NavigationManager navManager
+@using Blazorise.Extensions;
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@using System.Text
+@using System.Text.RegularExpressions;
+@inject IDisciplineService dservice
+@inject IEmployeeService eservice
+@inject IRoleService rservice
+@inject IFileUpload fileUpload
+@inject IFileHandlingService fhservice
+@inject IConfiguration config
+@inject SharedDataService shareddataService
+@inject ISiteService siteService
+@inject IEmailService emailservice
+@inject IJSRuntime jsRuntime
+
+<WhiteContainer>
+    
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" class="btn btn-dark" @onclick="NavToDisciplineUserPage" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <center>
+                <img style="width:100px; height:100px" src="Images/SVGYork.png" alt="" />
+                <h1>Appeal Employee Sanction</h1>
+                <h3>Employee: @employeeInQuestion.FullName</h3>
+            </center>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Appeal Information</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label>Grounds of Appeal:</label>
+                <select class="form-select" @bind="newAppeal.GroundsOfAppealID">
+                    @foreach (var item in groundsOfAppeal)
+                    {
+                        <option value="@item.Id">@item.NameOfGrounds</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label>Reasons</label>
+                <RichTextEdit @ref="rteReason"
+                              Theme="RichTextEditTheme.Snow"
+                              ContentChanged="OnReasonChanged"
+                              PlaceHolder="Violation Description..."
+                              ReadOnly="false"
+                              SubmitOnEnter="false"
+                              ToolbarPosition="Placement.Top">
+                    <Toolbar>
+                        <RichTextEditToolbarGroup>
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                        </RichTextEditToolbarGroup>
+                    </Toolbar>
+                </RichTextEdit>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <center>
+        <div class="container">
+            <div class="row text-center" style="width: 300px">
+                    <button @onclick="ShowSaveModal" type="button" class="btn btn-dark w-100">Sign & Send</button>           
+            </div>
+        </div>
+    </center>
+
+
+</WhiteContainer>
+
+<Blazorise.Modal @ref="modalSave" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Appeal Employee Sanction</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="alert alert-success" role="alert">
+                Are you sure you want to lodge an appeal for the employee sanction for sanction: @currentDiscipline.BreachName?
+            </div>
+            <br />
+            <Blazorise.Field>
+                <FieldLabel>UserName</FieldLabel>
+                <input type="text" @bind-value="username" class="form-control" />
+            </Blazorise.Field>
+            <br />
+            <Blazorise.Field>
+                <FieldLabel>Password</FieldLabel>
+                <input type="password" @bind-value="password" class="form-control" />
+            </Blazorise.Field>
+            <br />
+            @if (outputmessage != string.Empty)
+            {
+                <div class="alert alert-success">
+                    @outputmessage
+                </div>
+            }
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="SignCreateFormAndExit" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Sign</button>
+            <button @onclick="CloseSaveModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="modalError" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto;">
+                <div>
+                    Error
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="alert alert-success">
+                            @message
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="CloseErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    private DateTime? dateofappeal = new();
+    protected RichTextEdit rteReason = new();
+    protected string? ReasonAsHTML = string.Empty;
+    private bool isRichTextEditReasonModified = false;
+    private OffenceBreach currentDiscipline = new();
+    private Employee employeeInQuestion = new();
+    private Employee employeeToSend = new();
+    private List<Employee> employees = new();
+    private List<Offence> offences = new();
+
+    private Blazorise.Modal modalSave = new();
+    private Blazorise.Modal modalError = new();
+
+    private AppealDiscipline newAppeal = new();
+
+    private List<GroundsOfAppeal> groundsOfAppeal = new();
+
+    private string? username = string.Empty;
+    private string? password = string.Empty;
+    private string? outputmessage = string.Empty;
+    private string? persontocc = string.Empty;
+    private string? message = string.Empty;
+    private string? stringgrounds = string.Empty;
+    private string? offencename = string.Empty;
+
+    //Initialization---------------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        dateofappeal = DateTime.Now;
+        currentDiscipline = dservice.GetDisciplineByID(shareddataService.disciplineNoteNum);
+        employeeInQuestion = eservice.GetById(currentDiscipline.EmployeeID);
+        groundsOfAppeal = dservice.GetGroundsOfAppeals();
+        employees = eservice.GetAll();
+        offences = dservice.GetOffenceList();
+        offencename = offences.FirstOrDefault(x => x.Id == currentDiscipline.OffenceID).OffenceName;
+    }
+
+    public async Task OnReasonChanged()
+    {
+        ReasonAsHTML = await rteReason.GetHtmlAsync();
+        isRichTextEditReasonModified = true;
+    }
+
+    private async void SignCreateFormAndExit()
+    {
+        if (CheckUserNameAndPassword())
+        {
+
+            if(newAppeal.GroundsOfAppealID != 0 && ReasonAsHTML != null)
+            {
+                stringgrounds = groundsOfAppeal.FirstOrDefault(x => x.Id == newAppeal.GroundsOfAppealID).NameOfGrounds;
+
+                newAppeal.OffenceBreachID = currentDiscipline.Id;
+                newAppeal.DateOfAppeal = dateofappeal;
+                newAppeal.Reason = ReasonAsHTML;
+                newAppeal.RecStatus = 1;
+
+                //Add appeal record
+                dservice.AddAppealDiscipline(newAppeal);
+                //change process flow to appealed
+                dservice.ChangeDisciplineProcess(currentDiscipline.Id, 4);
+                
+
+                SendEmails();
+
+                await RunTemplateAppealForm();
+                await CloseSaveModal();
+
+
+
+
+                NavToDisciplineUserPage();
+            }
+            else
+            {
+                message = "You have not entered the required information.";
+                ShowErrorModal();
+            }                       
+        }
+
+    }
+
+
+    private void NavToDisciplineUserPage()
+    {
+        navManager.NavigateTo("/Discipline");
+    }
+
+    private Task CloseSaveModal()
+    {
+        return modalSave.Hide();
+    }
+
+    private Task ShowSaveModal()
+    {
+        return modalSave.Show();
+
+    }
+    private Task ShowErrorModal()
+    {
+        return modalError.Show();
+    }
+    private Task CloseErrorModal()
+    {
+        return modalError.Hide();
+    }
+
+    private bool cancelClose;
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    private bool CheckUserNameAndPassword()
+    {
+        if(username == shareddataService.UserName && password == shareddataService.Password)
+        {
+            return true;
+        }
+        else
+        {
+            outputmessage = "You have entered the wrong credentials.";
+            username = string.Empty;
+            password = string.Empty;
+            return false;
+        }
+    }
+
+    string localPath = "C:\\\\YODA";
+    string newPath = "C:\\\\YODA\\appealdoc.docx";
+    string template = "\\\\172.16.28.51\\YorkInfo\\HR\\Templates\\AppealFormTemplate.docx";
+
+    public void PopulateWordTemplateAppealForm(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(template, newPath);
+        }
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPath, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            ReplaceTextWithActualData(body);
+
+            doc.Save();
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            MainDocumentPart mainPart;
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+            //ViolationDecription
+            var placeholderReasons = "appealreasons";
+            var placeholderRunReasons = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderReasons);
+                return placeholder != null;
+            });
+
+            if (placeholderRunReasons != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + newAppeal.Reason + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunReasons.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunReasons.Parent);
+
+                // Remove the placeholder text
+                placeholderRunReasons.Remove();
+            }
+
+
+        }
+    }
+
+    private async Task RunTemplateAppealForm()
+    {
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employeeInQuestion.EmployeeID}\\EmployeeDiscipline\\Discipline{currentDiscipline.Id}\\Appeals\\AppealDoc.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employeeInQuestion.EmployeeID}\\EmployeeDiscipline\\Discipline{currentDiscipline.Id}\\Appeals\\";
+        bool fileInFTP = false;
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        if (File.Exists(ftpLocation))
+        {
+            fileInFTP = true;
+
+            File.Delete(ftpLocation);
+        }
+
+        PopulateWordTemplateAppealForm(template);
+
+
+        File.Copy(newPath, ftpLocation);
+
+        if (File.Exists(newPath))
+        {
+            File.Delete(newPath);
+        }
+    }
+
+    private void ReplaceTextWithActualData(Body body)
+    {
+        foreach (var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+        {
+            if (text.Text.Contains("toperson"))
+            {
+                text.Text = text.Text.Replace("toperson", "Human Resources Department");
+            }
+            if (text.Text.Contains("fromperson"))
+            {
+                text.Text = text.Text.Replace("fromperson", employeeInQuestion.FullName);
+            }
+            if (text.Text.Contains("ccperson"))
+            {
+                text.Text = text.Text.Replace("ccperson", "Risk & Compliance Officer");
+            }
+            if (text.Text.Contains("dateofappeal"))
+            {
+                text.Text = text.Text.Replace("dateofappeal", dateofappeal.ToString());
+            }
+            if (text.Text.Contains("dateenquiry"))
+            {
+                text.Text = text.Text.Replace("dateenquiry", currentDiscipline.Date.Value.ToString("yyyy-MM-dd"));
+            }
+             if (text.Text.Contains("groundsofappeal"))
+             {
+                text.Text = text.Text.Replace("groundsofappeal", stringgrounds);
+             }
+            if (text.Text.Contains("empnumber"))
+            {
+                text.Text = text.Text.Replace("empnumber", employeeInQuestion.EmployeeNumber);
+            }
+            if (text.Text.Contains("empsign"))
+            {
+                text.Text = text.Text.Replace("empsign", DateTime.Now.ToString());
+            }
+
+        }
+    }
+
+    private void SendEmails()
+    {
+        
+        string message = $"Hi,\r\n\r\nAn Appeal Form was created for the following Recorded Discipline\r\n\r\nEmployee Number : {employeeInQuestion.EmployeeNumber}\r\nEmployee Name : {employeeInQuestion.FullName}\r\nOffence : {currentDiscipline.Id} - {offencename}\r\nDate of Offence : {currentDiscipline.DateString}\r\n\r\nPlease visit YODA for more information.\r\n\r\nRegards\r\nYork Online Document Assist";
+        //email to hr employee /  linmari
+        //email to employee chosen
+        //emailservice.SendEmailForAppeal(employeeInQuestion.EmailAddress, employeeToSend.EmailAddress, message, currentDiscipline.Id);
+        //email to self (attach document)
+        emailservice.SendEmailForAppeal(employeeInQuestion.EmailAddress, employeeInQuestion.EmailAddress, message, currentDiscipline.Id);
+    }
+
+
+}

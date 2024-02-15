@@ -1,0 +1,1114 @@
+﻿@page "/Consultation"
+
+<PageTitle>Consultation</PageTitle>
+
+@inject NavigationManager navManager
+@using YODA.Pages.CapexComponents
+@using YODA.Repos.Models
+@using YODA.Services
+@using System.Text
+@using DocumentFormat.OpenXml;
+@inject SharedDataService shareddataService
+@inject IEmployeeService empService
+@inject IRoleService roleService
+@inject IDisciplineService disciplineService
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+@using HtmlAgilityPack
+
+@using DocumentFormat.OpenXml.Packaging;
+@using DocumentFormat.OpenXml.Wordprocessing;
+@using A = DocumentFormat.OpenXml.Drawing;
+@using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
+@using RunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
+@using Break = DocumentFormat.OpenXml.Wordprocessing.Break;
+
+
+<WhiteContainer>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <button id="btnBack" @onclick="navToDisciplineUserPage" class="btn btn-dark" style="width:90px; float: right;  padding:5px; height:40px">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <center>
+        <img style="width:100px; height:100px" src="/Images/SVGYork.png" alt="" />
+        <h1>Employee Corrective Councelling</h1>
+    </center>
+
+    <center>
+        <div class="container d-flex justify-content-center align-items-center">
+            <div class="row">
+                <div class="col-12" style="width:700px">
+                   Fill in all required information, sign, download and submit.
+                </div>
+            </div>
+        </div>
+    </center>
+
+    <br />
+    <hr />
+    <br />
+
+    @if(counsellingNote.Id != 0)
+    {
+        <div class="container" style="">
+            <div class="row">
+                <div class="col-sm">
+                    <h4><strong>Counselling Note Information</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="container">
+            <div class="row">
+                <div class="col-6">
+                    <label for="CapexTitle">Counselling Note ID</label>
+                    <div class="alert alert-success">
+                        @counsellingNote.Id
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr />
+        <br />
+    }    
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Employee Information</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Employee ID</label>
+                <div class="alert alert-success">
+                    @employeeselected.EmployeeID
+                </div>
+            </div>
+            <div class="col-6">
+                <label for="CapexTitle">Employee Number</label>
+                <div class="alert alert-success">
+                    @employeeselected.EmployeeNumber
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Employee Full Name</label>
+                <div class="alert alert-success">
+                    @employeeselected.FullName
+                </div>
+            </div>
+            <div class="col-6">
+                <label for="CapexTitle">Job Title</label>
+                <div class="alert alert-success">
+                    @RoleName
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label for="CapexTitle">Department</label>
+                <div class="alert alert-success">
+                    @DepartmentName
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-6">
+                <h4><strong>Offence Type</strong></h4>
+            </div>
+            <div class="col-6">
+                <h4><strong>Date of Consultation</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label>Offence</label>
+                <select class="form-select" @bind="counsellingNote.OffenceID">
+                    <option value="">Select Offence...</option>
+                    @foreach(var item in offences)
+                    {
+                        <option value="@item.Id">@item.OffenceName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6">
+                <label for="CapexTitle">Date of Consultation</label>
+                <input type="date" class="form-control" @bind-value="counsellingNote.DateOfConsultation" />
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Details of the Performance or Rule Violation</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Details</label>
+                <RichTextEdit @ref="rteDetails"
+                              Theme="RichTextEditTheme.Snow"
+                              ContentChanged="OnDetailsChanged"
+                              PlaceHolder="Violation Details..."
+                              ReadOnly="false"
+                              SubmitOnEnter="false"
+                              ToolbarPosition="Placement.Top"
+                                Editor="GetViolationDetails()">
+                    <Toolbar>
+                        <RichTextEditToolbarGroup>
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                         </RichTextEditToolbarGroup>
+                     </Toolbar>
+                 </RichTextEdit>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Employee Response</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Response</label>
+                 <RichTextEdit @ref="rteResponse"
+                               Theme="RichTextEditTheme.Snow"
+                               ContentChanged="OnResponseChanged"
+                               PlaceHolder="Employee Response..."
+                               ReadOnly="false"
+                               SubmitOnEnter="false"
+                               ToolbarPosition="Placement.Top"
+                                Editor="GetResponse()">
+                     <Toolbar>
+                         <RichTextEditToolbarGroup>
+                             <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                         </RichTextEditToolbarGroup>
+                     </Toolbar>
+                 </RichTextEdit>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Action Plan</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <label for="CapexTitle">Plan</label>
+                 <RichTextEdit @ref="rteActionPlan"
+                               Theme="RichTextEditTheme.Snow"
+                               ContentChanged="OnActionPlanChanged"
+                               PlaceHolder="Action Plan..."
+                               ReadOnly="false"
+                               SubmitOnEnter="false"
+                               ToolbarPosition="Placement.Top"
+                                Editor="GetActionPlan()">
+                     <Toolbar>
+                         <RichTextEditToolbarGroup>
+                             <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                            <RichTextEditToolbarButton Action="RichTextEditAction.Underline" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                             <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                         </RichTextEditToolbarGroup>
+                     </Toolbar>
+                 </RichTextEdit>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container" style="">
+        <div class="row">
+            <div class="col-sm">
+                <h4><strong>Timeline for Improvement</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <label >Follow Up Consultation Date</label>
+                <input type="date" class="form-control" @bind="counsellingNote.FollowUpDate"/>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <hr />
+    <br />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-4">               
+                <button type="button" @onclick="ShowSignModal" class="btn btn-dark w-100" disabled="@showSign">Sign</button>
+            </div>
+            <div class="col-4">
+                <button type="button" @onclick="ShowSAEModal" class="btn btn-dark w-100" disabled="@showSaveAndExit">Save & Exit</button>
+            </div>
+            <div class="col-4">
+                <button type="button" @onclick="ShowConfirmModal" class="btn btn-dark w-100" disabled="@showIssueNote">Issue Consultation Note</button>
+            </div>
+        </div>
+    </div>
+
+    
+</WhiteContainer>
+
+ <Blazorise.Modal @ref="SignModal" Closing="@OnModalClosing">
+     <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Sign Councelling Note</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="alert alert-success" role="alert">
+                Are you sure you want to Sign this Counselling Note?
+            </div>
+            <br />
+            <Blazorise.Field>
+                <FieldLabel>User Name</FieldLabel>
+                <input type="text" @bind-value="username" class="form-control" />
+            </Blazorise.Field>
+            <br />
+            <Blazorise.Field>
+                <FieldLabel>Password</FieldLabel>
+                <input type="password" @bind-value="password" class="form-control" />
+            </Blazorise.Field>
+            <br />
+             <div style="text-align:center; max-width:100%; align-content:center; margin: 0 auto; margin-top:10px">
+                 <div class="container" style="max-width:40%">
+                     <div class="row">
+                        <button @onclick="checkForInputAndCorrectUserNameAndPassword" class="btn btn-dark">Sign</button>
+                     </div>
+                 </div>
+             </div>
+         </ModalBody>
+         <ModalFooter>
+             <button @onclick="HideSignModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+         </ModalFooter>
+     </Blazorise.ModalContent>
+ </Blazorise.Modal>
+
+<Blazorise.Modal @ref="ConfirmModal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Submit Counselling Note</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="alert alert-success" role="alert">
+                Are you sure you want to submit this Counselling Note?
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="saveAndExport" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="HideConfirmModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="SAEModal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Save & Exit Counselling Note</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="alert alert-success" role="alert">
+                Are you sure you want to save and exit this Counselling Note?
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="SaveAndExit" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Confirm</button>
+            <button @onclick="HideSAEModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="ErrorModal" Closing="@OnModalClosing">
+    <Blazorise.ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+            <div class="alert alert-success" role="alert">
+                @validationMessage
+            </div>
+        </ModalBody>
+        <ModalFooter>
+            <button @onclick="HideErrorModal" class="btn btn-dark" style="height:30px; width:fit-content; font-size:12px; padding:5px">Back</button>
+        </ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+ @code {
+    //variables
+    Employee employeeselected = new();
+    private CounsellingNotes counsellingNote = new();
+    private string DepartmentName = string.Empty;
+    private string RoleName = string.Empty;
+    private DateTime currentDate = DateTime.Now;
+    private List<Offence> offences = new();
+    private string? username = string.Empty;
+    private string? password = string.Empty;
+    private string? validationMessage = string.Empty;
+    private bool showIssueNote = true;
+    private bool showSign = false;
+    private bool showSaveAndExit = true;
+
+    protected RichTextEdit rteDetails = new();
+    protected RichTextEdit rteResponse = new();
+    protected RichTextEdit rteActionPlan = new();
+    protected string? DetailsAsHTML = string.Empty;
+    protected string? ResponseAsHTML = string.Empty;
+    protected string? ActionPlanAsHTML = string.Empty;
+    private bool isRichTextEditDetailsModified = false;
+    private bool isRichTextEditResponseModified = false;
+    private bool isRichTextEditActionPlanModified = false;
+
+    private Blazorise.Modal SignModal = new();
+    private Blazorise.Modal ConfirmModal = new();
+    private Blazorise.Modal ErrorModal = new();
+    private Blazorise.Modal SAEModal = new();
+    private bool cancelClose;
+
+
+
+    //Initialization--------------------------------------------------------------
+    protected override void OnInitialized()
+    {
+        if(shareddataService.disciplineNoteNum == 0)
+        {
+            employeeselected = empService.GetById(shareddataService.EmployeeID);
+            DepartmentName = empService.GetDepartment(employeeselected.DepartmentID).DepartmentName;
+            RoleName = roleService.GetRoleById(employeeselected.RoleID);
+            offences = disciplineService.GetOffencesForCounsellingNotes();
+        }
+        else
+        {
+            employeeselected = empService.GetById(shareddataService.EmployeeID);
+            DepartmentName = empService.GetDepartment(employeeselected.DepartmentID).DepartmentName;
+            RoleName = roleService.GetRoleById(employeeselected.RoleID);
+            offences = disciplineService.GetOffenceList();
+            counsellingNote.OffenceID = disciplineService.GetNoteByID(shareddataService.disciplineNoteNum).OffenceID;
+            counsellingNote.DateOfConsultation = disciplineService.GetNoteByID(shareddataService.disciplineNoteNum).DateOfConsultation;
+            counsellingNote.FollowUpDate = disciplineService.GetNoteByID(shareddataService.disciplineNoteNum).FollowUpDate;
+            counsellingNote.Id = disciplineService.GetNoteByID(shareddataService.disciplineNoteNum).Id;
+            counsellingNote.ViolationDetails = disciplineService.GetNoteByID(shareddataService.disciplineNoteNum).ViolationDetails;
+            counsellingNote.EmployeeResponse = disciplineService.GetNoteByID(shareddataService.disciplineNoteNum).EmployeeResponse;
+            counsellingNote.ActionPlan = disciplineService.GetNoteByID(shareddataService.disciplineNoteNum).ActionPlan;
+        }
+        isRichTextEditDetailsModified = false;
+        isRichTextEditResponseModified = false;
+        isRichTextEditActionPlanModified = false;
+
+    }
+
+    //Save Counselling Note
+    private void SaveCounsellingNote()
+    {
+        if (isRichTextEditDetailsModified)
+        {
+            counsellingNote.ViolationDetails = DetailsAsHTML;
+        }
+        if (isRichTextEditResponseModified)
+        {
+            counsellingNote.EmployeeResponse = ResponseAsHTML;
+        }
+        if (isRichTextEditActionPlanModified)
+        {
+            counsellingNote.ActionPlan = ActionPlanAsHTML;
+        }
+
+        counsellingNote.ElectronicSignDate = DateTime.Now;
+        counsellingNote.DateOfConsultation = currentDate;
+        counsellingNote.ElectronicSignConfirmation = 1;
+        counsellingNote.RecStatus = 1;
+        counsellingNote.SubmissionStatus = 1;
+        counsellingNote.EmployeeID = employeeselected.EmployeeID;
+        counsellingNote.ConsultantID = empService.GetSingleEmployee(shareddataService.UserName).EmployeeID;
+        disciplineService.SaveCounsellingNote(counsellingNote);       
+
+    }
+
+    //Save and Export
+    private async Task saveAndExport()
+    {        
+        SaveCounsellingNote();
+        await RunTemplate();
+        //navToDisciplineUserPage();
+        await HideConfirmModal();
+        navToDisciplineUserPage();
+    }
+
+    //Check for input
+    private void checkForInputAndCorrectUserNameAndPassword()
+    {
+        if (isRichTextEditDetailsModified)
+        {
+            counsellingNote.ViolationDetails = DetailsAsHTML;
+        }
+        if (isRichTextEditResponseModified)
+        {
+            counsellingNote.EmployeeResponse = ResponseAsHTML;
+        }
+        if (isRichTextEditActionPlanModified)
+        {
+            counsellingNote.ActionPlan = ActionPlanAsHTML;
+        }
+
+        if (!counsellingNote.OffenceID.HasValue || counsellingNote.DateOfConsultation == null)
+        {
+            validationMessage = "You have not entered the required information";
+            ShowErrorModal();
+            HideSignModal();
+            return;
+        }
+        if (username == shareddataService.UserName && password == shareddataService.Password && (DetailsAsHTML == string.Empty || ResponseAsHTML == string.Empty || ActionPlanAsHTML == string.Empty))
+        {
+            showSign = true;
+            showSaveAndExit = false;
+            HideSignModal();
+        }
+        else if (username == shareddataService.UserName && password == shareddataService.Password && !(DetailsAsHTML == string.Empty || ResponseAsHTML == string.Empty || ActionPlanAsHTML == string.Empty))
+        {
+            showIssueNote = false;
+            showSign = true;
+            showSaveAndExit = false;
+            HideSignModal();
+        }        
+        else
+        {
+            validationMessage = "Incorrect UserName and Password";
+            ShowErrorModal();
+        }
+    }
+
+
+
+
+
+    public async Task OnDetailsChanged()
+    {
+        DetailsAsHTML = await rteDetails.GetHtmlAsync();
+        isRichTextEditDetailsModified = true;
+    }
+
+    public async Task OnResponseChanged()
+    {
+        ResponseAsHTML = await rteResponse.GetHtmlAsync();
+        isRichTextEditResponseModified = true;
+    }
+
+    public async Task OnActionPlanChanged()
+    {
+        ActionPlanAsHTML = await rteActionPlan.GetHtmlAsync();
+        isRichTextEditActionPlanModified = true;
+    }
+
+    private void navToDisciplineUserPage()
+    {
+        navManager.NavigateTo("/Discipline");
+    }
+
+    private Task OnModalClosing(ModalClosingEventArgs e)
+    {
+        // just set Cancel to prevent modal from closing
+        e.Cancel = cancelClose
+            || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+    private Task ShowSignModal()
+    {
+        return SignModal.Show();
+    }
+
+    private Task HideSignModal()
+    {
+        return SignModal.Hide();
+    }
+
+    private Task ShowConfirmModal()
+    {
+        return ConfirmModal.Show();
+    }
+    private Task HideConfirmModal()
+    {
+        return ConfirmModal.Hide();
+    }
+
+    private Task ShowErrorModal()
+    {
+        return ErrorModal.Show();
+    }
+    private Task HideErrorModal()
+    {
+        return ErrorModal.Hide();
+    }
+    private Task ShowSAEModal()
+    {
+        return SAEModal.Show();
+    }
+    private Task HideSAEModal()
+    {
+        return SAEModal.Hide();
+    }
+
+    //variables save to word document on server and then download it
+    string localPath = "C:\\\\YODA";
+    string newPath = "C:\\\\YODA\\consultdoc.docx";
+    string template = "\\\\172.16.28.51\\YorkInfo\\Hr\\Templates\\EmployeeConsultation.docx";
+
+
+    public void PopulateWordTemplate(string template)
+    {
+        bool directoryExists = Directory.Exists(localPath);
+
+        if (!directoryExists)
+        {
+            //Create directory
+            Directory.CreateDirectory(localPath);
+        }
+        else
+        {
+            File.Copy(template, newPath);
+        }
+
+        MemoryStream memoryStream = new();
+        MainDocumentPart mainPart;
+
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(newPath, true))
+        {
+            var body = doc.MainDocumentPart.Document.Body;
+
+            //MAIN INFORMATION
+            ReplaceTextWithActualData(body);
+
+            //Protection
+            DocumentProtection dp = new DocumentProtection
+                {
+                    Edit = DocumentProtectionValues.ReadOnly,
+                    Enforcement = true
+                };
+
+            mainPart = doc.MainDocumentPart;
+            var settings = mainPart.DocumentSettingsPart;
+
+            if (settings == null)
+            {
+                settings = mainPart.AddNewPart<DocumentSettingsPart>();
+                settings.Settings = new Settings();
+            }
+
+            settings.Settings.AppendChild(dp);
+            settings.Settings.Save();
+
+            //RICH TEXT EDITS
+            //Violation Details
+            var placeholderText = "VioDetail";
+            var placeholderRun = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderText);
+                return placeholder != null;
+            });
+
+            if (placeholderRun != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + counsellingNote.ViolationDetails + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRun.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRun.Parent);
+
+                // Remove the placeholder text
+                placeholderRun.Remove();
+            }
+
+            // Save the modified document
+            doc.Save();
+
+            //Employee Response
+            var placeholderTextResponse = "EmpResp";
+            var placeholderRunResponse = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderTextResponse);
+                return placeholder != null;
+            });
+
+            if (placeholderRunResponse != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + counsellingNote.EmployeeResponse + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunResponse.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunResponse.Parent);
+
+                // Remove the placeholder text
+                placeholderRunResponse.Remove();
+            }
+
+            // Save the modified document
+            doc.Save();
+
+            //Action Plan
+            var placeholderTextAP = "actPlan";
+            var placeholderRunAP = body.Descendants<Run>().FirstOrDefault(run =>
+            {
+                var placeholder = run.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>().FirstOrDefault(t => t.Text == placeholderTextAP);
+                return placeholder != null;
+            });
+
+            if (placeholderRunAP != null)
+            {
+                // Convert HTML to AltChunk
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + counsellingNote.ActionPlan + "<html>"));
+                AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+                altformatImportPart.FeedData(ms);
+                AltChunk altChunk = new AltChunk();
+                altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+
+                // Replace the placeholder with the AltChunk
+                var parentParagraph = placeholderRunAP.Parent.Parent; // Assuming the placeholder is within a paragraph
+                parentParagraph.ReplaceChild(altChunk, placeholderRunAP.Parent);
+
+                // Remove the placeholder text
+                placeholderRunAP.Remove();
+            }
+
+            // Save the modified document
+            doc.Save();
+
+            //
+
+            #region not use viodetails
+            // if(counsellingNote.ViolationDetails != null)
+            // {
+            //     //HEADING
+            //     DocumentFormat.OpenXml.Wordprocessing.Paragraph headingDetailsParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            //     Run headingDetailsRun = headingDetailsParagraph.AppendChild(new Run());
+
+            //     RunProperties runSectionHeader1Properties = new RunProperties();
+            //     Bold boldSectionHeader1 = new Bold();
+            //     FontSize fontSizeSectionHeader1 = new FontSize() { Val = "32" };
+            //     RunFonts fontTypeSectionHeader1 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            //     runSectionHeader1Properties.Append(boldSectionHeader1, fontSizeSectionHeader1, fontTypeSectionHeader1);
+
+            //     DocumentFormat.OpenXml.Wordprocessing.Text Section1Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Violation Details of Offence");
+            //     headingDetailsRun.Append(runSectionHeader1Properties, Section1Text);
+
+            //     MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>"+counsellingNote.ViolationDetails+"<html>"));
+            //     AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+            //     altformatImportPart.FeedData(ms);
+            //     AltChunk altChunk = new();
+            //     altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+            //     doc.MainDocumentPart.Document.Body.Append(altChunk);
+            //     doc.Save();
+            // }
+            #endregion
+
+            #region not use empresponse
+            // if(counsellingNote.EmployeeResponse != null)
+            // {
+            //     //HEADING
+            //     DocumentFormat.OpenXml.Wordprocessing.Paragraph headingResponseParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            //     Run headingResponseRun = headingResponseParagraph.AppendChild(new Run());
+
+            //     RunProperties runSectionHeader2Properties = new RunProperties();
+            //     Bold boldSectionHeader2 = new Bold();
+            //     FontSize fontSizeSectionHeader2 = new FontSize() { Val = "32" };
+            //     RunFonts fontTypeSectionHeader2 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            //     runSectionHeader2Properties.Append(boldSectionHeader2, fontSizeSectionHeader2, fontTypeSectionHeader2);
+
+            //     DocumentFormat.OpenXml.Wordprocessing.Text Section2Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Employee Response");
+            //     headingResponseRun.Append(runSectionHeader2Properties, Section2Text);
+
+            //     MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + counsellingNote.EmployeeResponse + "<html>"));
+            //     AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+            //     altformatImportPart.FeedData(ms);
+            //     AltChunk altChunk = new();
+            //     altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+            //     doc.MainDocumentPart.Document.Body.Append(altChunk);
+            //     doc.Save();
+            // }
+
+            #endregion 
+
+            #region not use actionplan
+            // if(counsellingNote.ActionPlan != null)
+            // {
+            //     //HEADING
+            //     DocumentFormat.OpenXml.Wordprocessing.Paragraph headingAPParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            //     Run headingAPRun = headingAPParagraph.AppendChild(new Run());
+
+            //     RunProperties runSectionHeader3Properties = new RunProperties();
+            //     Bold boldSectionHeader3 = new Bold();
+            //     FontSize fontSizeSectionHeader3 = new FontSize() { Val = "32" };
+            //     RunFonts fontTypeSectionHeader3 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            //     runSectionHeader3Properties.Append(boldSectionHeader3, fontSizeSectionHeader3, fontTypeSectionHeader3);
+
+            //     DocumentFormat.OpenXml.Wordprocessing.Text Section3Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Action Plan");
+            //     headingAPRun.Append(runSectionHeader3Properties, Section3Text);
+
+            //     MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes("<html>" + counsellingNote.ActionPlan + "<html>"));
+            //     AlternativeFormatImportPart altformatImportPart = doc.MainDocumentPart.AddAlternativeFormatImportPart(AlternativeFormatImportPartType.Html);
+            //     altformatImportPart.FeedData(ms);
+            //     AltChunk altChunk = new();
+            //     altChunk.Id = doc.MainDocumentPart.GetIdOfPart(altformatImportPart);
+            //     doc.MainDocumentPart.Document.Body.Append(altChunk);
+            //     doc.Save();
+            // }
+            #endregion
+
+            #region not use sign
+            // //HEADING
+            // DocumentFormat.OpenXml.Wordprocessing.Paragraph headingSignParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            // Run headingSignRun = headingSignParagraph.AppendChild(new Run());
+
+            // RunProperties runSectionHeader4Properties = new RunProperties();
+            // Bold boldSectionHeader4 = new Bold();
+            // FontSize fontSizeSectionHeader4 = new FontSize() { Val = "32" };
+            // RunFonts fontTypeSectionHeader4 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            // runSectionHeader4Properties.Append(boldSectionHeader4, fontSizeSectionHeader4, fontTypeSectionHeader4);
+
+            // DocumentFormat.OpenXml.Wordprocessing.Text Section4Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Sign");
+            // headingSignRun.Append(runSectionHeader4Properties, Section4Text);
+
+            // //Text to sign
+            // DocumentFormat.OpenXml.Wordprocessing.Paragraph headingSTParagraph = body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph());
+            // Run headingSTRun = headingSignParagraph.AppendChild(new Run());
+
+            // RunProperties runSectionHeader5Properties = new RunProperties();
+            // Bold boldSectionHeader5 = new Bold();
+            // FontSize fontSizeSectionHeader5 = new FontSize() { Val = "14" };
+            // RunFonts fontTypeSectionHeader5 = new RunFonts() { Ascii = "Times New Roman" };// Font size in half-points (36 = 18pt)
+            // runSectionHeader5Properties.Append(boldSectionHeader5, fontSizeSectionHeader5, fontTypeSectionHeader5);
+
+            // DocumentFormat.OpenXml.Wordprocessing.Text Section5Text = new DocumentFormat.OpenXml.Wordprocessing.Text("Consultant Signature: _________________");
+            // headingSTRun.Append(runSectionHeader5Properties, Section5Text);
+            #endregion
+
+        }
+    }
+
+    private void ReplaceTextWithActualData(Body body)
+    {
+        foreach(var text in body.Descendants<DocumentFormat.OpenXml.Wordprocessing.Text>())
+        {
+            if (text.Text.Contains("noteid"))
+            {
+                text.Text = text.Text.Replace("noteid", counsellingNote.Id.ToString());
+            }
+            if (text.Text.Contains("Empid"))
+            {
+                text.Text = text.Text.Replace("Empid", counsellingNote.EmployeeID.ToString());
+            }
+            if (text.Text.Contains("EmpNum"))
+            {
+                text.Text = text.Text.Replace("EmpNum", employeeselected.EmployeeNumber);
+            }
+            if (text.Text.Contains("EmpName"))
+            {
+                text.Text = text.Text.Replace("EmpName", employeeselected.FullName);
+            }
+            if (text.Text.Contains("JobTitle"))
+            {
+                text.Text = text.Text.Replace("JobTitle", RoleName);
+            }
+            if (text.Text.Contains("Dept"))
+            {
+                text.Text = text.Text.Replace("Dept", DepartmentName);
+            }
+            if (text.Text.Contains("ConsultDate"))
+            {
+                text.Text = text.Text.Replace("ConsultDate", counsellingNote.DateOfConsultation.ToString());
+            }
+            if (text.Text.Contains("ConsultOffence"))
+            {
+                text.Text = text.Text.Replace("ConsultOffence", offences.FirstOrDefault(x=>x.Id == counsellingNote.OffenceID).OffenceName);
+            }
+            if (text.Text.Contains("DateFollowUp"))
+            {
+                text.Text = text.Text.Replace("DateFollowUp", counsellingNote.FollowUpDate.ToString());
+            }
+            if (text.Text.Contains("elecSign"))
+            {
+                text.Text = text.Text.Replace("elecSign", counsellingNote.ElectronicSignDate.ToString());
+            }
+            if (text.Text.Contains("consultName"))
+            {
+                text.Text = text.Text.Replace("consultName", empService.GetSingleEmployee(shareddataService.UserName).FullName);
+            }
+
+            #region not used text to openxml
+            // if(counsellingNote.ViolationDetails != null)
+            // {
+            //     // HtmlDocument htmldocvd = new HtmlDocument();
+            //     // htmldocvd.LoadHtml(counsellingNote.ViolationDetails);
+
+            //     string vd = string.Empty;
+            //     text.Text = text.Text.Replace("ConsultDetails", counsellingNote.ViolationDetails);
+
+            //     //text.Text = text.Text.Replace("ConsultDetails", "");
+
+            //     // HtmlNodeCollection ViolationDetailsParagraph = htmldocvd.DocumentNode.SelectNodes("//p");
+            //     // foreach(HtmlNode node in ViolationDetailsParagraph)
+            //     // {
+            //     //     vd = node.InnerText;
+            //     // }
+            //     // if (text.Text.Contains("ConsultDetails"))
+            //     // {
+            //     //     text.Text = text.Text.Replace("ConsultDetails", vd);
+            //     // }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("ConsultDetails"))
+            //     {
+            //         text.Text = text.Text.Replace("ConsultDetails", "");
+            //     }
+            // }
+
+            // if(counsellingNote.EmployeeResponse != null)
+            // {
+            //     HtmlDocument htmldocer = new HtmlDocument();
+            //     htmldocer.LoadHtml(counsellingNote.EmployeeResponse);
+
+            //     string er = string.Empty;
+
+            //     HtmlNodeCollection EmployeeResponseParagraph = htmldocer.DocumentNode.SelectNodes("//p");
+            //     foreach(HtmlNode node in EmployeeResponseParagraph)
+            //     {
+            //         er = node.InnerText;
+            //     }
+            //     if (text.Text.Contains("ConsultResponse"))
+            //     {
+            //         text.Text = text.Text.Replace("ConsultResponse", er);
+            //     }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("ConsultResponse"))
+            //     {
+            //         text.Text = text.Text.Replace("ConsultResponse", "");
+            //     }
+            // }
+
+            // if(counsellingNote.ActionPlan != null)
+            // {
+            //     HtmlDocument htmldocap = new HtmlDocument();
+            //     htmldocap.LoadHtml(counsellingNote.ActionPlan);
+
+            //     string ap = string.Empty;
+
+            //     HtmlNodeCollection ActionPlanParagraph = htmldocap.DocumentNode.SelectNodes("//p");
+            //     foreach(HtmlNode node in ActionPlanParagraph)
+            //     {
+            //         ap = node.InnerText;
+            //     }
+            //     if (text.Text.Contains("ConsultActionPlan"))
+            //     {
+            //         text.Text = text.Text.Replace("ConsultActionPlan", ap);
+            //     }
+            // }
+            // else
+            // {
+            //     if (text.Text.Contains("ConsultActionPlan"))
+            //     {
+            //         text.Text = text.Text.Replace("ConsultActionPlan", "");
+            //     }
+            // }
+            #endregion
+
+        }
+    }
+
+    private async Task RunTemplate()
+    {
+        //string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\EmployeeDiscipline\\{employeeselected.EmployeeID}\\CounsellingNote{counsellingNote.Id}.docx";
+        string ftpLocation = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employeeselected.EmployeeID}\\EmployeeDiscipline\\CounsellingNote{counsellingNote.Id}\\CounsellingNote{counsellingNote.Id}.docx";
+        string ftpDirectory = $"\\\\172.16.28.51\\YorkInfo\\Hr\\{employeeselected.EmployeeID}\\EmployeeDiscipline\\CounsellingNote{counsellingNote.Id}";
+
+        bool directoryExists = Directory.Exists(ftpDirectory);
+
+        if (!directoryExists)
+        {
+            Directory.CreateDirectory(ftpDirectory);
+        }
+
+        PopulateWordTemplate(template);
+
+        if (File.Exists(newPath))
+        {
+            byte[] fileBytes = File.ReadAllBytes(newPath);
+            await jsRuntime.InvokeAsync<object>("saveAsFile", $"CounsellingNote{counsellingNote.Id}.docx", fileBytes);
+        }
+
+        File.Copy(newPath, ftpLocation);
+
+
+        if (File.Exists(newPath))
+        {
+            File.Delete(newPath);
+        }
+    }
+
+    private void SaveAndExit()
+    {
+        if (isRichTextEditDetailsModified)
+        {
+            counsellingNote.ViolationDetails = DetailsAsHTML;
+        }
+        if (isRichTextEditResponseModified)
+        {
+            counsellingNote.EmployeeResponse = ResponseAsHTML;
+        }
+        if (isRichTextEditActionPlanModified)
+        {
+            counsellingNote.ActionPlan = ActionPlanAsHTML;
+        }
+        if (!counsellingNote.OffenceID.HasValue)
+        {
+            validationMessage = "You have not entered the required information";
+            ShowErrorModal();
+            HideSAEModal();
+            return;
+        }
+        counsellingNote.SubmissionStatus = 0;
+        counsellingNote.RecStatus = 1;
+        counsellingNote.EmployeeID = employeeselected.EmployeeID;
+
+        if(counsellingNote.ConsultantID == null)
+        {
+            counsellingNote.ConsultantID = empService.GetSingleEmployee(shareddataService.UserName).EmployeeID;
+        }
+
+        disciplineService.SaveCounsellingNote(counsellingNote);
+        //disciplineService.UpdateCounsellingNote(counsellingNote);
+        HideSAEModal();
+        navManager.NavigateTo("/Discipline");
+    }
+
+    private RenderFragment GetViolationDetails()
+    {
+        return builder =>
+        {
+            builder.AddMarkupContent(0, counsellingNote.ViolationDetails);
+        };
+    }
+
+    private RenderFragment GetResponse()
+    {
+        return builder =>
+        {
+            builder.AddMarkupContent(0, counsellingNote.EmployeeResponse);
+        };
+    }
+
+    private RenderFragment GetActionPlan()
+    {
+        return builder =>
+        {
+            builder.AddMarkupContent(0, counsellingNote.ActionPlan);
+        };
+    }
+
+  
+
+
+}
